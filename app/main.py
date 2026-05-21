@@ -26,6 +26,8 @@ from app.models import espaco as _espaco_model          # noqa
 from app.models import votacao as _votacao_model        # noqa
 from app.models import documento as _documento_model    # noqa
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -40,6 +42,48 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s — %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def _init_db():
+    _migrations = {
+        "usuarios": [
+            ("reset_token",        "VARCHAR"),
+            ("reset_token_expira", "TIMESTAMP"),
+        ],
+        "moradores": [
+            ("senha_hash",            "VARCHAR"),
+            ("convite_token",         "VARCHAR"),
+            ("lgpd_aceite",           "BOOLEAN DEFAULT 0"),
+            ("lgpd_aceite_em",        "TIMESTAMP"),
+            ("primeiro_acesso",       "BOOLEAN DEFAULT 1"),
+            ("convite_token_expira",  "TIMESTAMP"),
+        ],
+    }
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Tabelas verificadas/criadas com sucesso.")
+    except Exception as e:
+        logger.error("Erro ao criar tabelas: %s", e)
+        return
+    try:
+        with engine.connect() as conn:
+            for table, cols in _migrations.items():
+                for col, col_type in cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+                        conn.commit()
+                        logger.info("Coluna '%s' adicionada à tabela %s.", col, table)
+                    except Exception:
+                        conn.rollback()
+    except Exception as e:
+        logger.warning("Migração automática ignorada: %s", e)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _init_db()
+    yield
+
 
 # ── Validação de variáveis críticas ───────────────────────────
 _SECRET_KEY = os.getenv("SECRET_KEY", "")
@@ -62,7 +106,7 @@ _raw_origins = os.getenv(
 )
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
-app = FastAPI(title="Condominio SaaS MVP")
+app = FastAPI(title="Condominio SaaS MVP", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -89,41 +133,6 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("Erro não tratado em %s %s: %s", request.method, request.url.path, exc)
     return JSONResponse(status_code=500, content={"detail": "Erro interno do servidor."})
 
-
-try:
-    Base.metadata.create_all(bind=engine)
-    logger.info("Tabelas verificadas/criadas com sucesso.")
-except Exception as _e:
-    logger.error("Erro ao criar tabelas: %s", _e)
-
-# Migração automática — adiciona colunas novas em DBs existentes
-# Usa TIMESTAMP em vez de DATETIME (compatível com PostgreSQL e SQLite)
-_migrations = {
-    "usuarios": [
-        ("reset_token",        "VARCHAR"),
-        ("reset_token_expira", "TIMESTAMP"),
-    ],
-    "moradores": [
-        ("senha_hash",     "VARCHAR"),
-        ("convite_token",  "VARCHAR"),
-        ("lgpd_aceite",           "BOOLEAN DEFAULT 0"),
-        ("lgpd_aceite_em",        "TIMESTAMP"),
-        ("primeiro_acesso",       "BOOLEAN DEFAULT 1"),
-        ("convite_token_expira",  "TIMESTAMP"),
-    ],
-}
-try:
-    with engine.connect() as _conn:
-        for _table, _cols in _migrations.items():
-            for _col, _type in _cols:
-                try:
-                    _conn.execute(text(f"ALTER TABLE {_table} ADD COLUMN {_col} {_type}"))
-                    _conn.commit()
-                    logger.info("Coluna '%s' adicionada à tabela %s.", _col, _table)
-                except Exception:
-                    _conn.rollback()  # reseta transação para próxima coluna
-except Exception as _e:
-    logger.warning("Migração automática ignorada: %s", _e)
 
 app.include_router(condominios.router)
 app.include_router(moradores.router)
