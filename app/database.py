@@ -3,7 +3,11 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./condominio.db")
+DATABASE_URL = (
+    os.getenv("DATABASE_URL") or
+    os.getenv("DATABASE_PUBLIC_URL") or
+    "sqlite:///./condominio.db"
+)
 # Railway entrega postgres:// mas SQLAlchemy requer postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
