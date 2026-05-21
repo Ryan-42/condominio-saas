@@ -90,32 +90,40 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": "Erro interno do servidor."})
 
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+    logger.info("Tabelas verificadas/criadas com sucesso.")
+except Exception as _e:
+    logger.error("Erro ao criar tabelas: %s", _e)
 
 # Migração automática — adiciona colunas novas em DBs existentes
+# Usa TIMESTAMP em vez de DATETIME (compatível com PostgreSQL e SQLite)
 _migrations = {
     "usuarios": [
         ("reset_token",        "VARCHAR"),
-        ("reset_token_expira", "DATETIME"),
+        ("reset_token_expira", "TIMESTAMP"),
     ],
     "moradores": [
         ("senha_hash",     "VARCHAR"),
         ("convite_token",  "VARCHAR"),
         ("lgpd_aceite",           "BOOLEAN DEFAULT 0"),
-        ("lgpd_aceite_em",        "DATETIME"),
+        ("lgpd_aceite_em",        "TIMESTAMP"),
         ("primeiro_acesso",       "BOOLEAN DEFAULT 1"),
-        ("convite_token_expira",  "DATETIME"),
+        ("convite_token_expira",  "TIMESTAMP"),
     ],
 }
-with engine.connect() as _conn:
-    for _table, _cols in _migrations.items():
-        for _col, _type in _cols:
-            try:
-                _conn.execute(text(f"ALTER TABLE {_table} ADD COLUMN {_col} {_type}"))
-                _conn.commit()
-                logger.info("Coluna '%s' adicionada à tabela %s.", _col, _table)
-            except Exception:
-                pass  # coluna já existe
+try:
+    with engine.connect() as _conn:
+        for _table, _cols in _migrations.items():
+            for _col, _type in _cols:
+                try:
+                    _conn.execute(text(f"ALTER TABLE {_table} ADD COLUMN {_col} {_type}"))
+                    _conn.commit()
+                    logger.info("Coluna '%s' adicionada à tabela %s.", _col, _table)
+                except Exception:
+                    _conn.rollback()  # reseta transação para próxima coluna
+except Exception as _e:
+    logger.warning("Migração automática ignorada: %s", _e)
 
 app.include_router(condominios.router)
 app.include_router(moradores.router)
