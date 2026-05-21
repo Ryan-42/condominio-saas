@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CondoSYS — Criar Conta</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#06060f">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      .login-logo  { opacity: 0; animation: fadeUp .5s ease .1s forwards; }
+      .login-card  { opacity: 0; animation: fadeUp .5s ease .25s forwards; }
+      .login-card-body .field:nth-child(1) { opacity:0; animation: fadeUp .4s ease .35s forwards; }
+      .login-card-body .field:nth-child(2) { opacity:0; animation: fadeUp .4s ease .42s forwards; }
+      .login-card-body .field:nth-child(3) { opacity:0; animation: fadeUp .4s ease .49s forwards; }
+      .login-card-body .field:nth-child(4) { opacity:0; animation: fadeUp .4s ease .56s forwards; }
+      .login-card-body .field:nth-child(5) { opacity:0; animation: fadeUp .4s ease .63s forwards; }
+      .login-card-body .btn-login { opacity:0; animation: fadeUp .4s ease .72s forwards; }
+    }
+
+    .reg-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 18px;
+    }
+    .reg-divider-line { flex: 1; height: 1px; background: var(--border); }
+    .reg-divider-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body class="login-page">
+
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <main>
+  <div class="login-wrap">
+
+    <div class="login-logo">
+      <span class="logo-glyph">⬡</span>
+      <div class="logo-stack">
+        <span class="logo-main">CONDO//SYS</span>
+        <span class="logo-sub">CRIAR CONTA DE SÍNDICO · v2.4.1</span>
+      </div>
+    </div>
+
+    <div class="login-card">
+
+      <div class="login-card-corner tl"></div>
+      <div class="login-card-corner tr"></div>
+      <div class="login-card-corner bl"></div>
+      <div class="login-card-corner br"></div>
+
+      <div class="login-card-header">
+        <span class="login-card-prefix">//</span>
+        <span class="login-card-title">NOVO CADASTRO</span>
+      </div>
+
+      <div class="login-card-body">
+
+        <!-- Dados do síndico -->
+        <div class="reg-divider">
+          <div class="reg-divider-line"></div>
+          <span class="reg-divider-label">DADOS DO SÍNDICO</span>
+          <div class="reg-divider-line"></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-nome">NOME COMPLETO</label>
+          <input class="field-input" type="text" id="reg-nome" placeholder="Ex: João da Silva"
+            autocomplete="name" spellcheck="false">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-email">E-MAIL</label>
+          <input class="field-input" type="email" id="reg-email" placeholder="seu@email.com"
+            autocomplete="email" spellcheck="false">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-senha">SENHA</label>
+          <input class="field-input" type="password" id="reg-senha" placeholder="Mínimo 8 caracteres"
+            autocomplete="new-password">
+        </div>
+
+        <!-- Dados do condomínio -->
+        <div class="reg-divider" style="margin-top:20px;">
+          <div class="reg-divider-line"></div>
+          <span class="reg-divider-label">DADOS DO CONDOMÍNIO</span>
+          <div class="reg-divider-line"></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-condo-nome">NOME DO CONDOMÍNIO</label>
+          <input class="field-input" type="text" id="reg-condo-nome" placeholder="Ex: Edifício Central"
+            spellcheck="false">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-unidades">QUANTIDADE DE UNIDADES</label>
+          <input class="field-input" type="number" id="reg-unidades" placeholder="Ex: 48"
+            min="1" max="9999">
+        </div>
+
+        <div id="reg-feedback" class="login-feedback" style="margin-top:4px;"></div>
+
+        <button type="button" class="btn-login" id="btn-registrar" onclick="submitRegistro()">
+          CRIAR CONTA E ENTRAR
+        </button>
+
+        <div style="text-align:center;margin-top:-4px;">
+          <a href="login.html"
+            style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);letter-spacing:1px;text-decoration:underline;cursor:pointer;">
+            Já tenho uma conta — Entrar
+          </a>
+        </div>
+
+      </div>
+
+      <div class="login-card-footer">
+        <div class="login-status" style="display:flex;align-items:center;gap:8px;">
+          <span class="sys-dot" id="api-dot" style="width:7px;height:7px;"></span>
+          <span id="login-api-status">Verificando sistema...</span>
+        </div>
+        <span class="login-version">v2.4.1 · SECURE</span>
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:20px;padding:14px 28px;border-top:1px solid var(--border);background:rgba(16,185,129,.02);">
+        <a href="privacidade.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Privacidade</a>
+        <a href="termos.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Termos de Uso</a>
+        <a href="mailto:contato@condosys.com.br" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;">Suporte</a>
+      </div>
+
+    </div>
+
+  </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="Space.js"></script>
+  <script>
+    // ── Status da API ─────────────────────────────────────────
+    async function verificarAPI() {
+      const el  = document.getElementById("login-api-status");
+      const dot = document.getElementById("api-dot");
+      try {
+        const res = await fetch(`${API_BASE}/`);
+        if (res.ok) {
+          if (el)  el.textContent = "Sistema online";
+          if (dot) { dot.classList.add("ok"); dot.classList.remove("erro"); }
+        } else throw new Error();
+      } catch {
+        if (el)  el.textContent = "Sistema offline";
+        if (dot) { dot.classList.add("erro"); dot.classList.remove("ok"); }
+      }
+    }
+    document.addEventListener("DOMContentLoaded", verificarAPI);
+
+    // ── Registro ──────────────────────────────────────────────
+    async function submitRegistro() {
+      const nome     = document.getElementById("reg-nome").value.trim();
+      const email    = document.getElementById("reg-email").value.trim();
+      const senha    = document.getElementById("reg-senha").value;
+      const condo    = document.getElementById("reg-condo-nome").value.trim();
+      const unidades = parseInt(document.getElementById("reg-unidades").value) || 0;
+      const btn      = document.getElementById("btn-registrar");
+
+      if (!nome || !email || !senha || !condo || !unidades) {
+        setFeedback("Preencha todos os campos.", "erro");
+        return;
+      }
+      if (senha.length < 8) {
+        setFeedback("A senha deve ter pelo menos 8 caracteres.", "erro");
+        return;
+      }
+      if (unidades < 1) {
+        setFeedback("Informe pelo menos 1 unidade.", "erro");
+        return;
+      }
+
+      btn.disabled  = true;
+      btn.innerText = "CRIANDO CONTA…";
+
+      try {
+        const res = await fetch(`${API_BASE}/registro`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            email,
+            senha,
+            nome_condominio: condo,
+            quantidade_unidades: unidades,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setFeedback(data.detail || "Erro ao criar conta.", "erro");
+          btn.disabled  = false;
+          btn.innerText = "CRIAR CONTA E ENTRAR";
+          return;
+        }
+
+        sessionStorage.setItem("token",   data.access_token);
+        sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+        setFeedback("Conta criada! Redirecionando…", "ok");
+        setTimeout(() => { window.location.href = "index.html"; }, 1000);
+
+      } catch (err) {
+        console.error(err);
+        setFeedback("Sem conexão com o servidor.", "erro");
+        btn.disabled  = false;
+        btn.innerText = "CRIAR CONTA E ENTRAR";
+      }
+    }
+
+    function setFeedback(msg, tipo) {
+      const el = document.getElementById("reg-feedback");
+      if (el) { el.textContent = msg; el.className = "login-feedback " + tipo; }
+    }
+
+    // Enter submete
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submitRegistro();
+    });
+  </script>
+</body>
+</html>

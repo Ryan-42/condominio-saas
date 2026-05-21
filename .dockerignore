@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+.env
+condominio.db
+test.db
+.git
+.github
+tests/
+*.md

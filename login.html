@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CondoSYS — Acesso</title>
+
+  <!-- Fontes usadas pelo styles.css -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#06060f">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- SEU styles.css — contém todas as classes do login -->
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      .login-logo {
+        opacity: 0;
+        animation: fadeUp .5s ease .1s forwards;
+      }
+      .login-card {
+        opacity: 0;
+        animation: fadeUp .5s ease .25s forwards;
+      }
+      .login-card-body .field:nth-child(1) {
+        opacity: 0;
+        animation: fadeUp .4s ease .4s forwards;
+      }
+      .login-card-body .field:nth-child(2) {
+        opacity: 0;
+        animation: fadeUp .4s ease .5s forwards;
+      }
+      .login-card-body .btn-login {
+        opacity: 0;
+        animation: fadeUp .4s ease .6s forwards;
+      }
+    }
+  </style>
+</head>
+
+<body class="login-page">
+
+  <!-- Canvas do Space.js — id obrigatório: space-canvas -->
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <main>
+  <!-- Wrapper centralizado pelo body.login-page do styles.css -->
+  <div class="login-wrap">
+
+    <!-- Logo acima do card -->
+    <div class="login-logo">
+      <span class="logo-glyph">⬡</span>
+      <div class="logo-stack">
+        <span class="logo-main">CONDO//SYS</span>
+        <span class="logo-sub">PLATAFORMA DE GESTÃO · v2.4.1</span>
+      </div>
+    </div>
+
+    <!-- Card principal -->
+    <div class="login-card">
+
+      <!-- Cantos decorativos -->
+      <div class="login-card-corner tl"></div>
+      <div class="login-card-corner tr"></div>
+      <div class="login-card-corner bl"></div>
+      <div class="login-card-corner br"></div>
+
+      <!-- Header do card -->
+      <div class="login-card-header">
+        <span class="login-card-prefix">//</span>
+        <span class="login-card-title">ACESSO AO SISTEMA</span>
+      </div>
+
+      <!-- Body do card -->
+      <div class="login-card-body">
+
+        <!-- Campo email -->
+        <div class="field">
+          <label class="field-label" for="login-email">E-MAIL</label>
+          <input
+            class="field-input"
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+            spellcheck="false"
+          >
+        </div>
+
+        <!-- Campo senha -->
+        <div class="field">
+          <label class="field-label" for="login-senha">SENHA</label>
+          <input
+            class="field-input"
+            type="password"
+            id="login-senha"
+            name="senha"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <!-- Feedback de erro/sucesso -->
+        <div id="login-feedback" class="login-feedback"></div>
+        <div id="login-morador-hint" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:.5px;line-height:1.6;padding:8px 12px;background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.20);border-radius:6px;margin-top:-4px;">
+          Morador? Verifique o e-mail de convite para ativar sua conta antes de acessar.
+        </div>
+
+        <!-- Botão de login -->
+        <button
+          type="button"
+          class="btn-login"
+          id="btn-entrar"
+          onclick="submitLogin()"
+        >
+          ENTRAR NA PLATAFORMA
+        </button>
+
+        <!-- Links de ação -->
+        <div style="text-align:center;margin-top:-8px;display:flex;justify-content:center;gap:24px;">
+          <button type="button" onclick="toggleEsqueciSenha()"
+            style="background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);letter-spacing:1px;padding:4px 0;text-decoration:underline;">
+            Esqueci minha senha
+          </button>
+          <a href="registro.html"
+            style="font-family:var(--font-mono);font-size:11px;color:var(--p3);letter-spacing:1px;padding:4px 0;text-decoration:underline;">
+            Criar conta
+          </a>
+        </div>
+
+        <!-- Painel Esqueci Senha (oculto por padrão) -->
+        <div id="painel-esqueci" style="display:none;border-top:1px solid var(--border);padding-top:20px;margin-top:4px;">
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);letter-spacing:.5px;margin-bottom:14px;line-height:1.6;">
+            Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha.
+          </p>
+          <div class="field">
+            <label class="field-label" for="reset-email">E-MAIL DA CONTA</label>
+            <input class="field-input" type="email" id="reset-email" placeholder="seu@email.com" autocomplete="email">
+          </div>
+          <div id="reset-feedback" class="login-feedback" style="margin-top:8px;"></div>
+          <button type="button" id="btn-reset" onclick="submitEsqueciSenha()"
+            style="margin-top:14px;width:100%;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:2px;color:var(--lavender);background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:var(--radius);padding:13px;cursor:pointer;transition:background .2s,box-shadow .2s;">
+            <span id="btn-reset-label">ENVIAR LINK DE RECUPERAÇÃO</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Footer do card -->
+      <div class="login-card-footer">
+        <div class="login-status" style="display:flex;align-items:center;gap:8px;">
+          <span
+            class="sys-dot"
+            id="api-dot"
+            style="width:7px;height:7px;"
+          ></span>
+          <span id="login-api-status">Verificando sistema...</span>
+        </div>
+        <span class="login-version">v2.4.1 · SECURE</span>
+      </div>
+
+      <!-- Links legais -->
+      <div style="display:flex;justify-content:center;gap:20px;padding:14px 28px;border-top:1px solid var(--border);background:rgba(16,185,129,.02);">
+        <a href="privacidade.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Privacidade</a>
+        <a href="termos.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Termos de Uso</a>
+        <a href="mailto:contato@condosys.com.br" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;">Suporte</a>
+      </div>
+
+    </div>
+    <!-- /login-card -->
+
+  </div>
+  <!-- /login-wrap -->
+  </main>
+
+  <!-- Space.js ANTES do auth_client.js -->
+  <script src="config.js"></script>
+  <script src="Space.js"></script>
+  <script src="auth_client.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+</html>

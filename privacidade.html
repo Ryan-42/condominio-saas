@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidade — CONDO//SYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#06060f">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .legal-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .legal-logo {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 48px;
+    }
+    .legal-logo a {
+      display: flex; align-items: center; gap: 16px; text-decoration: none;
+    }
+    .legal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(110,45,235,.15);
+      position: relative;
+    }
+    .legal-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--grad);
+    }
+    .legal-header {
+      padding: 24px 36px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(48,45,235,.06);
+    }
+    .legal-tag {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px;
+      color: var(--p4); margin-bottom: 8px; display: block;
+    }
+    .legal-title {
+      font-family: var(--font-display); font-size: 20px; font-weight: 700;
+      color: var(--text-bright); letter-spacing: 2px;
+    }
+    .legal-date {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+      margin-top: 6px;
+    }
+    .legal-body {
+      padding: 36px;
+      display: flex; flex-direction: column; gap: 32px;
+    }
+    .legal-section h2 {
+      font-family: var(--font-ui); font-size: 14px; font-weight: 700;
+      letter-spacing: 2px; color: var(--lavender);
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .legal-section p, .legal-section li {
+      font-family: var(--font-ui); font-size: 14px; line-height: 1.8;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .legal-section ul {
+      padding-left: 20px; list-style: none;
+    }
+    .legal-section ul li::before {
+      content: '▸ '; color: var(--p3); font-size: 12px;
+    }
+    .legal-section a { color: var(--lavender); text-decoration: underline; }
+    .legal-footer {
+      padding: 20px 36px;
+      border-top: 1px solid var(--border);
+      background: rgba(48,45,235,.04);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .legal-footer a {
+      font-family: var(--font-mono); font-size: 11px; color: var(--lavender);
+      text-decoration: none; letter-spacing: 1px;
+    }
+    .legal-footer a:hover { color: var(--p4); }
+    @media (max-width: 600px) {
+      .legal-wrap { padding: 32px 16px; }
+      .legal-body { padding: 24px 20px; }
+      .legal-header { padding: 20px 20px; }
+      .legal-footer { padding: 16px 20px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="login-page">
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <div class="legal-wrap">
+    <div class="legal-logo">
+      <a href="login.html">
+        <span class="logo-glyph">⬡</span>
+        <div class="logo-stack">
+          <span class="logo-main">CONDO//SYS</span>
+          <span class="logo-sub">PLATAFORMA DE GESTÃO</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="legal-panel">
+      <div class="legal-header">
+        <span class="legal-tag">// DOCUMENTO LEGAL</span>
+        <div class="legal-title">POLÍTICA DE PRIVACIDADE</div>
+        <div class="legal-date">Última atualização: maio de 2025 — em conformidade com a LGPD (Lei 13.709/2018)</div>
+      </div>
+
+      <div class="legal-body">
+
+        <div class="legal-section">
+          <h2>1. QUEM SOMOS</h2>
+          <p>O CONDO//SYS é uma plataforma de gestão de condomínios desenvolvida para auxiliar síndicos, administradoras e moradores no controle financeiro, comunicação e gestão condominial.</p>
+          <p>Para dúvidas sobre privacidade, entre em contato pelo e-mail: <a href="mailto:contato@condosys.com.br">contato@condosys.com.br</a></p>
+        </div>
+
+        <div class="legal-section">
+          <h2>2. DADOS QUE COLETAMOS</h2>
+          <p>Coletamos apenas os dados estritamente necessários para o funcionamento da plataforma:</p>
+          <ul>
+            <li>Nome completo e endereço de e-mail (para criação de conta e autenticação)</li>
+            <li>Número de telefone e número do apartamento (para identificação do morador)</li>
+            <li>Dados financeiros do condomínio: despesas, receitas, pagamentos de taxa condominial</li>
+            <li>Registros de acesso (data/hora de login) para segurança da conta</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>3. COMO USAMOS SEUS DADOS</h2>
+          <p>Seus dados são utilizados exclusivamente para:</p>
+          <ul>
+            <li>Autenticação e acesso seguro à plataforma</li>
+            <li>Geração de relatórios financeiros do seu condomínio</li>
+            <li>Envio de comunicados e avisos do condomínio</li>
+            <li>Notificações sobre vencimentos e inadimplência (quando configurado)</li>
+            <li>Suporte técnico quando solicitado</li>
+          </ul>
+          <p><strong>Não vendemos, alugamos nem compartilhamos seus dados com terceiros para fins comerciais.</strong></p>
+        </div>
+
+        <div class="legal-section">
+          <h2>4. BASE LEGAL (LGPD)</h2>
+          <p>O tratamento dos dados é realizado com base em:</p>
+          <ul>
+            <li><strong>Execução de contrato</strong> (Art. 7º, V) — para prestação dos serviços contratados</li>
+            <li><strong>Legítimo interesse</strong> (Art. 7º, IX) — para segurança da plataforma e prevenção a fraudes</li>
+            <li><strong>Consentimento</strong> (Art. 7º, I) — para comunicações opcionais</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>5. ARMAZENAMENTO E SEGURANÇA</h2>
+          <ul>
+            <li>Senhas são armazenadas com criptografia bcrypt (nunca em texto simples)</li>
+            <li>Autenticação via JWT com expiração automática</li>
+            <li>Rate limiting para proteção contra ataques de força bruta</li>
+            <li>Dados armazenados em servidores seguros com acesso restrito</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>6. SEUS DIREITOS (LGPD Art. 18)</h2>
+          <p>Você tem direito a:</p>
+          <ul>
+            <li>Confirmar a existência de tratamento dos seus dados</li>
+            <li>Acessar os dados que temos sobre você</li>
+            <li>Corrigir dados incorretos ou desatualizados</li>
+            <li>Solicitar a exclusão dos seus dados (anonimização automática ao deletar conta)</li>
+            <li>Revogar consentimento a qualquer momento</li>
+            <li>Portabilidade dos seus dados em formato estruturado</li>
+          </ul>
+          <p>Para exercer seus direitos, entre em contato: <a href="mailto:privacidade@condosys.com.br">privacidade@condosys.com.br</a></p>
+        </div>
+
+        <div class="legal-section">
+          <h2>7. RETENÇÃO DE DADOS</h2>
+          <p>Os dados são mantidos enquanto a conta estiver ativa. Após exclusão da conta, os dados pessoais são anonimizados imediatamente (nome, e-mail e telefone são apagados). Registros financeiros históricos podem ser mantidos por até 5 anos para fins de auditoria fiscal.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>8. COOKIES</h2>
+          <p>Utilizamos apenas cookies de sessão essenciais para manter o login ativo. Não utilizamos cookies de rastreamento, publicidade ou analytics de terceiros.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>9. ALTERAÇÕES NESTA POLÍTICA</h2>
+          <p>Qualquer alteração significativa será comunicada por e-mail com 15 dias de antecedência. O uso continuado da plataforma após este prazo implica concordância com os novos termos.</p>
+        </div>
+
+      </div>
+
+      <div class="legal-footer">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <a href="login.html">← Voltar ao Login</a>
+          <a href="termos.html">Termos de Uso</a>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">CONDO//SYS — v2.4.1 · LGPD Compliant</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="Space.js"></script>
+</body>
+</html>

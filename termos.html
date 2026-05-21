@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termos de Uso — CONDO//SYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#06060f">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .legal-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .legal-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
+    .legal-logo a { display: flex; align-items: center; gap: 16px; text-decoration: none; }
+    .legal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(110,45,235,.15);
+      position: relative;
+    }
+    .legal-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--grad);
+    }
+    .legal-header {
+      padding: 24px 36px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(48,45,235,.06);
+    }
+    .legal-tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--p4); margin-bottom: 8px; display: block; }
+    .legal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-bright); letter-spacing: 2px; }
+    .legal-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+    .legal-body { padding: 36px; display: flex; flex-direction: column; gap: 32px; }
+    .legal-section h2 {
+      font-family: var(--font-ui); font-size: 14px; font-weight: 700;
+      letter-spacing: 2px; color: var(--lavender);
+      padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
+    }
+    .legal-section p, .legal-section li {
+      font-family: var(--font-ui); font-size: 14px; line-height: 1.8; color: var(--text); margin-bottom: 10px;
+    }
+    .legal-section ul { padding-left: 20px; list-style: none; }
+    .legal-section ul li::before { content: '▸ '; color: var(--p3); font-size: 12px; }
+    .legal-section a { color: var(--lavender); text-decoration: underline; }
+    .legal-footer {
+      padding: 20px 36px; border-top: 1px solid var(--border);
+      background: rgba(48,45,235,.04);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .legal-footer a { font-family: var(--font-mono); font-size: 11px; color: var(--lavender); text-decoration: none; letter-spacing: 1px; }
+    .legal-footer a:hover { color: var(--p4); }
+    @media (max-width: 600px) {
+      .legal-wrap { padding: 32px 16px; }
+      .legal-body { padding: 24px 20px; }
+      .legal-header { padding: 20px 20px; }
+      .legal-footer { padding: 16px 20px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="login-page">
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <div class="legal-wrap">
+    <div class="legal-logo">
+      <a href="login.html">
+        <span class="logo-glyph">⬡</span>
+        <div class="logo-stack">
+          <span class="logo-main">CONDO//SYS</span>
+          <span class="logo-sub">PLATAFORMA DE GESTÃO</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="legal-panel">
+      <div class="legal-header">
+        <span class="legal-tag">// DOCUMENTO LEGAL</span>
+        <div class="legal-title">TERMOS DE USO</div>
+        <div class="legal-date">Última atualização: maio de 2025</div>
+      </div>
+
+      <div class="legal-body">
+
+        <div class="legal-section">
+          <h2>1. ACEITAÇÃO DOS TERMOS</h2>
+          <p>Ao criar uma conta ou utilizar o CONDO//SYS, você concorda integralmente com estes Termos de Uso. Se não concordar com qualquer parte destes termos, não utilize a plataforma.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>2. DESCRIÇÃO DO SERVIÇO</h2>
+          <p>O CONDO//SYS é uma plataforma SaaS (Software como Serviço) de gestão condominial que oferece:</p>
+          <ul>
+            <li>Controle financeiro (despesas, receitas, saldo)</li>
+            <li>Gestão de moradores e inadimplência</li>
+            <li>Quadro de avisos e comunicados</li>
+            <li>Relatórios em PDF</li>
+            <li>Assistente de inteligência artificial (CONDO//AI)</li>
+            <li>Importação de dados via planilha Excel</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>3. CONTA E ACESSO</h2>
+          <ul>
+            <li>Você é responsável por manter a confidencialidade de sua senha de acesso</li>
+            <li>Não compartilhe suas credenciais com terceiros não autorizados</li>
+            <li>Notifique-nos imediatamente caso suspeite de acesso não autorizado à sua conta</li>
+            <li>Cada conta é pessoal e intransferível</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>4. USO PERMITIDO</h2>
+          <p>A plataforma deve ser utilizada exclusivamente para fins de gestão condominial legítima. É expressamente proibido:</p>
+          <ul>
+            <li>Utilizar a plataforma para fins ilegais ou fraudulentos</li>
+            <li>Inserir dados falsos de moradores ou transações financeiras</li>
+            <li>Tentar acessar contas de outros usuários</li>
+            <li>Realizar engenharia reversa ou tentativas de invasão ao sistema</li>
+            <li>Compartilhar acesso com condomínios não contratantes do serviço</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>5. RESPONSABILIDADES DO USUÁRIO</h2>
+          <ul>
+            <li>A veracidade das informações cadastradas é de exclusiva responsabilidade do síndico/administrador</li>
+            <li>O CONDO//SYS não se responsabiliza por decisões tomadas com base em dados incorretamente inseridos</li>
+            <li>É responsabilidade do usuário manter backups dos dados importantes</li>
+            <li>O uso do assistente de IA (CONDO//AI) é auxiliar — decisões financeiras devem ser validadas por profissional qualificado</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>6. DISPONIBILIDADE DO SERVIÇO</h2>
+          <p>Nos comprometemos a manter a plataforma disponível com o melhor esforço, porém não garantimos disponibilidade ininterrupta. Manutenções programadas serão comunicadas com antecedência mínima de 24 horas via e-mail.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>7. PROPRIEDADE INTELECTUAL</h2>
+          <p>O CONDO//SYS, incluindo seu código-fonte, design, marca e funcionalidades, é propriedade exclusiva de seus desenvolvedores. O contrato de uso não transfere nenhum direito de propriedade intelectual ao usuário.</p>
+          <p>Os dados inseridos pelo usuário (moradores, despesas, receitas) pertencem ao próprio usuário e podem ser exportados a qualquer momento.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>8. LIMITAÇÃO DE RESPONSABILIDADE</h2>
+          <p>O CONDO//SYS não será responsável por:</p>
+          <ul>
+            <li>Perdas financeiras decorrentes de uso inadequado da plataforma</li>
+            <li>Danos causados por falha de conectividade com a internet</li>
+            <li>Dados perdidos em razão de ação do próprio usuário</li>
+            <li>Consequências de decisões tomadas com base nas análises do assistente de IA</li>
+          </ul>
+        </div>
+
+        <div class="legal-section">
+          <h2>9. CANCELAMENTO</h2>
+          <p>O usuário pode cancelar sua conta a qualquer momento. Após o cancelamento, os dados pessoais serão anonimizados conforme nossa Política de Privacidade. Dados financeiros históricos podem ser mantidos por até 5 anos para fins legais.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>10. ALTERAÇÕES NOS TERMOS</h2>
+          <p>Reservamo-nos o direito de modificar estes termos a qualquer momento. Alterações significativas serão comunicadas por e-mail com 15 dias de antecedência. O uso continuado após este prazo implica aceitação dos novos termos.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>11. LEGISLAÇÃO APLICÁVEL</h2>
+          <p>Estes Termos são regidos pelas leis brasileiras. Fica eleito o foro da comarca de São Paulo/SP para resolução de quaisquer disputas, renunciando-se a qualquer outro por mais privilegiado que seja.</p>
+        </div>
+
+        <div class="legal-section">
+          <h2>12. CONTATO</h2>
+          <p>Para dúvidas sobre estes termos: <a href="mailto:contato@condosys.com.br">contato@condosys.com.br</a></p>
+        </div>
+
+      </div>
+
+      <div class="legal-footer">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <a href="login.html">← Voltar ao Login</a>
+          <a href="privacidade.html">Política de Privacidade</a>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">CONDO//SYS — v2.4.1</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="Space.js"></script>
+</body>
+</html>

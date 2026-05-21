@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CondoSYS — Primeiro Acesso</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .onboarding-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 520px;
+      position: relative;
+      z-index: 1;
+      margin: 40px auto;
+      padding: 0 20px;
+      animation: fadeUp .6s ease forwards;
+    }
+    .terms-box {
+      background: rgba(110,45,235,.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    .checkbox-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .checkbox-wrap input {
+      margin-top: 4px;
+      accent-color: var(--p3);
+    }
+    .checkbox-wrap label {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--text-bright);
+      line-height: 1.4;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="login-page">
+
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <main>
+  <div class="onboarding-wrap">
+    
+    <div class="login-logo">
+      <span class="logo-glyph">⬡</span>
+      <div class="logo-stack">
+        <span class="logo-main">BEM-VINDO(A) AO CONDOSYS</span>
+        <span class="logo-sub">PRIMEIRO ACESSO DO MORADOR</span>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-corner tl"></div>
+      <div class="login-card-corner tr"></div>
+      <div class="login-card-corner bl"></div>
+      <div class="login-card-corner br"></div>
+
+      <div class="login-card-header">
+        <span class="login-card-prefix">//</span>
+        <span class="login-card-title">CONFIGURAÇÃO DE CONTA</span>
+      </div>
+
+      <div class="login-card-body" id="onboarding-step1">
+        <p style="font-family: var(--font-ui); font-size: 15px; color: var(--text); margin-bottom: 16px;">
+          Para acessar o portal do seu condomínio, por favor, defina sua senha de acesso e aceite os Termos de Privacidade (LGPD).
+        </p>
+
+        <div class="terms-box">
+          <strong>Termos de Uso e Privacidade (LGPD)</strong><br><br>
+          A plataforma CondoSYS coleta seus dados (Nome, E-mail, Unidade e Histórico de Pagamentos) exclusivamente para a finalidade de gestão condominial, cobrança e comunicados oficiais do condomínio.<br><br>
+          Seus dados estão protegidos por criptografia e não serão compartilhados com terceiros para fins de marketing. O consentimento pode ser revogado a qualquer momento junto à administração do seu condomínio.
+        </div>
+
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="lgpd-checkbox">
+          <label for="lgpd-checkbox">Li e aceito os Termos de Privacidade e consinto com o uso dos meus dados para a gestão do condomínio.</label>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="nova-senha">CRIAR SENHA</label>
+          <input
+            class="field-input"
+            type="password"
+            id="nova-senha"
+            name="nova_senha"
+            autocomplete="new-password"
+            placeholder="Mínimo de 8 caracteres"
+          >
+        </div>
+
+        <div id="onboarding-feedback" class="login-feedback" style="margin-top: 10px;"></div>
+
+        <button type="button" class="btn-submit btn-submit--purple" style="width: 100%; margin-top: 16px; font-size: 13px; padding: 16px;" onclick="finalizarOnboarding()">
+          FINALIZAR CADASTRO
+        </button>
+      </div>
+
+    </div>
+  </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="Space.js"></script>
+  <script>
+    async function finalizarOnboarding() {
+      const checkbox = document.getElementById('lgpd-checkbox').checked;
+      const senha = document.getElementById('nova-senha').value;
+      const feedback = document.getElementById('onboarding-feedback');
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+
+      feedback.className = 'login-feedback erro';
+      
+      if (!token) {
+        feedback.textContent = "Link de convite inválido ou expirado.";
+        return;
+      }
+      if (!checkbox) {
+        feedback.textContent = "Você precisa aceitar os Termos de Privacidade para continuar.";
+        return;
+      }
+      if (senha.length < 8) {
+        feedback.textContent = "A senha deve ter no mínimo 8 caracteres.";
+        return;
+      }
+
+      feedback.className = 'login-feedback';
+      feedback.style.color = 'var(--text-dim)';
+      feedback.textContent = "Configurando sua conta…";
+
+      try {
+        const response = await fetch(`${API_BASE}/moradores/ativar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, senha, lgpd_aceite: true })
+        });
+
+        if (response.ok) {
+          feedback.className = 'login-feedback ok';
+          feedback.textContent = "Conta ativada com sucesso! Redirecionando…";
+          setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 2000);
+        } else {
+          const data = await response.json();
+          feedback.className = 'login-feedback erro';
+          feedback.textContent = data.detail || "Erro ao ativar a conta.";
+        }
+      } catch (err) {
+        feedback.className = 'login-feedback erro';
+        feedback.textContent = "Erro de conexão. Tente novamente.";
+      }
+    }
+  </script>
+</body>
+</html>

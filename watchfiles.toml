@@ -1,0 +1,3 @@
+# watchfiles.toml
+[tool.watchfiles]
+paths = ["app"]

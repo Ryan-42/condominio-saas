@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha — CONDO//SYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#06060f">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .login-card-body .field { gap: 8px; }
+    .login-card-body .field-input { padding: 13px 16px; font-size: 14px; }
+  </style>
+</head>
+<body class="login-page">
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <main>
+  <div class="login-wrap">
+
+    <div class="login-logo">
+      <span class="logo-glyph">⬡</span>
+      <div class="logo-stack">
+        <span class="logo-main">CONDO//SYS</span>
+        <span class="logo-sub">REDEFINIÇÃO DE SENHA</span>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-corner tl"></div>
+      <div class="login-card-corner tr"></div>
+      <div class="login-card-corner bl"></div>
+      <div class="login-card-corner br"></div>
+
+      <div class="login-card-header">
+        <span class="login-card-prefix">//</span>
+        <span class="login-card-title">NOVA SENHA</span>
+      </div>
+
+      <div class="login-card-body" id="form-body">
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);letter-spacing:.5px;line-height:1.7;margin-top:-8px;">
+          Crie uma nova senha para sua conta. A senha deve ter no mínimo 6 caracteres.
+        </p>
+
+        <div class="field">
+          <label class="field-label" for="nova-senha">NOVA SENHA</label>
+          <input class="field-input" type="password" id="nova-senha"
+            placeholder="mínimo 6 caracteres" autocomplete="new-password">
+          <span class="field-erro" id="nova-senha-erro"></span>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="confirmar-senha">CONFIRMAR SENHA</label>
+          <input class="field-input" type="password" id="confirmar-senha"
+            placeholder="repita a nova senha" autocomplete="new-password">
+          <span class="field-erro" id="confirmar-senha-erro"></span>
+        </div>
+
+        <div id="reset-feedback" class="login-feedback"></div>
+
+        <button type="button" class="btn-login" id="btn-resetar" onclick="submitResetarSenha()">
+          <span id="btn-label">SALVAR NOVA SENHA</span>
+        </button>
+      </div>
+
+      <!-- Estado de sucesso (oculto) -->
+      <div class="login-card-body" id="sucesso-body" style="display:none;text-align:center;gap:20px;">
+        <div style="font-size:40px;">✓</div>
+        <p style="font-family:var(--font-ui);font-size:15px;color:var(--green);font-weight:600;letter-spacing:1px;">
+          Senha redefinida com sucesso!
+        </p>
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);line-height:1.6;">
+          Você já pode entrar na plataforma com a nova senha.
+        </p>
+        <a href="login.html" class="btn-login" style="text-decoration:none;display:block;text-align:center;">
+          IR PARA O LOGIN
+        </a>
+      </div>
+
+      <!-- Token inválido (oculto) -->
+      <div class="login-card-body" id="erro-token-body" style="display:none;text-align:center;gap:20px;">
+        <div style="font-size:40px;">⚠</div>
+        <p style="font-family:var(--font-ui);font-size:14px;color:var(--red);font-weight:600;letter-spacing:1px;">
+          Link inválido ou expirado
+        </p>
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);line-height:1.6;">
+          Este link expirou ou já foi utilizado.<br>
+          Solicite um novo link de recuperação.
+        </p>
+        <a href="login.html" class="btn-login" style="text-decoration:none;display:block;text-align:center;">
+          VOLTAR AO LOGIN
+        </a>
+      </div>
+
+      <div class="login-card-footer">
+        <a href="login.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;">← Voltar ao Login</a>
+        <span class="login-version">v2.4.1 · SECURE</span>
+      </div>
+    </div>
+
+  </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="Space.js"></script>
+  <script>
+    const _token = new URLSearchParams(window.location.search).get("token");
+
+    if (!_token) {
+      document.getElementById("form-body").style.display = "none";
+      document.getElementById("erro-token-body").style.display = "flex";
+    }
+
+    async function submitResetarSenha() {
+      const nova      = document.getElementById("nova-senha").value;
+      const confirmar = document.getElementById("confirmar-senha").value;
+      const btn       = document.getElementById("btn-resetar");
+      const label     = document.getElementById("btn-label");
+      const feedback  = document.getElementById("reset-feedback");
+
+      // Limpa erros
+      document.getElementById("nova-senha-erro").style.display = "none";
+      document.getElementById("confirmar-senha-erro").style.display = "none";
+      feedback.textContent = ""; feedback.className = "login-feedback";
+
+      if (nova.length < 6) {
+        const e = document.getElementById("nova-senha-erro");
+        e.textContent = "Mínimo 6 caracteres"; e.style.display = "block";
+        document.getElementById("nova-senha").classList.add("field-input--erro");
+        return;
+      }
+      if (nova !== confirmar) {
+        const e = document.getElementById("confirmar-senha-erro");
+        e.textContent = "As senhas não coincidem"; e.style.display = "block";
+        document.getElementById("confirmar-senha").classList.add("field-input--erro");
+        return;
+      }
+
+      btn.disabled = true;
+      label.textContent = "SALVANDO…";
+
+      try {
+        const res = await fetch(`${API_BASE}/usuarios/resetar-senha`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: _token, nova_senha: nova }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          document.getElementById("form-body").style.display = "none";
+          document.getElementById("sucesso-body").style.display = "flex";
+        } else {
+          feedback.textContent = data.detail || "Erro ao redefinir senha.";
+          feedback.className = "login-feedback erro";
+          if (res.status === 400 && (data.detail || "").includes("expirado")) {
+            setTimeout(() => {
+              document.getElementById("form-body").style.display = "none";
+              document.getElementById("erro-token-body").style.display = "flex";
+            }, 2000);
+          }
+          btn.disabled = false;
+          label.textContent = "SALVAR NOVA SENHA";
+        }
+      } catch {
+        feedback.textContent = "Erro de conexão. Tente novamente.";
+        feedback.className = "login-feedback erro";
+        btn.disabled = false;
+        label.textContent = "SALVAR NOVA SENHA";
+      }
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") submitResetarSenha();
+    });
+  </script>
+</body>
+</html>

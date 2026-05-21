@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CONDO//SYS — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#06060f" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap&font-display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════
+       CONDO//AI — estilos
+       ══════════════════════════════════════ */
+    .ia-sugestoes-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 1.1rem;
+    }
+    .ia-sugestao-btn {
+      background: rgba(16,185,129,.10);
+      border: 1px solid rgba(16,185,129,.30);
+      border-radius: 20px;
+      color: var(--lavender, #6EE7B7);
+      padding: .35rem 1rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .78rem;
+      cursor: pointer;
+      letter-spacing: .03em;
+      transition: background .18s, border-color .18s, transform .12s;
+    }
+    .ia-sugestao-btn:hover {
+      background: rgba(16,185,129,.22);
+      border-color: var(--p3, #06B6D4);
+      transform: translateY(-1px);
+    }
+    .panel--ia { display: flex; flex-direction: column; gap: 0; }
+    .ia-chat-area {
+      min-height: 380px;
+      max-height: 460px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.2rem 1.2rem .8rem;
+      scroll-behavior: smooth;
+    }
+    .ia-msg { display: flex; gap: .65rem; animation: fadeUp .25s ease; }
+    .ia-msg-user { flex-direction: row-reverse; }
+    .ia-msg-bot  { flex-direction: row; }
+    .ia-avatar {
+      width: 32px; height: 32px;
+      min-width: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(16,185,129,.15);
+      border: 1px solid rgba(16,185,129,.35);
+      border-radius: 8px;
+      font-size: .95rem;
+      color: var(--p2, #10B981);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .ia-chat-area::-webkit-scrollbar { width: 4px; }
+    .ia-chat-area::-webkit-scrollbar-track { background: transparent; }
+    .ia-chat-area::-webkit-scrollbar-thumb { background: rgba(16,185,129,.25); border-radius: 2px; }
+    .ia-msg-bubble {
+      max-width: 78%;
+      padding: .8rem 1.1rem;
+      border-radius: 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .97rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ia-msg-bubble-user {
+      background: rgba(6,182,212,.12);
+      border: 1px solid rgba(6,182,212,.30);
+      color: var(--text, #e8f5f0);
+      border-bottom-right-radius: 3px;
+    }
+    .ia-msg-bubble-bot {
+      background: rgba(3,18,12,.90);
+      border: 1px solid rgba(16,185,129,.20);
+      color: var(--lavender, #6EE7B7);
+      border-bottom-left-radius: 3px;
+    }
+    .ia-label {
+      display: block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem;
+      color: var(--p3, #06B6D4);
+      margin-bottom: .3rem;
+      letter-spacing: .08em;
+    }
+    .ia-valor { color: var(--p2, #10B981); font-weight: 700; }
+    .ia-section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .75rem;
+      color: var(--p3, #06B6D4);
+      letter-spacing: .1em;
+      margin: .4rem 0 .2rem;
+    }
+    .ia-input-row {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: 1rem 1.2rem;
+      border-top: 1px solid rgba(16,185,129,.15);
+      background: rgba(3,13,10,.5);
+    }
+    .ia-input-prefix {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .95rem;
+      color: var(--p3, #06B6D4);
+      user-select: none;
+    }
+    .ia-input {
+      flex: 1;
+      background: rgba(3,18,12,.75);
+      border: 1px solid rgba(16,185,129,.25);
+      border-radius: 8px;
+      color: var(--text, #e8f5f0);
+      padding: .7rem 1rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .97rem;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .ia-input:focus {
+      border-color: var(--p3, #06B6D4);
+      box-shadow: 0 0 0 3px rgba(6,182,212,.15);
+    }
+    .ia-btn-enviar { white-space: nowrap; padding: .7rem 1.4rem; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas cósmico -->
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+  <!-- Overlay mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()" aria-hidden="true"></div>
+
+  <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+    <div class="sidebar-logo">
+      <div class="logo-glyph">⬡</div>
+      <div class="logo-stack">
+        <span class="logo-main">CONDO//SYS</span>
+        <span class="logo-sub">v2.4.1 — SECURE</span>
+      </div>
+    </div>
+
+    <div class="sys-indicator">
+      <span class="sys-dot" id="sys-dot"></span>
+      <span class="sys-text" id="sys-text">CARREGANDO…</span>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Seções do sistema">
+      <a href="#" class="nav-item active" data-section="dashboard" aria-current="page">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">◈</span>
+        <span class="nav-label">DASHBOARD</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="despesas">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">↓</span>
+        <span class="nav-label">DESPESAS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="receitas">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">↑</span>
+        <span class="nav-label">RECEITAS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="moradores">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">⊞</span>
+        <span class="nav-label">MORADORES</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="inadimplencia">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">$</span>
+        <span class="nav-label">INADIMPLÊNCIA</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="ia">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">✦</span>
+        <span class="nav-label">CONDO//AI</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="avisos">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">📋</span>
+        <span class="nav-label">AVISOS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="reclamacoes">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">⚑</span>
+        <span class="nav-label">RECLAMAÇÕES</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="espacos">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">🔑</span>
+        <span class="nav-label">RESERVAS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="votacoes">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">◈</span>
+        <span class="nav-label">VOTAÇÕES</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="documentos">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">↓</span>
+        <span class="nav-label">DOCUMENTOS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="manutencoes">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">🔧</span>
+        <span class="nav-label">MANUTENÇÕES</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" data-section="mensagens" id="nav-mensagens">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">💬</span>
+        <span class="nav-label">MENSAGENS</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item nav-item--admin" data-section="gestao" id="nav-gestao" style="display:none">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">⚙</span>
+        <span class="nav-label">GESTÃO</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-guia" style="display:none" onclick="reabrirOnboarding(); return false;" title="Reabrir guia de primeiros passos">
+        <span class="nav-bracket" aria-hidden="true">[</span><span class="nav-icon" aria-hidden="true">◉</span>
+        <span class="nav-label">GUIA INICIAL</span><span class="nav-bracket" aria-hidden="true">]</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-meta">
+      <div class="meta-row"><span class="meta-key">NODE</span><span class="meta-val">CONDO_#<span id="condo-id-label">--</span></span></div>
+      <div class="meta-row"><span class="meta-key">UPTIME</span><span class="meta-val" id="uptime">00:00:00</span></div>
+      <div class="meta-row"><span class="meta-key">DATA</span><span class="meta-val" id="data-sidebar">--/--/----</span></div>
+    </div>
+
+    <button class="btn-logout" onclick="logout()">⏻ ENCERRAR SESSÃO</button>
+  </aside>
+
+  <main class="main" id="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-hamburger" id="btn-hamburger" onclick="toggleSidebar()" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="page-eyebrow" id="page-eyebrow">// MÓDULO FINANCEIRO</div>
+        <h1 class="page-title" id="page-title">PAINEL DE CONTROLE</h1>
+      </div>
+      <div class="topbar-right">
+        <div id="usuario-info" class="usuario-info"></div>
+        <div class="condo-selector">
+          <label class="condo-selector-label" for="select-condominio">COND//</label>
+          <select class="condo-select" id="select-condominio" onchange="onCondominioChange()">
+            <option value="">CARREGANDO…</option>
+          </select>
+        </div>
+        <div class="clock-display" id="clock">00:00:00</div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section">
+
+      <!-- Onboarding — visível apenas enquanto há passos pendentes -->
+      <div id="onboarding-banner" class="onboarding-banner" style="display:none">
+        <div class="onboarding-header">
+          <span class="onboarding-title">PRIMEIROS PASSOS</span>
+          <span class="onboarding-progress-text" id="onboarding-prog">0 / 4 concluídos</span>
+          <button class="onboarding-dismiss" onclick="dispensarOnboarding()" title="Dispensar">DISPENSAR ✕</button>
+        </div>
+        <div class="onboarding-bar-wrap">
+          <div class="onboarding-bar-fill" id="onboarding-bar" style="width:0%"></div>
+        </div>
+        <div class="onboarding-steps" id="onboarding-steps"></div>
+      </div>
+
+      <section class="cards-grid">
+        <div class="card card--receita" style="--delay:.05s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">ENTRADA</span><span class="card-icon">▲</span></div>
+          <div class="card-label">TOTAL RECEITAS</div>
+          <div class="card-value" id="total-receitas">—</div>
+          <div class="card-glow card-glow--green"></div>
+        </div>
+        <div class="card card--despesa" style="--delay:.15s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">SAÍDA</span><span class="card-icon">▼</span></div>
+          <div class="card-label">TOTAL DESPESAS</div>
+          <div class="card-value" id="total-despesas">—</div>
+          <div class="card-glow card-glow--red"></div>
+        </div>
+        <div class="card card--saldo" style="--delay:.25s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">SALDO</span><span class="card-icon">◆</span></div>
+          <div class="card-label">SALDO LÍQUIDO</div>
+          <div class="card-value" id="saldo">—</div>
+          <div class="card-glow card-glow--cyan"></div>
+        </div>
+      </section>
+
+      <!-- Insights -->
+      <div class="insights-panel" id="insights-panel" style="--delay:.3s">
+        <div class="insights-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">ANÁLISE INTELIGENTE</span></div>
+          <span class="insights-badge" id="insights-badge">CARREGANDO…</span>
+        </div>
+        <div id="insights-loading" class="insights-loading"><span class="blink">█</span> PROCESSANDO DADOS…</div>
+        <div id="insights-content" class="insights-content" style="display:none">
+          <div class="insights-block"><div class="insights-block-title">⚡ ALERTAS</div><div id="insights-alertas" class="insights-list"></div></div>
+          <div class="insights-block"><div class="insights-block-title">📊 RESUMO</div><div id="insights-resumo" class="insights-list"></div></div>
+          <div class="insights-block"><div class="insights-block-title">💡 SUGESTÕES</div><div id="insights-sugestoes" class="insights-list"></div></div>
+        </div>
+      </div>
+
+      <section class="bottom-grid">
+        <div class="panel" style="--delay:.4s">
+          <div class="panel-header">
+            <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">ÚLTIMAS DESPESAS</span></div>
+            <span class="panel-badge" id="dash-despesas-count">—</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr>
+                <th><span class="th-inner">DESCRIÇÃO</span></th>
+                <th><span class="th-inner">DATA</span></th>
+                <th class="text-right"><span class="th-inner">VALOR</span></th>
+              </tr></thead>
+              <tbody id="dash-tabela-despesas">
+                <tr><td colspan="3" class="empty-state"><span class="blink">█</span> CARREGANDO…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel" style="--delay:.5s">
+          <div class="panel-header"><div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">HISTÓRICO MENSAL</span></div></div>
+          <div id="resumo-mensal" class="mensal-list"><p class="empty-state"><span class="blink">█</span> CARREGANDO…</p></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- DESPESAS -->
+    <div id="despesas" class="section" style="display:none">
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRAR DESPESA</span></div>
+          <button class="form-toggle" onclick="toggleForm('desp-form-body','desp-toggle-label')"><span id="desp-toggle-label">+ NOVO REGISTRO</span></button>
+        </div>
+        <div class="form-body" id="desp-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="desp-descricao">DESCRIÇÃO</label>
+              <input class="field-input" id="desp-descricao" name="desp_descricao" autocomplete="off" type="text" placeholder="ex: Manutenção elevador" />
+              <span class="field-erro" id="desp-descricao-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="desp-valor">VALOR (R$)</label>
+              <input class="field-input" id="desp-valor" name="desp_valor" autocomplete="off" type="number" placeholder="0,00" min="0" step="0.01" />
+              <span class="field-erro" id="desp-valor-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="desp-data">DATA</label>
+              <input class="field-input" id="desp-data" name="desp_data" autocomplete="off" type="date" />
+              <span class="field-erro" id="desp-data-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit" id="desp-btn" onclick="submitDespesa()"><span id="desp-btn-label">▶ EXECUTAR</span></button>
+            </div>
+          </div>
+          <div class="form-feedback" id="desp-feedback"></div>
+          <div class="import-bar">
+            <input type="file" id="import-input-despesas" accept=".xlsx" style="display:none" onchange="processarImportacao('despesas', this)">
+            <button id="import-btn-despesas" class="btn-acao btn-acao--secundario" onclick="abrirImportacao('despesas')">📂 IMPORTAR EXCEL</button>
+            <button class="btn-acao btn-acao--secundario" onclick="baixarTemplate('despesas')" title="Baixar modelo de planilha">⬇ MODELO</button>
+            <span id="import-status-despesas" class="import-status"></span>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRO DE DESPESAS</span></div>
+          <span class="panel-badge" id="desp-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">DESCRIÇÃO</span></th>
+              <th><span class="th-inner">DATA</span></th>
+              <th class="text-right"><span class="th-inner">VALOR</span></th>
+              <th class="text-right"><span class="th-inner">AÇÕES</span></th>
+            </tr></thead>
+            <tbody id="tabela-despesas"><tr><td colspan="4" class="empty-state"><span class="blink">█</span> AGUARDANDO…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEITAS -->
+    <div id="receitas" class="section" style="display:none">
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRAR RECEITA</span></div>
+          <button class="form-toggle form-toggle--green" onclick="toggleForm('rec-form-body','rec-toggle-label')"><span id="rec-toggle-label">+ NOVO REGISTRO</span></button>
+        </div>
+        <div class="form-body" id="rec-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="rec-descricao">DESCRIÇÃO</label>
+              <input class="field-input" id="rec-descricao" name="rec_descricao" autocomplete="off" type="text" placeholder="ex: Taxa condominial" />
+              <span class="field-erro" id="rec-descricao-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="rec-valor">VALOR (R$)</label>
+              <input class="field-input" id="rec-valor" name="rec_valor" autocomplete="off" type="number" placeholder="0,00" min="0" step="0.01" />
+              <span class="field-erro" id="rec-valor-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="rec-data">DATA</label>
+              <input class="field-input" id="rec-data" name="rec_data" autocomplete="off" type="date" />
+              <span class="field-erro" id="rec-data-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit btn-submit--green" id="rec-btn" onclick="submitReceita()"><span id="rec-btn-label">▶ EXECUTAR</span></button>
+            </div>
+          </div>
+          <div class="form-feedback" id="rec-feedback"></div>
+          <div class="import-bar">
+            <input type="file" id="import-input-receitas" accept=".xlsx" style="display:none" onchange="processarImportacao('receitas', this)">
+            <button id="import-btn-receitas" class="btn-acao btn-acao--secundario" onclick="abrirImportacao('receitas')">📂 IMPORTAR EXCEL</button>
+            <button class="btn-acao btn-acao--secundario" onclick="baixarTemplate('receitas')" title="Baixar modelo de planilha">⬇ MODELO</button>
+            <span id="import-status-receitas" class="import-status"></span>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRO DE RECEITAS</span></div>
+          <span class="panel-badge panel-badge--green" id="rec-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">DESCRIÇÃO</span></th>
+              <th><span class="th-inner">DATA</span></th>
+              <th class="text-right"><span class="th-inner">VALOR</span></th>
+              <th class="text-right"><span class="th-inner">AÇÕES</span></th>
+            </tr></thead>
+            <tbody id="tabela-receitas"><tr><td colspan="4" class="empty-state"><span class="blink">█</span> AGUARDANDO…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MORADORES -->
+    <div id="moradores" class="section" style="display:none">
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">CADASTRAR MORADOR</span></div>
+          <button class="form-toggle form-toggle--gold" onclick="toggleForm('mor-form-body','mor-toggle-label')"><span id="mor-toggle-label">+ NOVO REGISTRO</span></button>
+        </div>
+        <div class="form-body" id="mor-form-body">
+          <div class="form-grid form-grid--moradores">
+            <div class="field">
+              <label class="field-label" for="mor-nome">NOME</label>
+              <input class="field-input" id="mor-nome" name="morador_nome" autocomplete="name" type="text" placeholder="ex: João da Silva" />
+              <span class="field-erro" id="mor-nome-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="mor-apartamento">APARTAMENTO</label>
+              <input class="field-input" id="mor-apartamento" name="morador_apartamento" autocomplete="address-line2" type="text" placeholder="ex: 101-A" />
+              <span class="field-erro" id="mor-apartamento-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="mor-email">E-MAIL</label>
+              <input class="field-input" id="mor-email" name="morador_email" autocomplete="email" type="email" placeholder="ex: joao@email.com" />
+              <span class="field-erro" id="mor-email-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="mor-telefone">TELEFONE</label>
+              <input class="field-input" id="mor-telefone" name="morador_telefone" autocomplete="tel" type="text" placeholder="ex: 11999998888" />
+              <span class="field-erro" id="mor-telefone-erro"></span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-submit btn-submit--gold" id="mor-btn" onclick="submitMorador()"><span id="mor-btn-label">▶ EXECUTAR</span></button>
+          </div>
+          <div class="form-feedback" id="mor-feedback"></div>
+          <div class="import-bar">
+            <input type="file" id="import-input-moradores" accept=".xlsx" style="display:none" onchange="processarImportacao('moradores', this)">
+            <button id="import-btn-moradores" class="btn-acao btn-acao--secundario" onclick="abrirImportacao('moradores')">📂 IMPORTAR EXCEL</button>
+            <button class="btn-acao btn-acao--secundario" onclick="baixarTemplate('moradores')" title="Baixar modelo de planilha">⬇ MODELO</button>
+            <span id="import-status-moradores" class="import-status"></span>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRO DE MORADORES</span></div>
+          <span class="panel-badge panel-badge--gold" id="mor-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">NOME</span></th>
+              <th><span class="th-inner">APARTAMENTO</span></th>
+              <th><span class="th-inner">E-MAIL</span></th>
+              <th><span class="th-inner">TELEFONE</span></th>
+              <th class="text-right"><span class="th-inner">AÇÕES</span></th>
+            </tr></thead>
+            <tbody id="tabela-moradores"><tr><td colspan="5" class="empty-state"><span class="blink">█</span> AGUARDANDO…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- INADIMPLÊNCIA -->
+    <div id="inadimplencia" class="section" style="display:none">
+
+      <!-- Configuração de taxa -->
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">TAXA MENSAL</span></div>
+          <button class="form-toggle form-toggle--cyan" onclick="toggleForm('inad-form-body','inad-toggle-label')"><span id="inad-toggle-label">⚙ CONFIGURAR</span></button>
+        </div>
+        <div class="form-body" id="inad-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="inad-taxa-valor">VALOR DA TAXA (R$)</label>
+              <input class="field-input" id="inad-taxa-valor" type="number" placeholder="ex: 450.00" step="0.01" min="0" />
+              <span class="field-erro" id="inad-taxa-valor-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit btn-submit--cyan" id="inad-btn-taxa" onclick="salvarTaxa()">
+                <span id="inad-btn-taxa-label">▶ SALVAR TAXA</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:12px">
+            <button class="btn-submit btn-submit--purple" id="inad-btn-gerar" onclick="gerarPagamentos()">
+              <span id="inad-btn-gerar-label">⚡ GERAR COBRANÇAS (3 MESES)</span>
+            </button>
+          </div>
+          <div class="form-feedback" id="inad-feedback"></div>
+        </div>
+      </div>
+
+      <!-- Cards de resumo -->
+      <section class="cards-grid" style="--delay:.15s">
+        <div class="card card--inadimplente" style="--delay:.15s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">INADIMPLENTES</span><span class="card-icon">⚠</span></div>
+          <div class="card-label">TOTAL INADIMPLENTES</div>
+          <div class="card-value" id="inad-stat-total">—</div>
+          <div class="card-glow card-glow--red"></div>
+        </div>
+        <div class="card card--aberto" style="--delay:.25s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">EM ABERTO</span><span class="card-icon">💸</span></div>
+          <div class="card-label">VALOR EM ABERTO</div>
+          <div class="card-value" id="inad-stat-valor">—</div>
+          <div class="card-glow card-glow--red"></div>
+        </div>
+        <div class="card card--taxa" style="--delay:.35s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">TAXA/MÊS</span><span class="card-icon">$</span></div>
+          <div class="card-label">TAXA CONFIGURADA</div>
+          <div class="card-value" id="inad-stat-taxa">—</div>
+          <div class="card-glow card-glow--cyan"></div>
+        </div>
+      </section>
+
+      <!-- Filtros e botão PDF -->
+      <div class="panel" style="--delay:.4s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">FILTRAR PERÍODO</span></div>
+          <button class="btn-linha btn-linha--cyan" id="inad-btn-pdf" onclick="baixarRelatorioPDF()" aria-label="Baixar relatório de inadimplência em PDF">⬇ BAIXAR PDF</button>
+        </div>
+        <div class="form-grid" style="padding:20px 24px 8px">
+          <div class="field">
+            <label class="field-label" for="inad-filtro-mes">MÊS</label>
+            <select class="field-input" id="inad-filtro-mes"></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="inad-filtro-ano">ANO</label>
+            <select class="field-input" id="inad-filtro-ano"></select>
+          </div>
+          <div class="field field--action">
+            <button class="btn-submit" onclick="carregarPagamentos()"><span>🔍 FILTRAR</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de pagamentos -->
+      <div class="panel" style="--delay:.5s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">REGISTRO DE PAGAMENTOS</span></div>
+          <span class="panel-badge" id="inad-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">MORADOR</span></th>
+              <th><span class="th-inner">APARTAMENTO</span></th>
+              <th><span class="th-inner">MÊS/ANO</span></th>
+              <th class="text-right"><span class="th-inner">VALOR</span></th>
+              <th><span class="th-inner">STATUS</span></th>
+              <th class="text-right"><span class="th-inner">AÇÃO</span></th>
+            </tr></thead>
+            <tbody id="tabela-pagamentos">
+              <tr><td colspan="6" class="empty-state"><span class="blink">█</span> CONFIGURE A TAXA E GERE AS COBRANÇAS</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- FIM INADIMPLÊNCIA -->
+
+    <!-- ════════════════ CONDO//AI ════════════════ -->
+    <div id="ia" class="section" style="display:none">
+
+      <!-- Sugestões rápidas (populadas via JS com dados reais) -->
+      <div class="ia-sugestoes-wrap ia-sugestoes-row">
+        <button class="ia-sugestao-btn" onclick="usarSugestao('Como está meu saldo?')">◆ Como está meu saldo?</button>
+        <button class="ia-sugestao-btn" onclick="usarSugestao('Quem está devendo?')">⚠ Quem está devendo?</button>
+        <button class="ia-sugestao-btn" onclick="usarSugestao('Qual foi meu maior gasto?')">↓ Maior gasto?</button>
+        <button class="ia-sugestao-btn" onclick="usarSugestao('Faça um resumo financeiro completo')">◈ Resumo financeiro</button>
+        <button class="ia-sugestao-btn" onclick="usarSugestao('Gera um comunicado sobre assembleia geral')">✉ Comunicado</button>
+      </div>
+
+      <!-- Chat -->
+      <div class="panel panel--ia" style="--delay:.1s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">TERMINAL DE CONSULTA</span>
+          </div>
+          <span class="ia-status-dot" id="ia-status-dot">● ONLINE</span>
+        </div>
+
+        <div id="ia-chat-area" class="ia-chat-area">
+          <!-- Mensagem inicial -->
+          <div class="ia-msg ia-msg-bot">
+            <div class="ia-avatar">✦</div>
+            <div class="ia-msg-bubble ia-msg-bubble-bot">
+              <span class="ia-label">CONDO//AI</span>
+              Olá! Sou o assistente inteligente do seu condomínio.<br/>
+              Conheço seus dados financeiros em tempo real: saldo, despesas, receitas e inadimplentes.<br/>
+              Como posso ajudar?
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de digitação (injetado via JS no chat area) -->
+
+        <!-- Input -->
+        <div class="ia-input-row">
+          <span class="ia-input-prefix">&gt;_</span>
+          <input
+            id="ia-input"
+            class="ia-input"
+            type="text"
+            placeholder="Digite sua pergunta ou comando…"
+            onkeydown="if(event.key==='Enter') enviarMensagemIA()"
+            autocomplete="off"
+          />
+          <button id="ia-btn-enviar" class="btn-submit ia-btn-enviar" onclick="enviarMensagemIA()">
+            <span id="ia-btn-enviar-label">▶ ENVIAR</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <!-- FIM CONDO//AI -->
+
+    <!-- AVISOS -->
+    <div id="avisos" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s" id="aviso-form-panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">PUBLICAR AVISO</span>
+          </div>
+          <button class="form-toggle" onclick="toggleForm('aviso-form-body','aviso-toggle-label')">
+            <span id="aviso-toggle-label">+ NOVO AVISO</span>
+          </button>
+        </div>
+        <div class="form-body" id="aviso-form-body" style="display:none">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="aviso-titulo">TÍTULO</label>
+              <input class="field-input" id="aviso-titulo" name="aviso_titulo" autocomplete="off" type="text" placeholder="ex: Manutenção do elevador" />
+              <span class="field-erro" id="aviso-titulo-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="aviso-tipo">TIPO</label>
+              <select class="field-input" id="aviso-tipo">
+                <option value="NORMAL">NORMAL</option>
+                <option value="INFO">INFORMATIVO</option>
+                <option value="URGENTE">URGENTE</option>
+              </select>
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="aviso-conteudo">MENSAGEM</label>
+              <textarea class="field-input" id="aviso-conteudo" rows="4" placeholder="Descreva o aviso em detalhes…"></textarea>
+              <span class="field-erro" id="aviso-conteudo-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit" id="aviso-btn" onclick="submitAviso()">
+                <span id="aviso-btn-label">▶ PUBLICAR</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-feedback" id="aviso-feedback"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">QUADRO DE AVISOS</span>
+          </div>
+          <span class="panel-badge" id="avisos-count">—</span>
+        </div>
+        <div id="avisos-lista" class="avisos-grid"></div>
+      </div>
+
+    </div>
+    <!-- FIM AVISOS -->
+
+    <!-- RECLAMAÇÕES -->
+    <div id="reclamacoes" class="section" style="display:none">
+
+      <!-- Filtros e contadores -->
+      <section class="cards-grid" style="--delay:.05s">
+        <div class="card" style="--delay:.05s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">TOTAL</span><span class="card-icon">⚑</span></div>
+          <div class="card-label">RECLAMAÇÕES</div>
+          <div class="card-value" id="rec-stat-total">—</div>
+        </div>
+        <div class="card" style="--delay:.15s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">ABERTAS</span><span class="card-icon">◉</span></div>
+          <div class="card-label">EM ABERTO</div>
+          <div class="card-value" id="rec-stat-abertas">—</div>
+          <div class="card-glow card-glow--cyan"></div>
+        </div>
+        <div class="card" style="--delay:.25s">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <div class="card-header"><span class="card-tag">RESOLVIDAS</span><span class="card-icon">✓</span></div>
+          <div class="card-label">RESOLVIDAS</div>
+          <div class="card-value" id="rec-stat-resolvidas">—</div>
+          <div class="card-glow card-glow--green"></div>
+        </div>
+      </section>
+
+      <div class="panel" style="--delay:.35s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">RECLAMAÇÕES DOS MORADORES</span>
+          </div>
+          <span class="panel-badge" id="rec-count">—</span>
+        </div>
+        <div id="rec-admin-lista" style="padding:0 0 8px"></div>
+      </div>
+
+    </div>
+    <!-- FIM RECLAMAÇÕES -->
+
+    <!-- ESPAÇOS & RESERVAS -->
+    <div id="espacos" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">CADASTRAR ESPAÇO</span></div>
+          <button class="form-toggle form-toggle--gold" onclick="toggleForm('esp-form-body','esp-toggle-label')"><span id="esp-toggle-label">+ NOVO ESPAÇO</span></button>
+        </div>
+        <div class="form-body" id="esp-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="esp-nome">NOME DO ESPAÇO</label>
+              <input class="field-input" id="esp-nome" type="text" placeholder="ex: Salão de Festas">
+              <span class="field-erro" id="esp-nome-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="esp-capacidade">CAPACIDADE (pessoas)</label>
+              <input class="field-input" id="esp-capacidade" type="number" min="1" placeholder="ex: 50">
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="esp-desc">DESCRIÇÃO</label>
+              <input class="field-input" id="esp-desc" type="text" placeholder="ex: Com churrasqueira e espaço gourmet">
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit btn-submit--gold" id="esp-btn" onclick="submitEspaco()"><span id="esp-btn-label">▶ EXECUTAR</span></button>
+            </div>
+          </div>
+          <div class="form-feedback" id="esp-feedback"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">ESPAÇOS CADASTRADOS</span></div>
+          <span class="panel-badge panel-badge--gold" id="esp-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">ESPAÇO</span></th>
+              <th><span class="th-inner">DESCRIÇÃO</span></th>
+              <th class="text-right"><span class="th-inner">CAPACIDADE</span></th>
+              <th class="text-right"><span class="th-inner">AÇÕES</span></th>
+            </tr></thead>
+            <tbody id="tabela-espacos"><tr><td colspan="4" class="empty-state"><span class="blink">█</span> AGUARDANDO…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.25s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">SOLICITAÇÕES DE RESERVA</span></div>
+          <span class="panel-badge" id="reservas-count">—</span>
+        </div>
+        <div id="reservas-admin-lista" style="padding:0 0 8px"></div>
+      </div>
+
+    </div>
+    <!-- FIM ESPAÇOS -->
+
+    <!-- VOTAÇÕES -->
+    <div id="votacoes" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">CRIAR VOTAÇÃO</span></div>
+          <button class="form-toggle form-toggle--cyan" onclick="toggleForm('vot-form-body','vot-toggle-label')"><span id="vot-toggle-label">+ NOVA VOTAÇÃO</span></button>
+        </div>
+        <div class="form-body" id="vot-form-body">
+          <div class="form-grid">
+            <div class="field field--full">
+              <label class="field-label" for="vot-titulo">TÍTULO DA VOTAÇÃO</label>
+              <input class="field-input" id="vot-titulo" type="text" placeholder="ex: Aprovação do orçamento 2025">
+              <span class="field-erro" id="vot-titulo-erro"></span>
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="vot-desc">DESCRIÇÃO (opcional)</label>
+              <input class="field-input" id="vot-desc" type="text" placeholder="Contexto da votação…">
+            </div>
+            <div class="field field--full">
+              <label class="field-label">OPÇÕES DE VOTO (mínimo 2)</label>
+              <div id="vot-opcoes-wrap" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+                <input class="field-input vot-opcao" type="text" placeholder="Opção 1 (ex: Sim, aprovar)">
+                <input class="field-input vot-opcao" type="text" placeholder="Opção 2 (ex: Não, rejeitar)">
+              </div>
+              <button type="button" onclick="addOpcaoVotacao()" style="font-family:var(--font-mono);font-size:10px;background:transparent;border:1px dashed var(--border);color:var(--text-dim);padding:6px 14px;border-radius:6px;cursor:pointer;">+ ADICIONAR OPÇÃO</button>
+              <span class="field-erro" id="vot-opcoes-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="vot-encerramento">DATA DE ENCERRAMENTO (opcional)</label>
+              <input class="field-input" id="vot-encerramento" type="datetime-local">
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit btn-submit--cyan" id="vot-btn" onclick="submitVotacao()"><span id="vot-btn-label">▶ PUBLICAR</span></button>
+            </div>
+          </div>
+          <div class="form-feedback" id="vot-feedback"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">VOTAÇÕES ATIVAS E ENCERRADAS</span></div>
+          <span class="panel-badge" id="vot-count">—</span>
+        </div>
+        <div id="votacoes-admin-lista" style="padding:0 0 8px"></div>
+      </div>
+
+    </div>
+    <!-- FIM VOTAÇÕES -->
+
+    <!-- DOCUMENTOS -->
+    <div id="documentos" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">ENVIAR DOCUMENTO</span></div>
+          <button class="form-toggle form-toggle--gold" onclick="toggleForm('doc-form-body','doc-toggle-label')"><span id="doc-toggle-label">+ NOVO DOCUMENTO</span></button>
+        </div>
+        <div class="form-body" id="doc-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="doc-nome">NOME DO DOCUMENTO</label>
+              <input class="field-input" id="doc-nome" type="text" placeholder="ex: Regimento Interno 2025">
+              <span class="field-erro" id="doc-nome-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="doc-desc">DESCRIÇÃO (opcional)</label>
+              <input class="field-input" id="doc-desc" type="text" placeholder="Breve descrição…">
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="doc-arquivo">ARQUIVO (PDF, imagem, Word, Excel — máx 20 MB)</label>
+              <input class="field-input" id="doc-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.txt" style="padding:8px">
+              <span class="field-erro" id="doc-arquivo-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit btn-submit--gold" id="doc-btn" onclick="submitDocumento()"><span id="doc-btn-label">▶ ENVIAR</span></button>
+            </div>
+          </div>
+          <div class="form-feedback" id="doc-feedback"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">DOCUMENTOS PUBLICADOS</span></div>
+          <span class="panel-badge panel-badge--gold" id="doc-count">—</span>
+        </div>
+        <div id="documentos-admin-lista" style="padding:0 0 8px"></div>
+      </div>
+
+    </div>
+    <!-- FIM DOCUMENTOS -->
+
+    <!-- MANUTENÇÕES -->
+    <div id="manutencoes" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">AGENDAR MANUTENÇÃO</span>
+          </div>
+        </div>
+        <div class="form-body open" id="man-form-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="man-titulo">TÍTULO</label>
+              <input class="field-input" id="man-titulo" type="text" placeholder="ex: Manutenção preventiva do elevador">
+              <span class="field-erro" id="man-titulo-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="man-categoria">CATEGORIA</label>
+              <select class="field-input" id="man-categoria">
+                <option value="ELEVADOR">Elevador</option>
+                <option value="PISCINA">Piscina</option>
+                <option value="GERADOR">Gerador</option>
+                <option value="HIDRAULICA">Hidráulica</option>
+                <option value="ELETRICA">Elétrica</option>
+                <option value="LIMPEZA">Limpeza</option>
+                <option value="JARDINAGEM">Jardinagem</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="man-data-inicio">DATA/HORA INÍCIO</label>
+              <input class="field-input" id="man-data-inicio" type="datetime-local">
+              <span class="field-erro" id="man-data-inicio-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="man-data-fim">DATA/HORA TÉRMINO (opcional)</label>
+              <input class="field-input" id="man-data-fim" type="datetime-local">
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="man-impacto">IMPACTO AOS MORADORES (opcional)</label>
+              <input class="field-input" id="man-impacto" type="text" placeholder="ex: Elevador indisponível por 4h">
+            </div>
+            <div class="field field--full">
+              <label class="field-label" for="man-descricao">DESCRIÇÃO TÉCNICA (opcional)</label>
+              <textarea class="field-input" id="man-descricao" rows="2" style="resize:vertical;min-height:60px" placeholder="Detalhes da manutenção…"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn--primary" id="man-btn" onclick="submitManutencao()">
+              <span id="man-btn-label">▶ AGENDAR</span>
+            </button>
+            <span class="form-feedback" id="man-feedback"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.10s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">MANUTENÇÕES PROGRAMADAS</span>
+          </div>
+        </div>
+        <div id="manutencoes-admin-lista" style="padding:0 0 8px"></div>
+      </div>
+
+    </div>
+    <!-- FIM MANUTENÇÕES -->
+
+    <!-- MENSAGENS -->
+    <div id="mensagens" class="section" style="display:none">
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start">
+
+        <div class="panel" style="--delay:.05s">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-prefix">//</span>
+              <span class="panel-title">CONVERSAS</span>
+            </div>
+          </div>
+          <div id="conversas-lista" style="padding:0 0 8px"></div>
+        </div>
+
+        <div class="panel panel--ia" style="--delay:.10s;display:flex;flex-direction:column">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-prefix">//</span>
+              <span class="panel-title" id="chat-thread-titulo">SELECIONE UMA CONVERSA</span>
+            </div>
+          </div>
+          <div id="chat-thread-area"
+               style="min-height:320px;max-height:480px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth">
+            <div class="empty-state" style="margin:auto">Selecione uma conversa à esquerda.</div>
+          </div>
+          <div id="chat-thread-input-row"
+               style="display:none;gap:8px;padding:14px 16px;border-top:1px solid var(--border);align-items:center">
+            <input class="field-input" id="chat-admin-input"
+                   placeholder="Digite sua mensagem…" maxlength="1000"
+                   onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsgAdmin();}">
+            <button class="btn btn--primary" style="padding:10px 20px;font-size:12px;white-space:nowrap"
+                    onclick="enviarMsgAdmin()">▶ ENVIAR</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- FIM MENSAGENS -->
+
+    <!-- GESTÃO (ADMIN) -->
+    <div id="gestao" class="section" style="display:none">
+
+      <div class="panel panel--form" style="--delay:.05s">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-prefix">//</span>
+            <span class="panel-title">NOVO CONDOMÍNIO + SÍNDICO</span>
+          </div>
+        </div>
+        <div class="form-body open" id="gestao-form-body">
+          <div class="form-grid">
+            <div class="field field--full">
+              <label class="field-label">// DADOS DO CONDOMÍNIO</label>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gestao-condo-nome">NOME DO CONDOMÍNIO</label>
+              <input class="field-input" id="gestao-condo-nome" name="condo_nome" autocomplete="off" type="text" placeholder="ex: Residencial Aurora" />
+              <span class="field-erro" id="gestao-condo-nome-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gestao-condo-unidades">TOTAL DE UNIDADES</label>
+              <input class="field-input" id="gestao-condo-unidades" name="condo_unidades" autocomplete="off" type="number" placeholder="ex: 48" min="1" />
+              <span class="field-erro" id="gestao-condo-unidades-erro"></span>
+            </div>
+
+            <div class="field field--full">
+              <label class="field-label">// DADOS DO SÍNDICO</label>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gestao-sindico-nome">NOME DO SÍNDICO</label>
+              <input class="field-input" id="gestao-sindico-nome" name="sindico_nome" autocomplete="name" type="text" placeholder="ex: João Silva" />
+              <span class="field-erro" id="gestao-sindico-nome-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gestao-sindico-email">E-MAIL</label>
+              <input class="field-input" id="gestao-sindico-email" name="sindico_email" type="email" placeholder="sindico@email.com" autocomplete="email" />
+              <span class="field-erro" id="gestao-sindico-email-erro"></span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="gestao-sindico-senha">SENHA DE ACESSO</label>
+              <input class="field-input" id="gestao-sindico-senha" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password" />
+              <span class="field-erro" id="gestao-sindico-senha-erro"></span>
+            </div>
+            <div class="field field--action">
+              <button class="btn-submit" id="gestao-btn" onclick="submitNovoCondominio()">
+                <span id="gestao-btn-label">▶ CRIAR CONDOMÍNIO</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-feedback" id="gestao-feedback"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="--delay:.15s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">CONDOMÍNIOS CADASTRADOS</span></div>
+          <span class="panel-badge" id="gestao-count">—</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th><span class="th-inner">CONDOMÍNIO</span></th>
+              <th><span class="th-inner">SÍNDICO</span></th>
+              <th class="text-right"><span class="th-inner">UNIDADES</span></th>
+              <th class="text-right"><span class="th-inner">AÇÕES</span></th>
+            </tr></thead>
+            <tbody id="tabela-gestao"><tr><td colspan="4" class="empty-state"><span class="blink">█</span> AGUARDANDO…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- FIM GESTÃO -->
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="config.js"></script>
+  <script src="Space.js"></script>
+  <script src="script.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", init);</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+
+  <!-- Modal QR Portal do Morador -->
+  <div id="modal-qr-portal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:420px;width:100%;position:relative;text-align:center;">
+      <button onclick="fecharModalQR()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:8px;">// QR CODE DE ACESSO</div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-bright);margin-bottom:4px;" id="modal-qr-nome">—</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--p3);margin-bottom:20px;" id="modal-qr-apto">—</div>
+      <div id="modal-qr-canvas" style="display:flex;justify-content:center;margin-bottom:20px;"></div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">URL DE ACESSO:</div>
+      <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:16px;">
+        <input id="modal-qr-url" readonly
+          style="flex:1;background:rgba(3,18,12,.9);border:1px solid var(--border);border-radius:8px;color:var(--lavender);padding:9px 12px;font-family:var(--font-mono);font-size:10px;outline:none;"
+          onclick="this.select()">
+        <button onclick="copiarURLPortal()"
+          style="background:var(--p2);border:none;border-radius:8px;color:#fff;padding:9px 16px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;"
+          id="btn-copiar-qr">COPIAR</button>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);line-height:1.6;">
+        Exiba este QR para o morador escanear com o celular.<br>
+        Válido por 30 dias · Token regenerado a cada clique.
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Aviso -->
+  <div id="modal-editar-aviso" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:500px;width:100%;position:relative;">
+      <button onclick="fecharModalEditarAviso()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:16px;">// EDITAR AVISO</div>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label">TÍTULO</label>
+          <input class="field-input" id="edit-aviso-titulo" type="text">
+        </div>
+        <div class="field">
+          <label class="field-label">TIPO</label>
+          <select class="field-input" id="edit-aviso-tipo">
+            <option value="NORMAL">NORMAL</option>
+            <option value="INFO">INFORMATIVO</option>
+            <option value="URGENTE">URGENTE</option>
+          </select>
+        </div>
+        <div class="field field--full">
+          <label class="field-label">MENSAGEM</label>
+          <textarea class="field-input" id="edit-aviso-conteudo" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="form-feedback" id="edit-aviso-feedback" style="margin:8px 0"></div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button id="edit-aviso-btn" class="btn-submit" style="flex:1" onclick="submitEditarAviso()">▶ SALVAR</button>
+        <button class="btn-submit" style="flex:0 0 auto;background:none;border:1px solid var(--border);color:var(--text-dim)" onclick="fecharModalEditarAviso()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Condomínio -->
+  <div id="modal-editar-condo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:440px;width:100%;position:relative;">
+      <button onclick="fecharModalEditarCondo()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:16px;">// EDITAR CONDOMÍNIO</div>
+      <div class="form-grid">
+        <div class="field field--full">
+          <label class="field-label">NOME DO CONDOMÍNIO</label>
+          <input class="field-input" id="edit-condo-nome" type="text">
+        </div>
+        <div class="field field--full">
+          <label class="field-label">TOTAL DE UNIDADES</label>
+          <input class="field-input" id="edit-condo-unidades" type="number" min="1">
+        </div>
+      </div>
+      <div class="form-feedback" id="edit-condo-feedback" style="margin:8px 0"></div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button id="edit-condo-btn" class="btn-submit" style="flex:1" onclick="submitEditarCondominio()">▶ SALVAR</button>
+        <button class="btn-submit" style="flex:0 0 auto;background:none;border:1px solid var(--border);color:var(--text-dim)" onclick="fecharModalEditarCondo()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Responder Reclamação -->
+  <div id="modal-responder-rec" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:500px;width:100%;position:relative;">
+      <button onclick="fecharModalResposta()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:8px;">// RESPONDER RECLAMAÇÃO</div>
+      <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text-bright);margin-bottom:16px;" id="modal-rec-titulo-display">—</div>
+      <input type="hidden" id="modal-rec-id">
+      <div style="margin-bottom:12px;">
+        <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">STATUS</label>
+        <select id="modal-rec-status"
+          style="width:100%;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;">
+          <option value="ABERTA">ABERTA</option>
+          <option value="EM_ANALISE">EM ANÁLISE</option>
+          <option value="RESOLVIDA">RESOLVIDA</option>
+        </select>
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">RESPOSTA AO MORADOR</label>
+        <textarea id="modal-rec-resposta"
+          style="width:100%;box-sizing:border-box;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;resize:vertical;min-height:90px;"
+          placeholder="Escreva uma resposta para o morador…"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="salvarRespostaRec()"
+          style="flex:1;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:var(--p2);border-radius:8px;padding:11px;font-family:var(--font-mono);font-size:12px;font-weight:700;cursor:pointer;">
+          <span id="modal-rec-btn-label">▶ SALVAR</span>
+        </button>
+      </div>
+      <div id="modal-rec-feedback" style="margin-top:10px;font-family:var(--font-mono);font-size:11px;min-height:16px;"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Convite do Morador -->
+  <div id="modal-convite" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:12px;padding:32px;max-width:540px;width:100%;position:relative;">
+      <button onclick="fecharModalConvite()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:8px;">// CONVITE GERADO</div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-bright);margin-bottom:6px;" id="modal-convite-titulo">Link de Primeiro Acesso</div>
+      <div id="modal-convite-status" style="font-family:var(--font-mono);font-size:11px;margin-bottom:20px;padding:8px 12px;border-radius:6px;"></div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">LINK DE ATIVAÇÃO:</div>
+      <div style="display:flex;gap:8px;align-items:stretch;">
+        <input id="modal-convite-url" readonly
+          style="flex:1;background:rgba(3,18,12,.9);border:1px solid var(--border);border-radius:8px;color:var(--lavender);padding:10px 14px;font-family:var(--font-mono);font-size:11px;outline:none;word-break:break-all;"
+          onclick="this.select()">
+        <button onclick="copiarLinkConvite()"
+          style="background:var(--p2);border:none;border-radius:8px;color:#fff;padding:10px 20px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:1px;"
+          id="btn-copiar-convite">COPIAR</button>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:14px;line-height:1.6;">
+        Envie este link para o morador via WhatsApp, e-mail ou SMS.<br>
+        O link é válido até o morador ativar a conta.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
