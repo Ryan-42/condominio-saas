@@ -6,6 +6,14 @@ from app.models.condominio import Condominio
 from app.models.morador import Morador
 from app.models.despesa import Despesa
 from app.models.receita import Receita
+from app.models.pagamento import TaxaCondominio, Pagamento
+from app.models.aviso import Aviso
+from app.models.reclamacao import Reclamacao
+from app.models.espaco import Espaco
+from app.models.votacao import Votacao
+from app.models.documento import Documento
+from app.models.manutencao import Manutencao
+from app.models.mensagem import Mensagem
 from app.models.usuario import Usuario, TipoUsuario
 from app.auth import hash_senha
 
