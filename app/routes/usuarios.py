@@ -4,10 +4,13 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt as _jwt, JWTError
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
 from app.auth import (
+    SECRET_KEY,
+    ALGORITHM,
     get_db,
     get_usuario_logado,
     somente_admin,
@@ -16,6 +19,7 @@ from app.auth import (
     criar_token,
     check_rate_limit,
     UsuarioMorador,
+    oauth2_scheme,
 )
 from app.email import enviar_reset_senha
 from app.models.morador import Morador
@@ -87,10 +91,33 @@ def login(dados: LoginInput, request: Request, db: Session = Depends(get_db)):
             },
         }
 
+    logger.warning("login falhou email=%s ip=%s", dados.email, ip)
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="E-mail ou senha incorretos",
     )
+
+
+# ── POST /auth/logout ─────────────────────────────────────────
+
+@router.post("/auth/logout", status_code=200)
+def logout(
+    token: str = Depends(oauth2_scheme),
+    _usuario=Depends(get_usuario_logado),
+):
+    """Revoga o token atual — impossibilita reutilização mesmo antes de expirar."""
+    from app.services.token_blacklist import revoke
+    try:
+        payload = _jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        jti = payload.get("jti")
+        exp = payload.get("exp")
+        if jti and exp:
+            expiry = datetime.fromtimestamp(exp, tz=timezone.utc)
+            revoke(jti, expiry)
+            logger.info("logout jti=%s", jti)
+    except JWTError:
+        pass  # token já inválido — logout silencioso
+    return {"message": "Logout realizado com sucesso."}
 
 
 # ── POST /token  (Swagger — recebe form-data) ─────────────────

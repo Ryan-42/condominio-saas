@@ -1,3 +1,5 @@
+from datetime import datetime, timezone, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
@@ -6,6 +8,7 @@ from app.auth import get_db, hash_senha, criar_token
 from app.email import enviar_boas_vindas
 from app.models.condominio import Condominio
 from app.models.usuario import Usuario, TipoUsuario
+from app.models.plano import Plano, PLANOS
 
 router = APIRouter(tags=["Registro"])
 
@@ -43,12 +46,17 @@ def registrar_sindico(dados: RegistroInput, db: Session = Depends(get_db)):
     db.add(condo)
     db.flush()  # obtém condo.id antes do commit
 
+    trial_config = PLANOS[Plano.PRO]
+    trial_ends = datetime.now(timezone.utc) + timedelta(days=trial_config.trial_dias)
+
     sindico = Usuario(
         nome=dados.nome.strip(),
         email=dados.email,
         senha_hash=hash_senha(dados.senha),
         tipo=TipoUsuario.SINDICO,
         condominio_id=condo.id,
+        plano=Plano.FREE.value,
+        trial_ends_at=trial_ends,
     )
     db.add(sindico)
     db.commit()

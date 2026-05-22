@@ -1,5 +1,5 @@
+import logging
 import os
-import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from fastapi.responses import FileResponse
@@ -8,22 +8,60 @@ from sqlalchemy.orm import Session
 from app.auth import get_db, get_usuario_logado, somente_gestor, checar_acesso_condominio
 from app.models.documento import Documento
 from app.schemas.documento import DocumentoOut
+from app.services.storage import storage
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Documentos"])
 
-_BASE_DIR   = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_UPLOAD_DIR = os.path.join(_BASE_DIR, "uploads")
-_MAX_BYTES  = 20 * 1024 * 1024   # 20 MB
+_MAX_BYTES = 20 * 1024 * 1024  # 20 MB
 
-ALLOWED_MIME = {
-    "application/pdf",
-    "image/jpeg", "image/png", "image/webp",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/plain",
-}
+# Assinaturas de bytes (magic numbers) para cada tipo permitido.
+# A validação é feita nos bytes reais do arquivo, não no Content-Type do cliente.
+_MAGIC_RULES: list[tuple[bytes, str, int]] = [
+    # (magic_bytes, mime_type, offset)
+    (b"%PDF",              "application/pdf",   0),
+    (b"\x89PNG\r\n\x1a\n","image/png",          0),
+    (b"\xff\xd8\xff",     "image/jpeg",         0),
+    (b"\xd0\xcf\x11\xe0", "application/msword", 0),  # .doc antigo
+    (b"PK\x03\x04",       "application/zip",    0),  # .docx / .xlsx (ZIP internamente)
+]
+
+_ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".webp", ".doc", ".docx", ".xls", ".xlsx", ".txt"}
+
+
+def _validar_arquivo(data: bytes, filename: str) -> str:
+    """
+    Detecta o MIME real pelos bytes do arquivo (não pelo header HTTP).
+    Retorna o mime_type se válido, lança HTTPException 415 caso contrário.
+    """
+    ext = os.path.splitext(filename or "")[1].lower()
+    if ext not in _ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=415, detail=f"Extensão não permitida: {ext}")
+
+    # Detecção por magic bytes
+    detected: str | None = None
+    for magic, mime, offset in _MAGIC_RULES:
+        if data[offset: offset + len(magic)] == magic:
+            detected = mime
+            break
+
+    # Texto plano: nenhuma magic, mas é decodificável como UTF-8
+    if detected is None:
+        try:
+            data[:512].decode("utf-8")
+            detected = "text/plain"
+        except UnicodeDecodeError:
+            pass
+
+    if detected is None:
+        raise HTTPException(status_code=415, detail="Tipo de arquivo não identificado ou não permitido.")
+
+    # Webp: magic é RIFF...WEBP (bytes 0-3 + 8-11)
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        detected = "image/webp"
+
+    return detected
 
 
 @router.get("/documentos", response_model=list[DocumentoOut])
@@ -52,32 +90,27 @@ async def upload_documento(
 ):
     checar_acesso_condominio(usuario, condominio_id)
 
-    if arquivo.content_type not in ALLOWED_MIME:
-        raise HTTPException(
-            status_code=415,
-            detail=f"Tipo de arquivo não permitido: {arquivo.content_type}",
-        )
-
     conteudo = await arquivo.read()
+
+    if len(conteudo) == 0:
+        raise HTTPException(status_code=400, detail="Arquivo vazio.")
     if len(conteudo) > _MAX_BYTES:
-        raise HTTPException(status_code=413, detail="Arquivo muito grande (máximo 20 MB)")
+        raise HTTPException(status_code=413, detail="Arquivo muito grande (máximo 20 MB).")
 
-    pasta = os.path.join(_UPLOAD_DIR, str(condominio_id))
-    os.makedirs(pasta, exist_ok=True)
+    # Validação por magic bytes — ignora o Content-Type do cliente
+    ext = os.path.splitext(arquivo.filename or "")[1].lower()
+    mime_real = _validar_arquivo(conteudo, arquivo.filename or "")
 
-    ext      = os.path.splitext(arquivo.filename or "")[1]
-    filename = f"{uuid.uuid4().hex}{ext}"
-    caminho  = os.path.join(pasta, filename)
-
-    with open(caminho, "wb") as f:
-        f.write(conteudo)
+    # Salva via backend de storage (local ou S3/R2)
+    prefix = str(condominio_id)
+    storage_key = await storage.save(conteudo, prefix=prefix, ext=ext)
 
     doc = Documento(
         nome=nome,
         descricao=descricao or None,
-        filename=filename,
-        nome_original=arquivo.filename or filename,
-        mime_type=arquivo.content_type,
+        filename=storage_key,
+        nome_original=arquivo.filename or storage_key,
+        mime_type=mime_real,
         tamanho_bytes=len(conteudo),
         condominio_id=condominio_id,
         usuario_id=getattr(usuario, "id", None),
@@ -85,6 +118,7 @@ async def upload_documento(
     db.add(doc)
     db.commit()
     db.refresh(doc)
+    logger.info("documento salvo id=%d condo=%d size=%d mime=%s", doc.id, condominio_id, len(conteudo), mime_real)
     return doc
 
 
@@ -99,14 +133,25 @@ def download_documento(
         raise HTTPException(status_code=404, detail="Documento não encontrado")
     checar_acesso_condominio(usuario, doc.condominio_id)
 
-    caminho = os.path.join(_UPLOAD_DIR, str(doc.condominio_id), doc.filename)
-    if not os.path.exists(caminho):
+    # Suporte a registros antigos (filename sem prefixo condo_id)
+    key = doc.filename if "/" in doc.filename else f"{doc.condominio_id}/{doc.filename}"
+
+    # Se o backend tem URL pública (S3/R2), redireciona
+    url = storage.get_url(key)
+    if url:
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=url)
+
+    # LocalStorage: serve o arquivo diretamente
+    data = storage.read(key)
+    if data is None:
         raise HTTPException(status_code=404, detail="Arquivo não encontrado no servidor")
 
-    return FileResponse(
-        path=caminho,
+    from fastapi.responses import Response
+    return Response(
+        content=data,
         media_type=doc.mime_type or "application/octet-stream",
-        filename=doc.nome_original,
+        headers={"Content-Disposition": f'attachment; filename="{doc.nome_original}"'},
     )
 
 
@@ -121,9 +166,11 @@ def deletar_documento(
         raise HTTPException(status_code=404, detail="Documento não encontrado")
     checar_acesso_condominio(usuario, doc.condominio_id)
 
-    caminho = os.path.join(_UPLOAD_DIR, str(doc.condominio_id), doc.filename)
-    if os.path.exists(caminho):
-        os.remove(caminho)
+    key = doc.filename if "/" in doc.filename else f"{doc.condominio_id}/{doc.filename}"
+    try:
+        storage.delete(key)
+    except Exception as e:
+        logger.warning("erro ao deletar arquivo storage key=%s: %s", key, e)
 
     db.delete(doc)
     db.commit()

@@ -7,6 +7,25 @@ import time
 import uuid
 import logging
 
+# ── Logging deve ser configurado antes de qualquer import de rotas ─────────────
+from app.logging_config import setup_logging
+setup_logging()
+
+# ── Sentry (opcional — só inicializa se SENTRY_DSN estiver definido) ───────────
+_SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+if _SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    sentry_sdk.init(
+        dsn=_SENTRY_DSN,
+        environment=os.getenv("ENV", "development"),
+        integrations=[FastApiIntegration(), SqlalchemyIntegration()],
+        traces_sample_rate=0.1,
+        send_default_pii=False,  # nunca enviar dados pessoais
+    )
+    logging.getLogger(__name__).info("Sentry inicializado (env=%s)", os.getenv("ENV"))
+
 from app.routes import pagamentos as pagamentos_router
 from app.routes import relatorio_pdf as relatorio_pdf_router
 from app.routes import ai as ai_router
@@ -19,7 +38,8 @@ from app.routes import votacoes as votacoes_router
 from app.routes import documentos as documentos_router
 from app.routes import manutencoes as manutencoes_router
 from app.routes import chat as chat_router
-from app.models import reclamacao as _reclamacao_model  # noqa: registra no metadata
+from app.routes import billing as billing_router
+from app.models import reclamacao as _reclamacao_model  # noqa
 from app.models import manutencao as _manutencao_model  # noqa
 from app.models import mensagem as _mensagem_model      # noqa
 from app.models import espaco as _espaco_model          # noqa
@@ -37,10 +57,6 @@ from app.database import engine, Base, SessionLocal
 from app.routes import condominios, moradores, despesas, receitas
 from app.routes import financeiro, usuarios, insights, relatorio
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s — %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 
@@ -49,6 +65,11 @@ def _init_db():
         "usuarios": [
             ("reset_token",        "VARCHAR"),
             ("reset_token_expira", "TIMESTAMP"),
+            # Sprint 6 — billing
+            ("plano",                  "VARCHAR DEFAULT 'FREE'"),
+            ("stripe_customer_id",     "VARCHAR"),
+            ("stripe_subscription_id", "VARCHAR"),
+            ("trial_ends_at",          "TIMESTAMP"),
         ],
         "moradores": [
             ("senha_hash",            "VARCHAR"),
@@ -85,7 +106,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# ── Validação de variáveis críticas ───────────────────────────
+# ── Validação de variáveis críticas ───────────────────────────────────────────
 _SECRET_KEY = os.getenv("SECRET_KEY", "")
 _GROQ_KEY   = os.getenv("GROQ_API_KEY", "")
 
@@ -99,14 +120,14 @@ if not _SECRET_KEY or _SECRET_KEY == "chave-local-dev":
 if not _GROQ_KEY:
     logger.warning("GROQ_API_KEY não definida — endpoint /ai/chat retornará erro 503.")
 
-# ── CORS ──────────────────────────────────────────────────────
+# ── CORS ──────────────────────────────────────────────────────────────────────
 _raw_origins = os.getenv(
     "ALLOWED_ORIGINS",
     "http://localhost:5500,http://127.0.0.1:5500"
 )
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
-app = FastAPI(title="Condominio SaaS MVP", lifespan=lifespan)
+app = FastAPI(title="CONDO//SYS API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -118,12 +139,22 @@ app.add_middleware(
 
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def request_context(request: Request, call_next):
+    """Injeta request_id em cada requisição e loga latência."""
     rid = str(uuid.uuid4())[:8]
     start = time.perf_counter()
     response = await call_next(request)
     elapsed = (time.perf_counter() - start) * 1000
-    logger.info("[%s] %s %s → %d (%.1fms)", rid, request.method, request.url.path, response.status_code, elapsed)
+    logger.info(
+        "request completed",
+        extra={
+            "request_id": rid,
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "ms": round(elapsed, 1),
+        },
+    )
     response.headers["X-Request-ID"] = rid
     return response
 
@@ -142,10 +173,14 @@ async def security_headers(request: Request, call_next):
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    logger.exception("Erro não tratado em %s %s: %s", request.method, request.url.path, exc)
+    logger.exception(
+        "unhandled exception",
+        extra={"method": request.method, "path": request.url.path},
+    )
     return JSONResponse(status_code=500, content={"detail": "Erro interno do servidor."})
 
 
+# ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(condominios.router)
 app.include_router(moradores.router)
 app.include_router(despesas.router)
@@ -166,27 +201,68 @@ app.include_router(votacoes_router.router)
 app.include_router(documentos_router.router)
 app.include_router(manutencoes_router.router)
 app.include_router(chat_router.router)
+app.include_router(billing_router.router)
 
+
+# ── Saúde ─────────────────────────────────────────────────────────────────────
 
 @app.get("/")
 def root():
-    return {"status": "online", "message": "CONDO//SYS API"}
+    return {"status": "online", "message": "CONDO//SYS API", "version": "1.0.0"}
 
 
 @app.get("/health")
 def health():
+    """Healthcheck rápido — usado pelo Railway (deve responder em < 200ms)."""
     try:
         db = SessionLocal()
         db.execute(text("SELECT 1"))
         db.close()
         return {"status": "ok", "database": "connected"}
     except Exception as e:
-        logger.error("Health check falhou: %s", e)
+        logger.error("health check falhou: %s", e)
         raise HTTPException(status_code=503, detail="Database unavailable")
 
 
+@app.get("/health/details")
+def health_details():
+    """Healthcheck detalhado com status de cada dependência."""
+    import time as _time
+
+    results: dict = {}
+
+    # PostgreSQL
+    try:
+        t0 = _time.perf_counter()
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
+        results["database"] = {"status": "ok", "latency_ms": round((_time.perf_counter() - t0) * 1000, 1)}
+    except Exception as e:
+        results["database"] = {"status": "error", "detail": str(e)}
+
+    # Groq API key presente
+    results["groq"] = {
+        "status": "configured" if os.getenv("GROQ_API_KEY") else "missing_key"
+    }
+
+    # Stripe key presente
+    results["stripe"] = {
+        "status": "configured" if os.getenv("STRIPE_SECRET_KEY") else "missing_key"
+    }
+
+    # Storage backend
+    from app.services.storage import storage
+    results["storage"] = {"backend": type(storage).__name__}
+
+    # Sentry
+    results["sentry"] = {"status": "configured" if _SENTRY_DSN else "disabled"}
+
+    overall = "ok" if results["database"]["status"] == "ok" else "degraded"
+    return {"status": overall, "services": results}
+
+
 # Serve os arquivos estáticos do frontend (produção).
-# Rotas da API registradas acima têm prioridade sobre os arquivos estáticos.
 _static_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.isdir(_static_dir) and any(
     f.endswith(".html") for f in os.listdir(_static_dir)

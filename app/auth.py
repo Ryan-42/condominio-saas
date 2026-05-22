@@ -1,3 +1,5 @@
+import logging
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -13,6 +15,8 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.usuario import Usuario, TipoUsuario
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class UsuarioMorador:
@@ -25,23 +29,25 @@ class UsuarioMorador:
     morador_id: int
     apartamento: Optional[str] = None
 
-# ── Configuração ──────────────────────────────────────────────
+
+# ── Configuração ──────────────────────────────────────────────────────────────
 import os
 
-SECRET_KEY = os.getenv("SECRET_KEY", "chave-local-dev")
+SECRET_KEY         = os.getenv("SECRET_KEY", "chave-local-dev")
 ALGORITHM          = "HS256"
 TOKEN_EXPIRE_HORAS = 8
 
 pwd_context   = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")   # aponta para /token (Swagger)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 
-# ── Rate limiting para /login ─────────────────────────────────
-
+# ── Rate limiting para /login (em memória) ────────────────────────────────────
+# Trocar por Redis quando escalar para múltiplas instâncias.
 _login_attempts: dict = defaultdict(list)
 _rl_lock = threading.Lock()
 _RL_MAX    = 5
 _RL_JANELA = 60  # segundos
+
 
 def check_rate_limit(ip: str):
     agora = datetime.now(timezone.utc)
@@ -49,6 +55,7 @@ def check_rate_limit(ip: str):
     with _rl_lock:
         _login_attempts[ip] = [t for t in _login_attempts[ip] if t > janela]
         if len(_login_attempts[ip]) >= _RL_MAX:
+            logger.warning("rate limit atingido ip=%s tentativas=%d", ip, len(_login_attempts[ip]))
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=f"Muitas tentativas. Aguarde {_RL_JANELA} segundos.",
@@ -56,7 +63,7 @@ def check_rate_limit(ip: str):
         _login_attempts[ip].append(agora)
 
 
-# ── Banco ─────────────────────────────────────────────────────
+# ── Banco ─────────────────────────────────────────────────────────────────────
 
 def get_db():
     db = SessionLocal()
@@ -66,7 +73,7 @@ def get_db():
         db.close()
 
 
-# ── Senha ─────────────────────────────────────────────────────
+# ── Senha ─────────────────────────────────────────────────────────────────────
 
 def hash_senha(senha: str) -> str:
     return pwd_context.hash(senha)
@@ -76,15 +83,16 @@ def verificar_senha(senha: str, hash: str) -> bool:
     return pwd_context.verify(senha, hash)
 
 
-# ── JWT ───────────────────────────────────────────────────────
+# ── JWT ───────────────────────────────────────────────────────────────────────
 
 def criar_token(dados: dict, horas: int = TOKEN_EXPIRE_HORAS) -> str:
     payload = dados.copy()
+    payload["jti"] = str(uuid.uuid4())   # ID único para blacklist
     payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=horas)
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# ── Dependência: usuário logado ───────────────────────────────
+# ── Dependência: usuário logado ───────────────────────────────────────────────
 
 def get_usuario_logado(
     token: str = Depends(oauth2_scheme),
@@ -100,7 +108,15 @@ def get_usuario_logado(
         email: str = payload.get("sub")
         if not email:
             raise credencial_erro
-    except JWTError:
+    except JWTError as exc:
+        logger.warning("jwt inválido tipo=%s", type(exc).__name__)
+        raise credencial_erro
+
+    # Verificar blacklist (tokens revogados via logout)
+    from app.services.token_blacklist import is_revoked
+    jti = payload.get("jti")
+    if jti and is_revoked(jti):
+        logger.info("token revogado jti=%s", jti)
         raise credencial_erro
 
     # 1. Tenta encontrar como Usuario (ADMIN / SINDICO)
@@ -123,10 +139,11 @@ def get_usuario_logado(
                 apartamento=morador.apartamento,
             )
 
+    logger.warning("usuário não encontrado para sub=%s", email)
     raise credencial_erro
 
 
-# ── Dependência: somente ADMIN ────────────────────────────────
+# ── Dependência: somente ADMIN ────────────────────────────────────────────────
 
 def somente_admin(usuario: Usuario = Depends(get_usuario_logado)) -> Usuario:
     if usuario.tipo != TipoUsuario.ADMIN:
@@ -147,7 +164,7 @@ def somente_gestor(usuario: Usuario = Depends(get_usuario_logado)) -> Usuario:
     return usuario
 
 
-# ── Utilitário: checar acesso ao condomínio (uso interno nas rotas) ───────────
+# ── Utilitário: checar acesso ao condomínio ───────────────────────────────────
 
 def checar_acesso_condominio(usuario: Usuario, condominio_id: int) -> None:
     """Lança 403 se o usuário não pertence ao condomínio (ADMIN tem acesso total)."""
@@ -165,7 +182,7 @@ def checar_acesso_condominio(usuario: Usuario, condominio_id: int) -> None:
         )
 
 
-# ── Dependência: verificar acesso ao condomínio ───────────────
+# ── Dependência: verificar acesso ao condomínio ───────────────────────────────
 
 def verificar_acesso_condominio(
     condominio_id: int,
@@ -173,7 +190,6 @@ def verificar_acesso_condominio(
 ) -> Usuario:
     if usuario.tipo == TipoUsuario.ADMIN:
         return usuario
-
     if usuario.condominio_id is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

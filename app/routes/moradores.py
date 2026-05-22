@@ -70,6 +70,29 @@ _CAMPOS_IMUTAVEIS_MORADOR = {"condominio_id", "senha_hash", "convite_token", "co
 @router.post("/moradores", response_model=MoradorSchema)
 def criar_morador(morador: MoradorCreate, db: Session = Depends(get_db), usuario: Usuario = Depends(somente_gestor)):
     checar_acesso_condominio(usuario, morador.condominio_id)
+
+    # Enforcement de limite de moradores por plano
+    if usuario.tipo == TipoUsuario.SINDICO:
+        from app.models.plano import get_config
+        from datetime import datetime, timezone as tz
+        db_usuario = db.query(Usuario).filter(Usuario.id == usuario.id).first()
+        plano_str = getattr(db_usuario, "plano", None) or "FREE"
+        # Trial PRO permite limite PRO temporariamente
+        trial_ends = getattr(db_usuario, "trial_ends_at", None)
+        trial_ativo = trial_ends and (
+            (trial_ends.replace(tzinfo=tz.utc) if trial_ends.tzinfo is None else trial_ends)
+            > datetime.now(tz.utc)
+        )
+        plano_efetivo = "PRO" if trial_ativo and plano_str == "FREE" else plano_str
+        config = get_config(plano_efetivo)
+        if config.max_moradores != -1:
+            total = db.query(Morador).filter(Morador.condominio_id == morador.condominio_id).count()
+            if total >= config.max_moradores:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Limite de {config.max_moradores} moradores atingido no plano {config.nome}. Faça upgrade para continuar.",
+                )
+
     novo = Morador(**morador.model_dump())
     try:
         db.add(novo)

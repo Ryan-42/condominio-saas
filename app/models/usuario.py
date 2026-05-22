@@ -22,4 +22,10 @@ class Usuario(Base):
     reset_token          = Column(String, nullable=True)
     reset_token_expira   = Column(DateTime, nullable=True)
 
+    # Billing — Sprint 6
+    plano                  = Column(String, nullable=True, default="FREE")
+    stripe_customer_id     = Column(String, nullable=True)
+    stripe_subscription_id = Column(String, nullable=True)
+    trial_ends_at          = Column(DateTime, nullable=True)
+
     condominio = relationship("Condominio")
