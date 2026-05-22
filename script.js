@@ -570,9 +570,13 @@ async function carregarBalanco() {
 }
 
 async function carregarDashboardDespesas() {
+  if (!CONDOMINIO_ID) return;
   const todas = await fetchAPI("/despesas");
   if (!todas) return;
-  const despesas = todas.filter((d) => d.condominio_id === CONDOMINIO_ID);
+  const _u = getUsuario();
+  const despesas = (_u && _u.tipo === "ADMIN")
+    ? todas.filter((d) => d.condominio_id === CONDOMINIO_ID)
+    : todas;
   document.getElementById("dash-despesas-count").textContent = `${pad(despesas.length)} ENTRADAS`;
   despesas.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
   renderRows("dash-tabela-despesas", despesas.slice(0, 8).map((d) =>
@@ -739,9 +743,13 @@ async function carregarDashboard() {
 
 async function carregarDespesas() {
   try {
+    if (!CONDOMINIO_ID) return;
     const todas    = await fetchAPI("/despesas");
     if (!todas) return;
-    const despesas = todas.filter((d) => d.condominio_id === CONDOMINIO_ID);
+    const _u = getUsuario();
+    const despesas = (_u && _u.tipo === "ADMIN")
+      ? todas.filter((d) => d.condominio_id === CONDOMINIO_ID)
+      : todas;
     document.getElementById("desp-count").textContent = `${pad(despesas.length)} ENTRADAS`;
     despesas.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
 
@@ -785,6 +793,7 @@ function _validarDespesa() {
 }
 
 async function submitDespesa() {
+  if (!CONDOMINIO_ID) { exibirToast("✖ Nenhum condomínio selecionado.", "erro"); return; }
   limparErros("desp-descricao", "desp-valor", "desp-data");
   if (!_validarDespesa()) return;
 
@@ -861,9 +870,13 @@ function _sairModoEdicaoDesp() {
 
 async function carregarReceitas() {
   try {
+    if (!CONDOMINIO_ID) return;
     const todas    = await fetchAPI("/receitas");
     if (!todas) return;
-    const receitas = todas.filter((r) => r.condominio_id === CONDOMINIO_ID);
+    const _u = getUsuario();
+    const receitas = (_u && _u.tipo === "ADMIN")
+      ? todas.filter((r) => r.condominio_id === CONDOMINIO_ID)
+      : todas;
     document.getElementById("rec-count").textContent = `${pad(receitas.length)} ENTRADAS`;
     receitas.sort((a, b) => (b.data || "").localeCompare(a.data || ""));
 
@@ -907,6 +920,7 @@ function _validarReceita() {
 }
 
 async function submitReceita() {
+  if (!CONDOMINIO_ID) { exibirToast("✖ Nenhum condomínio selecionado.", "erro"); return; }
   limparErros("rec-descricao", "rec-valor", "rec-data");
   if (!_validarReceita()) return;
 
@@ -1041,6 +1055,7 @@ function _validarMorador() {
 }
 
 async function submitMorador() {
+  if (!CONDOMINIO_ID) { exibirToast("✖ Nenhum condomínio selecionado.", "erro"); return; }
   limparErros("mor-nome", "mor-apartamento", "mor-email", "mor-telefone");
   if (!_validarMorador()) return;
 
