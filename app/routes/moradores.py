@@ -3,13 +3,15 @@ import secrets
 from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from app.auth import get_db, get_usuario_logado, somente_gestor, hash_senha, checar_acesso_condominio, criar_token, UsuarioMorador
+from app.auth import get_db, get_usuario_logado, somente_gestor, hash_senha, checar_acesso_condominio, criar_token, UsuarioMorador, SECRET_KEY, ALGORITHM
 from app.email import enviar_convite_morador
+from app.models.condominio import Condominio
 from app.models.morador import Morador
 from app.models.usuario import Usuario, TipoUsuario
-from app.schemas.morador import MoradorCreate, Morador as MoradorSchema, MoradorAtivacaoInput, MoradorPerfilUpdate, ConviteOut
+from app.schemas.morador import MoradorCreate, Morador as MoradorSchema, MoradorAtivacaoInput, MoradorPerfilUpdate, ConviteOut, AutoRegistroInput, QRRegistroOut
 
 router = APIRouter()
 
@@ -185,3 +187,62 @@ def ativar_morador(dados: MoradorAtivacaoInput, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Conta ativada com sucesso."}
+
+
+@router.get("/condominios/{condo_id}/qr-registro", response_model=QRRegistroOut)
+def gerar_qr_registro(
+    condo_id: int,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(somente_gestor),
+):
+    """Gera QR code para auto-registro de moradores no condomínio."""
+    condo = db.query(Condominio).filter(Condominio.id == condo_id).first()
+    if not condo:
+        raise HTTPException(status_code=404, detail="Condomínio não encontrado")
+    checar_acesso_condominio(usuario, condo_id)
+
+    token = criar_token({"sub": f"registro:{condo_id}", "tipo": "REGISTRO_CONDO"}, horas=24 * 365)
+    base_url = os.getenv("FRONTEND_URL", "http://localhost:5500")
+    registro_url = f"{base_url}/onboarding.html?condo_token={token}"
+    return QRRegistroOut(registro_url=registro_url, condo_nome=condo.nome)
+
+
+@router.post("/moradores/auto-registrar")
+def auto_registrar_morador(dados: AutoRegistroInput, db: Session = Depends(get_db)):
+    """Auto-registro de morador via QR code do condomínio."""
+    if not dados.lgpd_aceite:
+        raise HTTPException(status_code=400, detail="É necessário aceitar os termos de uso e política de privacidade.")
+    if len(dados.senha) < 8:
+        raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 8 caracteres.")
+
+    try:
+        payload = jwt.decode(dados.condo_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("tipo") != "REGISTRO_CONDO":
+            raise ValueError("tipo inválido")
+        sub = payload.get("sub", "")
+        if not sub.startswith("registro:"):
+            raise ValueError("sub inválido")
+        condo_id = int(sub.split(":")[1])
+    except (JWTError, ValueError, IndexError):
+        raise HTTPException(status_code=400, detail="Token de registro inválido ou expirado.")
+
+    condo = db.query(Condominio).filter(Condominio.id == condo_id).first()
+    if not condo:
+        raise HTTPException(status_code=400, detail="Condomínio não encontrado.")
+
+    if db.query(Morador).filter(Morador.email == dados.email, Morador.condominio_id == condo_id).first():
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado neste condomínio.")
+
+    novo = Morador(
+        nome=dados.nome,
+        email=dados.email,
+        telefone=dados.telefone,
+        apartamento=dados.apartamento,
+        condominio_id=condo_id,
+        senha_hash=hash_senha(dados.senha),
+        convite_token=None,
+        convite_token_expira=None,
+    )
+    db.add(novo)
+    db.commit()
+    return {"mensagem": f"Bem-vindo(a) ao {condo.nome}! Acesse o portal com seu e-mail e senha."}

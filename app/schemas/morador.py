@@ -40,3 +40,18 @@ class MoradorPerfilUpdate(BaseModel):
 class ConviteOut(BaseModel):
     onboarding_url: str
     mensagem: str
+
+
+class AutoRegistroInput(BaseModel):
+    condo_token: str
+    nome: str
+    email: str
+    telefone: str
+    apartamento: str
+    senha: str
+    lgpd_aceite: bool
+
+
+class QRRegistroOut(BaseModel):
+    registro_url: str
+    condo_nome: str

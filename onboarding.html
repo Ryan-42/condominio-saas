@@ -77,9 +77,10 @@
 
       <div class="login-card-header">
         <span class="login-card-prefix">//</span>
-        <span class="login-card-title">CONFIGURAÇÃO DE CONTA</span>
+        <span class="login-card-title" id="ob-card-title">CONFIGURAÇÃO DE CONTA</span>
       </div>
 
+      <!-- Modo convite (token) -->
       <div class="login-card-body" id="onboarding-step1">
         <p style="font-family: var(--font-ui); font-size: 15px; color: var(--text); margin-bottom: 16px;">
           Para acessar o portal do seu condomínio, por favor, defina sua senha de acesso e aceite os Termos de Privacidade (LGPD).
@@ -98,20 +99,63 @@
 
         <div class="field">
           <label class="field-label" for="nova-senha">CRIAR SENHA</label>
-          <input
-            class="field-input"
-            type="password"
-            id="nova-senha"
-            name="nova_senha"
-            autocomplete="new-password"
-            placeholder="Mínimo de 8 caracteres"
-          >
+          <input class="field-input" type="password" id="nova-senha" name="nova_senha" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" style="font-size:16px;">
         </div>
 
         <div id="onboarding-feedback" class="login-feedback" style="margin-top: 10px;"></div>
 
         <button type="button" class="btn-submit btn-submit--purple" style="width: 100%; margin-top: 16px; font-size: 13px; padding: 16px;" onclick="finalizarOnboarding()">
           FINALIZAR CADASTRO
+        </button>
+      </div>
+
+      <!-- Modo auto-registro via QR (condo_token) -->
+      <div class="login-card-body" id="onboarding-registro" style="display:none;">
+        <p style="font-family: var(--font-ui); font-size: 14px; color: var(--text); margin-bottom: 16px;" id="ob-condo-hint">
+          Preencha seus dados para se cadastrar no condomínio.
+        </p>
+
+        <div class="form-grid" style="gap:12px;">
+          <div class="field">
+            <label class="field-label" for="reg-nome">NOME COMPLETO</label>
+            <input class="field-input" type="text" id="reg-nome" autocomplete="name" placeholder="Seu nome">
+            <span class="field-erro" id="reg-nome-erro"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-apartamento">APARTAMENTO / UNIDADE</label>
+            <input class="field-input" type="text" id="reg-apartamento" autocomplete="off" placeholder="ex: 101-A">
+            <span class="field-erro" id="reg-apartamento-erro"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-email">E-MAIL</label>
+            <input class="field-input" type="email" id="reg-email" autocomplete="email" placeholder="seu@email.com">
+            <span class="field-erro" id="reg-email-erro"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-telefone">TELEFONE</label>
+            <input class="field-input" type="tel" id="reg-telefone" autocomplete="tel" placeholder="(11) 99999-9999">
+            <span class="field-erro" id="reg-telefone-erro"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-senha">CRIAR SENHA</label>
+            <input class="field-input" type="password" id="reg-senha" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" style="font-size:16px;">
+            <span class="field-erro" id="reg-senha-erro"></span>
+          </div>
+        </div>
+
+        <div class="terms-box" style="margin-top:16px;">
+          <strong>Termos de Uso e Privacidade (LGPD)</strong><br><br>
+          A plataforma CondoSYS coleta seus dados (Nome, E-mail, Unidade e Histórico de Pagamentos) exclusivamente para a finalidade de gestão condominial. Seus dados não serão compartilhados com terceiros para fins de marketing.
+        </div>
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="reg-lgpd" required>
+          <label for="reg-lgpd">Li e aceito os Termos de Privacidade e consinto com o uso dos meus dados para a gestão do condomínio.</label>
+        </div>
+
+        <div id="registro-feedback" class="login-feedback" style="margin-top: 10px;"></div>
+
+        <button type="button" class="btn-submit btn-submit--purple" style="width: 100%; margin-top: 16px; font-size: 13px; padding: 16px;" onclick="finalizarAutoRegistro()">
+          ▶ CRIAR MINHA CONTA
         </button>
       </div>
 
@@ -122,28 +166,31 @@
   <script src="config.js"></script>
   <script src="Space.js"></script>
   <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const _inviteToken = urlParams.get('token');
+    const _condoToken  = urlParams.get('condo_token');
+
+    // Decide qual modo exibir
+    if (_condoToken) {
+      document.getElementById('onboarding-step1').style.display = 'none';
+      document.getElementById('onboarding-registro').style.display = 'block';
+      document.getElementById('ob-card-title').textContent = 'CADASTRO DE MORADOR';
+    } else if (!_inviteToken) {
+      document.getElementById('onboarding-feedback').className = 'login-feedback erro';
+      document.getElementById('onboarding-feedback').textContent = 'Link inválido ou expirado.';
+    }
+
+    // ── Modo convite: definir senha ────────────────────────────
     async function finalizarOnboarding() {
       const checkbox = document.getElementById('lgpd-checkbox').checked;
       const senha = document.getElementById('nova-senha').value;
       const feedback = document.getElementById('onboarding-feedback');
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
 
       feedback.className = 'login-feedback erro';
-      
-      if (!token) {
-        feedback.textContent = "Link de convite inválido ou expirado.";
-        return;
-      }
-      if (!checkbox) {
-        feedback.textContent = "Você precisa aceitar os Termos de Privacidade para continuar.";
-        return;
-      }
-      if (senha.length < 8) {
-        feedback.textContent = "A senha deve ter no mínimo 8 caracteres.";
-        return;
-      }
+
+      if (!_inviteToken) { feedback.textContent = "Link de convite inválido ou expirado."; return; }
+      if (!checkbox)     { feedback.textContent = "Você precisa aceitar os Termos de Privacidade para continuar."; return; }
+      if (senha.length < 8) { feedback.textContent = "A senha deve ter no mínimo 8 caracteres."; return; }
 
       feedback.className = 'login-feedback';
       feedback.style.color = 'var(--text-dim)';
@@ -153,23 +200,74 @@
         const response = await fetch(`${API_BASE}/moradores/ativar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, senha, lgpd_aceite: true })
+          body: JSON.stringify({ token: _inviteToken, senha, lgpd_aceite: true })
         });
 
         if (response.ok) {
           feedback.className = 'login-feedback ok';
           feedback.textContent = "Conta ativada com sucesso! Redirecionando…";
-          setTimeout(() => {
-            window.location.href = '/login.html';
-          }, 2000);
+          setTimeout(() => { window.location.href = '/login.html'; }, 2000);
         } else {
           const data = await response.json();
           feedback.className = 'login-feedback erro';
           feedback.textContent = data.detail || "Erro ao ativar a conta.";
         }
-      } catch (err) {
+      } catch {
         feedback.className = 'login-feedback erro';
         feedback.textContent = "Erro de conexão. Tente novamente.";
+      }
+    }
+
+    // ── Modo QR: auto-registro ─────────────────────────────────
+    async function finalizarAutoRegistro() {
+      const feedback = document.getElementById('registro-feedback');
+      feedback.className = 'login-feedback erro';
+
+      // Limpa erros anteriores
+      ['reg-nome','reg-apartamento','reg-email','reg-telefone','reg-senha'].forEach(id => {
+        const el = document.getElementById(id + '-erro');
+        if (el) el.textContent = '';
+      });
+
+      const nome       = document.getElementById('reg-nome').value.trim();
+      const apartamento = document.getElementById('reg-apartamento').value.trim();
+      const email      = document.getElementById('reg-email').value.trim();
+      const telefone   = document.getElementById('reg-telefone').value.trim();
+      const senha      = document.getElementById('reg-senha').value;
+      const lgpd       = document.getElementById('reg-lgpd').checked;
+
+      let valido = true;
+      if (!nome)       { document.getElementById('reg-nome-erro').textContent = 'Campo obrigatório'; valido = false; }
+      if (!apartamento){ document.getElementById('reg-apartamento-erro').textContent = 'Campo obrigatório'; valido = false; }
+      if (!email || !email.includes('@')) { document.getElementById('reg-email-erro').textContent = 'E-mail inválido'; valido = false; }
+      if (!telefone)   { document.getElementById('reg-telefone-erro').textContent = 'Campo obrigatório'; valido = false; }
+      if (senha.length < 8) { document.getElementById('reg-senha-erro').textContent = 'Mínimo 8 caracteres'; valido = false; }
+      if (!lgpd)       { feedback.textContent = 'Aceite os Termos de Privacidade para continuar.'; return; }
+      if (!valido) return;
+
+      feedback.className = 'login-feedback';
+      feedback.style.color = 'var(--text-dim)';
+      feedback.textContent = 'Criando sua conta…';
+
+      try {
+        const response = await fetch(`${API_BASE}/moradores/auto-registrar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ condo_token: _condoToken, nome, email, telefone, apartamento, senha, lgpd_aceite: true })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          feedback.className = 'login-feedback ok';
+          feedback.textContent = data.mensagem || 'Conta criada! Redirecionando para o login…';
+          setTimeout(() => { window.location.href = '/login.html'; }, 2500);
+        } else {
+          feedback.className = 'login-feedback erro';
+          feedback.textContent = data.detail || 'Erro ao criar a conta.';
+        }
+      } catch {
+        feedback.className = 'login-feedback erro';
+        feedback.textContent = 'Erro de conexão. Tente novamente.';
       }
     }
   </script>

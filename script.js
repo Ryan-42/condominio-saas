@@ -2340,6 +2340,53 @@ async function copiarURLPortal() {
   setTimeout(() => { btn.textContent = "COPIAR"; btn.style.background = "var(--p2)"; }, 2000);
 }
 
+// ── QR REGISTRO (auto-cadastro de moradores) ──────────────────
+
+async function gerarQRRegistro() {
+  if (!CONDOMINIO_ID) { exibirToast("✖ Nenhum condomínio selecionado.", "erro"); return; }
+  try {
+    const data = await fetchAPI(`/condominios/${CONDOMINIO_ID}/qr-registro`);
+    abrirModalQRRegistro(data.registro_url, data.condo_nome);
+  } catch (err) {
+    exibirToast("Erro ao gerar QR de registro: " + err.message, "erro");
+  }
+}
+
+function abrirModalQRRegistro(url, condoNome) {
+  document.getElementById("modal-qr-reg-nome").textContent = escHTML(condoNome).toUpperCase();
+  document.getElementById("modal-qr-reg-url").value = url;
+  const canvas = document.getElementById("modal-qr-reg-canvas");
+  canvas.innerHTML = "";
+  if (typeof QRCode !== "undefined") {
+    new QRCode(canvas, {
+      text: url,
+      width: 220,
+      height: 220,
+      colorDark: "#06B6D4",
+      colorLight: "#030d0a",
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } else {
+    canvas.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);padding:20px;">QR indisponível — copie a URL abaixo.</div>`;
+  }
+  document.getElementById("modal-qr-registro").style.display = "flex";
+}
+
+function fecharModalQRRegistro() {
+  document.getElementById("modal-qr-registro").style.display = "none";
+  document.getElementById("modal-qr-reg-canvas").innerHTML = "";
+}
+
+async function copiarURLRegistro() {
+  const url = document.getElementById("modal-qr-reg-url").value;
+  const btn = document.getElementById("btn-copiar-qr-reg");
+  try { await navigator.clipboard.writeText(url); }
+  catch { document.getElementById("modal-qr-reg-url").select(); document.execCommand("copy"); }
+  btn.textContent = "COPIADO ✓";
+  btn.style.background = "var(--p1)";
+  setTimeout(() => { btn.textContent = "COPIAR"; btn.style.background = "var(--p3)"; }, 2000);
+}
+
 // ── RECLAMAÇÕES (admin) ───────────────────────────────────────
 
 const _REC_STATUS_LABEL = { ABERTA: "ABERTA", EM_ANALISE: "EM ANÁLISE", RESOLVIDA: "RESOLVIDA" };
