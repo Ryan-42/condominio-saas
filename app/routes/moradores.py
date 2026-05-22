@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from jose import JWTError, jwt
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth import get_db, get_usuario_logado, somente_gestor, hash_senha, checar_acesso_condominio, criar_token, UsuarioMorador, SECRET_KEY, ALGORITHM
@@ -201,7 +202,7 @@ def gerar_qr_registro(
         raise HTTPException(status_code=404, detail="Condomínio não encontrado")
     checar_acesso_condominio(usuario, condo_id)
 
-    token = criar_token({"sub": f"registro:{condo_id}", "tipo": "REGISTRO_CONDO"}, horas=24 * 365)
+    token = criar_token({"sub": f"registro:{condo_id}", "tipo": "REGISTRO_CONDO"}, horas=24 * 30)
     base_url = os.getenv("FRONTEND_URL", "http://localhost:5500")
     registro_url = f"{base_url}/onboarding.html?condo_token={token}"
     return QRRegistroOut(registro_url=registro_url, condo_nome=condo.nome)
@@ -230,8 +231,9 @@ def auto_registrar_morador(dados: AutoRegistroInput, db: Session = Depends(get_d
     if not condo:
         raise HTTPException(status_code=400, detail="Condomínio não encontrado.")
 
-    if db.query(Morador).filter(Morador.email == dados.email, Morador.condominio_id == condo_id).first():
-        raise HTTPException(status_code=400, detail="E-mail já cadastrado neste condomínio.")
+    # Email é único globalmente — verifica antes de tentar inserir
+    if db.query(Morador).filter(Morador.email == dados.email).first():
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado na plataforma.")
 
     novo = Morador(
         nome=dados.nome,
@@ -243,6 +245,12 @@ def auto_registrar_morador(dados: AutoRegistroInput, db: Session = Depends(get_d
         convite_token=None,
         convite_token_expira=None,
     )
-    db.add(novo)
-    db.commit()
+    try:
+        db.add(novo)
+        db.commit()
+        db.refresh(novo)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado na plataforma.")
+
     return {"mensagem": f"Bem-vindo(a) ao {condo.nome}! Acesse o portal com seu e-mail e senha."}

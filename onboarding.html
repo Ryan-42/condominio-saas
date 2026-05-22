@@ -239,7 +239,7 @@
       let valido = true;
       if (!nome)       { document.getElementById('reg-nome-erro').textContent = 'Campo obrigatório'; valido = false; }
       if (!apartamento){ document.getElementById('reg-apartamento-erro').textContent = 'Campo obrigatório'; valido = false; }
-      if (!email || !email.includes('@')) { document.getElementById('reg-email-erro').textContent = 'E-mail inválido'; valido = false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('reg-email-erro').textContent = 'E-mail inválido'; valido = false; }
       if (!telefone)   { document.getElementById('reg-telefone-erro').textContent = 'Campo obrigatório'; valido = false; }
       if (senha.length < 8) { document.getElementById('reg-senha-erro').textContent = 'Mínimo 8 caracteres'; valido = false; }
       if (!lgpd)       { feedback.textContent = 'Aceite os Termos de Privacidade para continuar.'; return; }

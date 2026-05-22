@@ -124,6 +124,17 @@ def token_swagger(
 
 @router.get("/usuarios/me", response_model=UsuarioOut)
 def meu_perfil(usuario: Usuario = Depends(get_usuario_logado)):
+    # UsuarioMorador é dataclass — serializa explicitamente para garantir compatibilidade
+    if hasattr(usuario, "morador_id"):
+        return {
+            "id": usuario.id,
+            "nome": usuario.nome,
+            "email": usuario.email,
+            "tipo": usuario.tipo,
+            "condominio_id": usuario.condominio_id,
+            "morador_id": usuario.morador_id,
+            "apartamento": usuario.apartamento,
+        }
     return usuario
 
 
