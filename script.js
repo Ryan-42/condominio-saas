@@ -554,6 +554,11 @@ function toggleForm(bodyId, labelId) {
   const label = document.getElementById(labelId);
   const open  = body.classList.toggle("open");
   label.textContent = open ? "✕ FECHAR" : "+ NOVO REGISTRO";
+  if (!open) {
+    _sairModoEdicaoDesp();
+    _sairModoEdicaoRec();
+    _sairModoEdicaoMor();
+  }
 }
 
 // ── 9. DASHBOARD ─────────────────────────────────────────────
@@ -1218,6 +1223,7 @@ async function processarImportacao(tipo, inputEl) {
     if (tipo === "despesas")  await carregarDespesas();
     if (tipo === "receitas")  await carregarReceitas();
     if (tipo === "moradores") await carregarMoradores();
+    if (tipo === "despesas" || tipo === "receitas") await carregarDashboard();
 
     if (data.erros.length) {
       console.warn("Erros de importação:", data.erros);
@@ -1387,7 +1393,7 @@ async function togglePagamento(pagamentoId, novoPago, btn) {
       data_pagamento: novoPago ? hoje : null,
     });
     exibirToast(novoPago ? "✔ Marcado como pago!" : "✔ Marcado como pendente");
-    await Promise.all([carregarPagamentos(), carregarInadimplentes()]);
+    await Promise.all([carregarPagamentos(), carregarInadimplentes(), carregarBalanco()]);
   } catch (err) {
     exibirToast(`✖ Erro ao atualizar: ${err.message}`, "erro");
     if (btn) { btn.disabled = false; btn.textContent = novoPago ? "✔ Pagar" : "↩ Reverter"; }

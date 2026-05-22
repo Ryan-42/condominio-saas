@@ -27,7 +27,11 @@ def criar_reclamacao(
     usuario=Depends(get_usuario_logado),
 ):
     checar_acesso_condominio(usuario, dados.condominio_id)
-    morador_id = getattr(usuario, "morador_id", None) or usuario.id
+    if usuario.tipo not in (TipoUsuario.MORADOR,):
+        raise HTTPException(status_code=403, detail="Apenas moradores podem abrir reclamações")
+    morador_id = getattr(usuario, "morador_id", None)
+    if not morador_id:
+        raise HTTPException(status_code=400, detail="Morador não identificado")
     rec = Reclamacao(**dados.model_dump(), morador_id=morador_id)
     db.add(rec)
     db.commit()
