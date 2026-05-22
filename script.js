@@ -564,14 +564,17 @@ function toggleForm(bodyId, labelId) {
 // ── 9. DASHBOARD ─────────────────────────────────────────────
 
 async function carregarBalanco() {
-  const data = await fetchAPI(`/financeiro/${CONDOMINIO_ID}`);
-  if (!data) return;
-  animateValue(document.getElementById("total-receitas"), data.total_receitas);
-  animateValue(document.getElementById("total-despesas"), data.total_despesas);
-  const saldoEl = document.getElementById("saldo");
-  saldoEl.classList.remove("negativo");
-  animateValue(saldoEl, Math.abs(data.saldo));
-  if (data.saldo < 0) saldoEl.classList.add("negativo");
+  if (!CONDOMINIO_ID) return;
+  try {
+    const data = await fetchAPI(`/financeiro/${CONDOMINIO_ID}`);
+    if (!data) return;
+    animateValue(document.getElementById("total-receitas"), data.total_receitas);
+    animateValue(document.getElementById("total-despesas"), data.total_despesas);
+    const saldoEl = document.getElementById("saldo");
+    saldoEl.classList.remove("negativo");
+    animateValue(saldoEl, Math.abs(data.saldo));
+    if (data.saldo < 0) saldoEl.classList.add("negativo");
+  } catch (err) { console.error("carregarBalanco:", err); }
 }
 
 async function carregarDashboardDespesas() {
@@ -2324,7 +2327,7 @@ async function carregarReclacoesAdmin() {
     document.getElementById("rec-stat-total").textContent     = pad(total);
     document.getElementById("rec-stat-abertas").textContent   = pad(abertas + analise);
     document.getElementById("rec-stat-resolvidas").textContent = pad(resolvidas);
-    document.getElementById("rec-count").textContent          = `${pad(total)} REGISTROS`;
+    document.getElementById("recl-count").textContent         = `${pad(total)} REGISTROS`;
 
     const container = document.getElementById("rec-admin-lista");
     if (!recs.length) {
