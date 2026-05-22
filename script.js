@@ -486,7 +486,7 @@ async function recarregarSecaoAtiva() {
     documentos:    () => CONDOMINIO_ID && carregarDocumentosAdmin(),
     manutencoes:   () => CONDOMINIO_ID && carregarManutencoesAdmin(),
     mensagens:     () => CONDOMINIO_ID && carregarConversasAdmin(),
-    gestao:        carregarGestao,
+    gestao:        async () => { await carregarGestao(); await carregarUsuarios(); },
   };
   if (loaders[secaoAtiva]) await loaders[secaoAtiva]();
 }
@@ -2093,6 +2093,39 @@ async function carregarGestao() {
   }
 }
 
+async function carregarUsuarios() {
+  const usuario = getUsuario();
+  if (!usuario || usuario.tipo !== "ADMIN") return;
+  const tbody = document.getElementById("tabela-usuarios");
+  const badge = document.getElementById("usuarios-count");
+  if (!tbody) return;
+  try {
+    const [usuarios, condominios] = await Promise.all([
+      fetchAPI("/usuarios"),
+      fetchAPI("/admin/condominios"),
+    ]);
+    const condoMap = Object.fromEntries((condominios || []).map(c => [c.id, c.nome]));
+    badge.textContent = usuarios.length;
+    if (!usuarios.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-state"><div class="empty-state-icon">⬡</div><div>Nenhum usuário cadastrado.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = usuarios.map((u, i) => {
+      const anim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.04}s`;
+      const tipoColor = u.tipo === "ADMIN" ? "var(--p3)" : "var(--p2)";
+      const condoNome = u.condominio_id ? escHTML(condoMap[u.condominio_id] || `ID ${u.condominio_id}`) : `<span style="opacity:.35">—</span>`;
+      return `<tr style="${anim}">
+        <td>${escHTML(u.nome)}</td>
+        <td><span class="td-email">${escHTML(u.email)}</span></td>
+        <td><span style="color:${tipoColor};font-size:11px;letter-spacing:.05em">${escHTML(u.tipo)}</span></td>
+        <td>${condoNome}</td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    console.error("carregarUsuarios:", err);
+  }
+}
+
 async function deletarCondominio(id, nome, btn) {
   if (!confirmarExclusao(nome)) return;
   if (btn) { btn.disabled = true; btn.textContent = "…"; }
@@ -2193,11 +2226,11 @@ async function submitNovoCondominio() {
       .forEach((id) => document.getElementById(id).value = "");
 
     // Recarrega a tabela e o seletor de condomínios
-    await carregarGestao();
-    await carregarCondominios();
+    await Promise.all([carregarGestao(), carregarUsuarios(), carregarCondominios()]);
   } catch (err) {
     const msg = err.message?.includes("400") ? "E-mail já cadastrado." : "Erro ao criar. Verifique os dados.";
     exibirFeedback("gestao-feedback", `⚠ ${msg}`, "erro");
+    await Promise.all([carregarGestao(), carregarUsuarios()]);
   } finally {
     setBtnLoading("gestao-btn", "gestao-btn-label", false, "▶ CRIAR CONDOMÍNIO");
   }
