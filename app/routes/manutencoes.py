@@ -25,8 +25,11 @@ def listar_manutencoes(
     checar_acesso_condominio(usuario, condominio_id)
     return (
         db.query(Manutencao)
-        .filter(Manutencao.condominio_id == condominio_id)
-        .order_by(Manutencao.data_inicio)
+        .filter(
+            Manutencao.condominio_id == condominio_id,
+            Manutencao.data_inicio.isnot(None),
+        )
+        .order_by(Manutencao.data_inicio.desc())
         .all()
     )
 

@@ -190,6 +190,9 @@ def atualizar_pagamento(pagamento_id: int, body: PagamentoUpdate,
 
     checar_acesso_condominio(usuario, pag.condominio_id)
 
+    from datetime import date
+    if body.pago and body.data_pagamento and body.data_pagamento > date.today():
+        raise HTTPException(status_code=400, detail="Data de pagamento não pode ser uma data futura.")
     pag.pago = body.pago
     pag.data_pagamento = body.data_pagamento if body.pago else None
     pag.observacao = body.observacao

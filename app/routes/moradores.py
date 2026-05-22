@@ -64,13 +64,20 @@ def buscar_morador(morador_id: int, db: Session = Depends(get_db), usuario: Usua
     return m
 
 
+_CAMPOS_IMUTAVEIS_MORADOR = {"condominio_id", "senha_hash", "convite_token", "convite_token_expira", "lgpd_aceite", "lgpd_aceite_em", "primeiro_acesso"}
+
+
 @router.post("/moradores", response_model=MoradorSchema)
 def criar_morador(morador: MoradorCreate, db: Session = Depends(get_db), usuario: Usuario = Depends(somente_gestor)):
     checar_acesso_condominio(usuario, morador.condominio_id)
     novo = Morador(**morador.model_dump())
-    db.add(novo)
-    db.commit()
-    db.refresh(novo)
+    try:
+        db.add(novo)
+        db.commit()
+        db.refresh(novo)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado na plataforma.")
     return novo
 
 
@@ -81,7 +88,8 @@ def atualizar_morador(morador_id: int, dados: MoradorCreate, db: Session = Depen
         raise HTTPException(status_code=404, detail="Morador não encontrado")
     checar_acesso_condominio(usuario, m.condominio_id)
     for campo, valor in dados.model_dump().items():
-        setattr(m, campo, valor)
+        if campo not in _CAMPOS_IMUTAVEIS_MORADOR:
+            setattr(m, campo, valor)
     db.commit()
     db.refresh(m)
     return m
@@ -94,12 +102,16 @@ def deletar_morador(morador_id: int, db: Session = Depends(get_db), usuario: Usu
         raise HTTPException(status_code=404, detail="Morador não encontrado")
     checar_acesso_condominio(usuario, m.condominio_id)
     # Anonimização LGPD Art. 18 — preserva histórico financeiro, remove dados pessoais
-    m.nome           = "[dados removidos]"
-    m.email          = None
-    m.telefone       = None
-    m.senha_hash     = None
-    m.convite_token  = None
-    db.commit()
+    try:
+        m.nome           = "[dados removidos]"
+        m.email          = None
+        m.telefone       = None
+        m.senha_hash     = None
+        m.convite_token  = None
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Falha na anonimização. Tente novamente.")
 
 
 @router.post("/moradores/{morador_id}/convidar", response_model=ConviteOut)
@@ -116,6 +128,8 @@ def convidar_morador(
     if not m:
         raise HTTPException(status_code=404, detail="Morador não encontrado")
     checar_acesso_condominio(usuario, m.condominio_id)
+    if not m.email:
+        raise HTTPException(status_code=400, detail="Morador sem e-mail cadastrado. Edite o cadastro antes de enviar o convite.")
 
     token = secrets.token_urlsafe(32)
     m.convite_token = token

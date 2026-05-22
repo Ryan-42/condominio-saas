@@ -49,7 +49,8 @@ def atualizar_receita(receita_id: int, dados: ReceitaCreate, db: Session = Depen
         raise HTTPException(status_code=404, detail="Receita não encontrada")
     checar_acesso_condominio(usuario, r.condominio_id)
     for campo, valor in dados.model_dump().items():
-        setattr(r, campo, valor)
+        if campo != "condominio_id":
+            setattr(r, campo, valor)
     db.commit()
     db.refresh(r)
     return r

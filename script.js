@@ -177,15 +177,28 @@ function exibirUsuarioLogado() {
 
 // ── 3. HTTP ───────────────────────────────────────────────────
 
-async function fetchAPI(endpoint) {
+async function fetchAPI(endpoint, { timeout = 15000 } = {}) {
   const token = getToken();
   if (!token) return;
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { "Authorization": `Bearer ${token}` },
-  });
-  if (res.status === 401) { logout(); return; }
-  if (!res.ok) throw new Error(`Erro ${res.status} em ${endpoint}`);
-  return res.json();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      headers: { "Authorization": `Bearer ${token}` },
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (res.status === 401) { logout(); return; }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `Erro ${res.status} em ${endpoint}`);
+    }
+    return res.json();
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === "AbortError") throw new Error("Tempo limite excedido. Verifique a conexão.");
+    throw err;
+  }
 }
 
 async function postAPI(endpoint, body) {
@@ -309,18 +322,18 @@ function exibirToast(mensagem, tipo = "ok") {
   toast.textContent = mensagem;
   toast.className   = `toast toast--${tipo} toast--visivel`;
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove("toast--visivel"), 3500);
+  // Erros ficam 8s visíveis; sucessos 3.5s
+  const duracao = tipo === "erro" ? 8000 : 3500;
+  toast._timer = setTimeout(() => toast.classList.remove("toast--visivel"), duracao);
 }
 
-/**
- * Exibe feedback inline no formulário (abaixo do form).
- */
 function exibirFeedback(feedbackId, mensagem, tipo = "ok") {
   const el = document.getElementById(feedbackId);
   if (!el) return;
   el.textContent = mensagem;
   el.className   = `form-feedback ${tipo}`;
-  setTimeout(() => { el.textContent = ""; el.className = "form-feedback"; }, 4000);
+  const duracao = tipo === "erro" ? 8000 : 4000;
+  setTimeout(() => { el.textContent = ""; el.className = "form-feedback"; }, duracao);
 }
 
 function setBtnLoading(btnId, labelId, loading, textoNormal = "▶ EXECUTAR") {
@@ -335,6 +348,21 @@ function setBtnLoading(btnId, labelId, loading, textoNormal = "▶ EXECUTAR") {
  */
 function confirmarExclusao(descricao) {
   return confirm(`Tem certeza que deseja excluir "${descricao}"?\n\nEssa ação não pode ser desfeita.`);
+}
+
+/**
+ * Filtra linhas visíveis de uma tabela pelo texto digitado.
+ * Oculta linhas cujas células não contenham o termo buscado.
+ */
+function filtrarTabela(tbodyId, query) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const termo = query.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  Array.from(tbody.querySelectorAll("tr")).forEach((tr) => {
+    if (tr.querySelector(".empty-state")) return;
+    const texto = tr.textContent.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    tr.style.display = !termo || texto.includes(termo) ? "" : "none";
+  });
 }
 
 function renderRows(tbodyId, rows, colspan = 3, mensagem = "Nenhum registro encontrado.", dica = "Comece adicionando um novo registro acima.") {
@@ -1531,15 +1559,19 @@ function esconderTyping() {
   document.getElementById("ia-typing-live")?.remove();
 }
 
-// ── Formatação markdown básico nas respostas da IA ───────────
+// ── Formatação markdown nas respostas da IA ──────────────────
 function formatarRespostaIA(texto) {
   const esc = (s) => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   return esc(texto)
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/^## (.+)$/gm, '<div class="ia-section-title">$1</div>')
+    .replace(/^### (.+)$/gm, '<div class="ia-section-title">$1</div>')
+    .replace(/^## (.+)$/gm,  '<div class="ia-section-title">$1</div>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li style="list-style:decimal;margin-left:1.2rem">$2</li>')
     .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>[\s\S]*?<\/li>(?:\n|$))+/g, (m) => `<ul style="margin:.3rem 0 .3rem 1rem;padding:0">${m}</ul>`)
+    .replace(/(<li[\s\S]*?<\/li>(?:\n|$))+/g, (m) => `<ul style="margin:.3rem 0 .3rem 1rem;padding:0">${m}</ul>`)
     .replace(/R\$\s?[\d.,]+/g, (m) => `<span class="ia-valor">${m}</span>`)
+    .replace(/⚠|⚠️/g, '<span style="color:var(--red)">⚠</span>')
+    .replace(/✅|✔/g, '<span style="color:var(--p2)">✔</span>')
     .replace(/\n/g, "<br>");
 }
 
@@ -1547,22 +1579,39 @@ function formatarRespostaIA(texto) {
 function gerarSugestoesContextuais() {
   const container = document.querySelector(".ia-sugestoes-row");
   if (!container) return;
+
+  if (!_dadosIA) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:11px;padding:8px">Carregando sugestões…</div>';
+    return;
+  }
+
   const base = [
-    { texto: "Como está meu saldo?",                      icone: "◆" },
     { texto: "Faça um resumo financeiro completo",         icone: "◈" },
     { texto: "Gera um comunicado sobre assembleia geral",  icone: "✉" },
     { texto: "Qual foi meu maior gasto?",                  icone: "↓" },
+    { texto: "Como posso reduzir despesas?",               icone: "◆" },
   ];
-  if (_dadosIA) {
-    if (_dadosIA.total_inadimplentes > 0) {
-      base.unshift({ texto: `Quem são os ${_dadosIA.total_inadimplentes} inadimplentes?`, icone: "⚠" });
-    }
-    if (_dadosIA.saldo < 0) {
-      base.unshift({ texto: "Por que meu saldo está negativo?", icone: "⚠" });
-    }
+
+  // Sugestões dinâmicas baseadas nos dados reais
+  if (_dadosIA.saldo < 0) {
+    base.unshift({ texto: "Por que meu saldo está negativo e o que fazer?", icone: "⚠" });
   }
-  const sugestoes = base.slice(0, 5);
-  container.innerHTML = sugestoes.map((s) =>
+  if (_dadosIA.total_inadimplentes > 0) {
+    const pct = _dadosIA.total_moradores ? Math.round(_dadosIA.total_inadimplentes / _dadosIA.total_moradores * 100) : 0;
+    base.unshift({ texto: `${_dadosIA.total_inadimplentes} inadimplentes (${pct}%): quais ações tomar?`, icone: "⚠" });
+  }
+  if (_dadosIA.reclamacoes_abertas > 0) {
+    base.push({ texto: `Há ${_dadosIA.reclamacoes_abertas} reclamação(ões) em aberto. Como priorizar?`, icone: "📋" });
+  }
+  if (_dadosIA.votacoes_ativas > 0) {
+    base.push({ texto: `Há ${_dadosIA.votacoes_ativas} votação(ões) ativa(s). Crie um comunicado de lembrete`, icone: "🗳" });
+  }
+  if (_dadosIA.manutencoes && _dadosIA.manutencoes.length > 0) {
+    const m = _dadosIA.manutencoes[0];
+    base.push({ texto: `Manutenção de ${m.categoria} agendada — escreva um aviso para os moradores`, icone: "🔧" });
+  }
+
+  container.innerHTML = base.slice(0, 5).map((s) =>
     `<button class="ia-sugestao-btn" data-sugestao="${escHTML(s.texto)}">${escHTML(s.icone)} ${escHTML(s.texto)}</button>`
   ).join("");
   container.querySelectorAll("[data-sugestao]").forEach((btn) => {
@@ -1888,26 +1937,49 @@ async function enviarMensagemIA() {
   setBtnLoading("ia-btn-enviar", "ia-btn-enviar-label", true, "▶ ENVIAR");
   mostrarTyping();
 
+  let tentativas = 0;
+  const MAX_TENTATIVAS = 2;
+
+  const enviarComRetry = async () => {
+    try {
+      const data = await postAPI("/ai/chat", {
+        mensagem,
+        condominio_id: CONDOMINIO_ID,
+        historico: _iaHistorico,
+      });
+      _iaHistorico.push({ role: "user", content: mensagem });
+      _iaHistorico.push({ role: "assistant", content: data.resposta });
+      salvarHistoricoIA();
+      esconderTyping();
+      renderMensagem(data.resposta, "bot");
+    } catch (err) {
+      const is503 = err.message && (err.message.includes("503") || err.message.toLowerCase().includes("temporariamente indispon"));
+      const isRate = err.message && err.message.includes("429");
+      if ((is503 || isRate) && tentativas < MAX_TENTATIVAS) {
+        tentativas++;
+        await new Promise((r) => setTimeout(r, 1200 * tentativas));
+        return enviarComRetry();
+      }
+      esconderTyping();
+      const msgConf = err.message && err.message.toLowerCase().includes("indispon");
+      renderMensagem(
+        msgConf && !is503
+          ? "⚠ Serviço de IA indisponível. A chave GROQ_API_KEY não está configurada no servidor."
+          : isRate
+          ? "⚠ Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
+          : `⚠ ${err.message || "Erro ao processar. Tente novamente."}`,
+        "bot"
+      );
+    } finally {
+      if (tentativas === 0 || tentativas >= MAX_TENTATIVAS) {
+        setBtnLoading("ia-btn-enviar", "ia-btn-enviar-label", false, "▶ ENVIAR");
+        input.focus();
+      }
+    }
+  };
+
   try {
-    const data = await postAPI("/ai/chat", {
-      mensagem,
-      condominio_id: CONDOMINIO_ID,
-      historico: _iaHistorico,
-    });
-    _iaHistorico.push({ role: "user", content: mensagem });
-    _iaHistorico.push({ role: "assistant", content: data.resposta });
-    salvarHistoricoIA();
-    esconderTyping();
-    renderMensagem(data.resposta, "bot");
-  } catch (err) {
-    esconderTyping();
-    const msg503 = err.message && err.message.toLowerCase().includes("indispon");
-    renderMensagem(
-      msg503
-        ? "⚠ Serviço de IA indisponível. A chave GROQ_API_KEY não está configurada no servidor."
-        : `⚠ ${err.message || "Erro ao processar. Tente novamente."}`,
-      "bot"
-    );
+    await enviarComRetry();
   } finally {
     setBtnLoading("ia-btn-enviar", "ia-btn-enviar-label", false, "▶ ENVIAR");
     input.focus();

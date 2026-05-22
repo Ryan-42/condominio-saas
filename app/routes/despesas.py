@@ -195,7 +195,8 @@ def atualizar_despesa(
     checar_acesso_condominio(usuario, d.condominio_id)
 
     for campo, valor in dados.model_dump().items():
-        setattr(d, campo, valor)
+        if campo != "condominio_id":
+            setattr(d, campo, valor)
 
     db.commit()
     db.refresh(d)
