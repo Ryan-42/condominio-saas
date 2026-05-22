@@ -1370,11 +1370,11 @@ async function carregarPagamentos() {
         <tr style="${pagAnim}" class="${p.pago ? "" : "row-pendente"}">
           <td>${escHTML(p.morador_nome) || "—"}</td>
           <td class="td-apt">${escHTML(p.apartamento) || "—"}</td>
-          <td class="td-data">${MESES_CURTOS[p.mes]}/${p.ano}</td>
+          <td class="td-data">${escHTML(MESES_CURTOS[p.mes] || "")}/${escHTML(String(p.ano))}</td>
           <td class="td-valor ${p.pago ? "td-valor--green" : "td-valor--red"}">${formatarMoeda(p.valor)}</td>
           <td><span class="inad-badge ${statusClass}">${statusText}</span></td>
           <td class="td-acoes">
-            <button class="btn-linha ${btnClass}" onclick="togglePagamento(${p.id}, ${!p.pago}, this)">${btnLabel}</button>
+            <button class="btn-linha ${btnClass}" data-pid="${Number(p.id)}" data-pago="${!p.pago}">${btnLabel}</button>
           </td>
         </tr>`;
     }).join("");
@@ -1463,6 +1463,14 @@ async function init() {
   exibirUsuarioLogado();
   initClock();
   initUptime();
+  // Delegated listener for payment toggle buttons (avoids inline onclick with DB ids)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-pid]");
+    if (!btn) return;
+    const pid  = Number(btn.dataset.pid);
+    const pago = btn.dataset.pago === "true";
+    if (!isNaN(pid)) togglePagamento(pid, pago, btn);
+  });
   const usuario = getUsuario();
   if (usuario && usuario.tipo === "ADMIN") {
     const navGestao = document.getElementById("nav-gestao");
@@ -1552,8 +1560,11 @@ function gerarSugestoesContextuais() {
   }
   const sugestoes = base.slice(0, 5);
   container.innerHTML = sugestoes.map((s) =>
-    `<button class="ia-sugestao-btn" onclick="usarSugestao(${JSON.stringify(s.texto)})">${s.icone} ${escHTML(s.texto)}</button>`
+    `<button class="ia-sugestao-btn" data-sugestao="${escHTML(s.texto)}">${escHTML(s.icone)} ${escHTML(s.texto)}</button>`
   ).join("");
+  container.querySelectorAll("[data-sugestao]").forEach((btn) => {
+    btn.addEventListener("click", () => usarSugestao(btn.dataset.sugestao));
+  });
 }
 
 // ── Histórico persistente (por condomínio, por sessão) ────────
