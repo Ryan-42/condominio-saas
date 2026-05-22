@@ -23,6 +23,8 @@ def listar_moradores(
 ):
     if usuario.tipo == TipoUsuario.ADMIN:
         return db.query(Morador).offset(skip).limit(limit).all()
+    if usuario.condominio_id is None:
+        raise HTTPException(status_code=403, detail="Usuário não vinculado a nenhum condomínio")
     return db.query(Morador).filter(Morador.condominio_id == usuario.condominio_id).offset(skip).limit(limit).all()
 
 

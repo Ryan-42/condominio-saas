@@ -153,6 +153,11 @@ def checar_acesso_condominio(usuario: Usuario, condominio_id: int) -> None:
     """Lança 403 se o usuário não pertence ao condomínio (ADMIN tem acesso total)."""
     if usuario.tipo == TipoUsuario.ADMIN:
         return
+    if usuario.condominio_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuário não vinculado a nenhum condomínio",
+        )
     if usuario.condominio_id != condominio_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -169,6 +174,11 @@ def verificar_acesso_condominio(
     if usuario.tipo == TipoUsuario.ADMIN:
         return usuario
 
+    if usuario.condominio_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuário não vinculado a nenhum condomínio",
+        )
     if usuario.condominio_id != condominio_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

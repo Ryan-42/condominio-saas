@@ -85,7 +85,7 @@ async function atualizarOnboarding() {
 
   // Busca dados para avaliar cada passo
   const [mResp, pResp, aResp] = await Promise.allSettled([
-    fetchAPI(`/moradores/${CONDOMINIO_ID}?limit=1`),
+    fetchAPI(`/moradores?limit=1`),
     fetchAPI(`/pagamentos/${CONDOMINIO_ID}?limit=1`),
     fetchAPI(`/avisos?condominio_id=${CONDOMINIO_ID}&limit=1`),
   ]);
@@ -982,7 +982,10 @@ async function carregarMoradores() {
   try {
     const todos     = await fetchAPI("/moradores");
     if (!todos) return;
-    const moradores = todos.filter((m) => m.condominio_id === CONDOMINIO_ID);
+    const usuario = getUsuario();
+    const moradores = (usuario.tipo === "ADMIN" && CONDOMINIO_ID)
+      ? todos.filter((m) => m.condominio_id === CONDOMINIO_ID)
+      : todos;
     document.getElementById("mor-count").textContent = `${pad(moradores.length)} CADASTRADOS`;
     
     const tbody = document.getElementById("tabela-moradores");

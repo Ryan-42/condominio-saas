@@ -23,6 +23,8 @@ def listar_despesas(
 ):
     if usuario.tipo == TipoUsuario.ADMIN:
         return db.query(Despesa).offset(skip).limit(limit).all()
+    if usuario.condominio_id is None:
+        raise HTTPException(status_code=403, detail="Usuário não vinculado a nenhum condomínio")
     return db.query(Despesa).filter(
         Despesa.condominio_id == usuario.condominio_id
     ).offset(skip).limit(limit).all()

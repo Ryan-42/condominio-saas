@@ -18,6 +18,8 @@ def listar_receitas(
 ):
     if usuario.tipo == TipoUsuario.ADMIN:
         return db.query(Receita).offset(skip).limit(limit).all()
+    if usuario.condominio_id is None:
+        raise HTTPException(status_code=403, detail="Usuário não vinculado a nenhum condomínio")
     return db.query(Receita).filter(Receita.condominio_id == usuario.condominio_id).offset(skip).limit(limit).all()
 
 
