@@ -1898,7 +1898,13 @@ async function enviarMensagemIA() {
     renderMensagem(data.resposta, "bot");
   } catch (err) {
     esconderTyping();
-    renderMensagem("⚠ Erro ao processar. Tente novamente.", "bot");
+    const msg503 = err.message && err.message.toLowerCase().includes("indispon");
+    renderMensagem(
+      msg503
+        ? "⚠ Serviço de IA indisponível. A chave GROQ_API_KEY não está configurada no servidor."
+        : `⚠ ${err.message || "Erro ao processar. Tente novamente."}`,
+      "bot"
+    );
   } finally {
     setBtnLoading("ia-btn-enviar", "ia-btn-enviar-label", false, "▶ ENVIAR");
     input.focus();
