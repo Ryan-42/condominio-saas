@@ -1203,6 +1203,24 @@
     </div>
   </div>
 
+  <!-- Modal Vincular Síndico -->
+  <div id="modal-vincular-sindico" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:460px;width:100%;position:relative;">
+      <button onclick="fecharVincularSindico()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;font-family:var(--font-mono);">✕</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:8px;">// VINCULAR SÍNDICO</div>
+      <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text-bright);margin-bottom:20px;" id="vincular-condo-nome">—</div>
+      <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">SELECIONAR SÍNDICO (sem condomínio)</label>
+      <select id="vincular-sindico-select" style="width:100%;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;margin-bottom:16px;">
+        <option value="">Carregando...</option>
+      </select>
+      <div class="form-feedback" id="vincular-sindico-feedback" style="margin-bottom:12px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button id="vincular-sindico-btn" class="btn-submit" style="flex:1" onclick="submitVincularSindico()">▶ VINCULAR</button>
+        <button class="btn-submit" style="flex:0 0 auto;background:none;border:1px solid var(--border);color:var(--text-dim)" onclick="fecharVincularSindico()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Responder Reclamação -->
   <div id="modal-responder-rec" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;">
     <div style="background:var(--surface2,#051510);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:500px;width:100%;position:relative;">

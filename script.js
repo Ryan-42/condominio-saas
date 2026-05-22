@@ -424,6 +424,20 @@ async function carregarCondominios() {
       ? condominios.filter((c) => c.id === usuario.condominio_id)
       : condominios;
 
+    if (!lista.length && usuario.tipo === "SINDICO") {
+      select.innerHTML = `<option value="">SEM CONDOMÍNIO VINCULADO</option>`;
+      CONDOMINIO_ID = null;
+      setStatus(false);
+      const main = document.querySelector(".main-content") || document.querySelector("main");
+      if (main) main.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;text-align:center">
+          <div style="font-size:48px;opacity:.3">⬡</div>
+          <div style="color:var(--p2);font-size:18px;font-weight:700;letter-spacing:2px">SEM CONDOMÍNIO VINCULADO</div>
+          <div style="color:var(--text-dim);font-size:13px;max-width:360px">Sua conta ainda não está vinculada a nenhum condomínio. Peça ao administrador para vincular seu usuário.</div>
+        </div>`;
+      return;
+    }
+
     select.innerHTML = lista.map((c) =>
       `<option value="${c.id}">${escHTML(c.nome).toUpperCase()}</option>`
     ).join("");
@@ -2020,9 +2034,10 @@ async function carregarGestao() {
       return `
       <tr style="${gestaoAnim}">
         <td>${escHTML(c.nome).toUpperCase()}</td>
-        <td>${c.sindico_nome ? `${escHTML(c.sindico_nome)}<span class="td-email" style="display:block;font-size:10px;opacity:.6">${escHTML(c.sindico_email)}</span>` : '<span style="opacity:.4">— sem síndico</span>'}</td>
+        <td>${c.sindico_nome ? `${escHTML(c.sindico_nome)}<span class="td-email" style="display:block;font-size:10px;opacity:.6">${escHTML(c.sindico_email)}</span>` : `<span style="opacity:.4">— sem síndico</span>`}</td>
         <td class="text-right td-valor">${c.quantidade_unidades}</td>
         <td class="td-acoes">
+          ${!c.sindico_nome ? `<button class="btn-linha" onclick="abrirVincularSindico(${c.id}, ${JSON.stringify(c.nome)})" style="margin-right:4px;border-color:var(--p3);color:var(--p3)">⬡ Vincular</button>` : ''}
           <button class="btn-linha" onclick="abrirEditarCondominio(${c.id}, ${JSON.stringify(c.nome)}, ${c.quantidade_unidades})" style="margin-right:4px">✎ Editar</button>
           <button class="btn-linha btn-linha--deletar" onclick="deletarCondominio(${c.id}, '${c.nome.replace(/'/g, "\\'")}', this)">✕ Excluir</button>
         </td>
@@ -2141,6 +2156,59 @@ async function submitNovoCondominio() {
     exibirFeedback("gestao-feedback", `⚠ ${msg}`, "erro");
   } finally {
     setBtnLoading("gestao-btn", "gestao-btn-label", false, "▶ CRIAR CONDOMÍNIO");
+  }
+}
+
+// ── VINCULAR SÍNDICO A CONDOMÍNIO ─────────────────────────────
+
+let _vincularCondoId = null;
+
+async function abrirVincularSindico(condoId, condoNome) {
+  _vincularCondoId = condoId;
+  document.getElementById("vincular-condo-nome").textContent = escHTML(condoNome).toUpperCase();
+  document.getElementById("vincular-sindico-feedback").textContent = "";
+
+  const select = document.getElementById("vincular-sindico-select");
+  select.innerHTML = `<option value="">Carregando...</option>`;
+  document.getElementById("modal-vincular-sindico").style.display = "flex";
+
+  try {
+    const usuarios = await fetchAPI("/usuarios");
+    const semVinculo = usuarios.filter(u => u.tipo === "SINDICO" && !u.condominio_id);
+    if (!semVinculo.length) {
+      select.innerHTML = `<option value="">Nenhum síndico disponível (sem condomínio)</option>`;
+    } else {
+      select.innerHTML = `<option value="">Selecione um síndico…</option>` +
+        semVinculo.map(u => `<option value="${u.id}">${escHTML(u.nome)} — ${escHTML(u.email)}</option>`).join("");
+    }
+  } catch {
+    select.innerHTML = `<option value="">Erro ao carregar usuários</option>`;
+  }
+}
+
+function fecharVincularSindico() {
+  document.getElementById("modal-vincular-sindico").style.display = "none";
+  _vincularCondoId = null;
+}
+
+async function submitVincularSindico() {
+  const select = document.getElementById("vincular-sindico-select");
+  const fb = document.getElementById("vincular-sindico-feedback");
+  const usuarioId = parseInt(select.value);
+  if (!usuarioId) { fb.textContent = "⚠ Selecione um síndico."; return; }
+
+  const btn = document.getElementById("vincular-sindico-btn");
+  btn.disabled = true; btn.textContent = "VINCULANDO…";
+  try {
+    await putAPI(`/usuarios/${usuarioId}`, { condominio_id: _vincularCondoId });
+    fecharVincularSindico();
+    exibirToast("✔ Síndico vinculado com sucesso.");
+    await carregarGestao();
+    await carregarCondominios();
+  } catch (err) {
+    fb.textContent = `⚠ ${err.message}`;
+  } finally {
+    btn.disabled = false; btn.textContent = "▶ VINCULAR";
   }
 }
 

@@ -198,6 +198,35 @@ def criar_usuario(
     return novo
 
 
+# ── PUT /usuarios/{id} ────────────────────────────────────────
+
+class UsuarioUpdate(BaseModel):
+    nome:          str | None = None
+    condominio_id: int | None = None
+    tipo:          TipoUsuario | None = None
+
+
+@router.put("/usuarios/{usuario_id}", response_model=UsuarioOut)
+def atualizar_usuario(
+    usuario_id: int,
+    dados: UsuarioUpdate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(somente_admin),
+):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    if dados.nome is not None:
+        usuario.nome = dados.nome
+    if dados.tipo is not None:
+        usuario.tipo = dados.tipo
+    if "condominio_id" in dados.model_fields_set or dados.condominio_id is not None:
+        usuario.condominio_id = dados.condominio_id
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+
 # ── POST /usuarios/esqueci-senha ──────────────────────────────
 
 @router.post("/usuarios/esqueci-senha", status_code=200)
