@@ -4,44 +4,44 @@
 :root {
   color-scheme: light dark;
   /* ── Light mode — Corporate SaaS ──────────────── */
-  --p1: #191970;
-  --p2: #3D52A0;
+  --p1: #1A237E;
+  --p2: #3949AB;
   --p3: #5C6BC0;
   --p4: #7986CB;
-  --lavender:     #7C85D0;
-  --lavender-dim: #9099CC;
+  --lavender:     #9FA8DA;
+  --lavender-dim: #7986CB;
 
   /* RGB channels — use as rgba(var(--_p), alpha) */
-  --_p:   25,25,112;
-  --_a:   38,0,128;
-  --_lt:  92,107,192;
+  --_p:   57,73,171;
+  --_a:   92,107,192;
+  --_lt:  121,134,203;
 
-  --bg:       #F0F2F5;
-  --bg2:      #E4E7ED;
-  --surface:  rgba(255,255,255,0.82);
-  --surface2: rgba(248,250,252,0.94);
-  --border:   rgba(var(--_p),0.12);
-  --border-hot: rgba(var(--_lt),0.45);
+  --bg:       #E8ECFA;
+  --bg2:      #DDE2F5;
+  --surface:  rgba(246,248,255,0.92);
+  --surface2: rgba(238,242,255,0.97);
+  --border:   rgba(var(--_p),0.14);
+  --border-hot: rgba(var(--_a),0.50);
 
-  --grad: linear-gradient(90deg,#191970,#3D52A0,#5C6BC0,#7986CB);
+  --grad: linear-gradient(90deg,#1A237E,#3949AB,#5C6BC0,#7986CB);
 
-  --text:        #0F1B4E;
-  --text-dim:    #4A5680;
-  --text-bright: #060E3A;
+  --text:        #0D0F2E;
+  --text-dim:    #3D52A0;
+  --text-bright: #050618;
 
-  --green:      #059669;
-  --green-dim:  #047857;
-  --green-glow: rgba(5,150,105,.12);
-  --red:        #DC2626;
-  --red-dim:    #B91C1C;
-  --red-glow:   rgba(220,38,38,.12);
-  --gold:       #D97706;
-  --gold-dim:   #B45309;
-  --gold-glow:  rgba(217,119,6,.12);
+  --green:      #2E7D32;
+  --green-dim:  #388E3C;
+  --green-glow: rgba(46,125,50,.14);
+  --red:        #C62828;
+  --red-dim:    #D32F2F;
+  --red-glow:   rgba(198,40,40,.14);
+  --gold:       #E65100;
+  --gold-dim:   #EF6C00;
+  --gold-glow:  rgba(230,81,0,.14);
 
-  --cyan:       #0891B2;
-  --cyan-dim:   #0E7490;
-  --cyan-glow:  rgba(8,145,178,.12);
+  --cyan:       #0277BD;
+  --cyan-dim:   #0288D1;
+  --cyan-glow:  rgba(2,119,189,.14);
 
   --sidebar-w: 250px;
   --radius:    8px;
@@ -53,43 +53,43 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --p1: #1A1F4E;
-  --p2: #3D52A0;
-  --p3: #7E57C2;
-  --p4: #9575CD;
-  --lavender:     #B39DDB;
-  --lavender-dim: #9575CD;
+  --p1: #1A1F4E;    /* deep navy */
+  --p2: #4A5BC8;    /* bright indigo */
+  --p3: #6C63FF;    /* vivid purple-blue */
+  --p4: #9C8FFF;    /* light vivid purple */
+  --lavender:     #CE93D8;
+  --lavender-dim: #AB7FC4;
 
-  --_p:   92,107,192;
-  --_a:   126,87,194;
-  --_lt:  149,117,205;
+  --_p:   108,99,255;    /* #6C63FF vivid purple */
+  --_a:   156,143,255;   /* #9C8FFF light purple */
+  --_lt:  206,147,216;   /* #CE93D8 orchid */
 
-  --bg:       #0B0C16;
-  --bg2:      #0E1020;
-  --surface:  rgba(14,16,32,0.85);
-  --surface2: rgba(18,20,40,0.92);
-  --border:   rgba(var(--_p),0.20);
-  --border-hot: rgba(var(--_a),0.55);
+  --bg:       #08091A;
+  --bg2:      #0D0E28;
+  --surface:  rgba(13,15,42,0.88);
+  --surface2: rgba(18,20,52,0.94);
+  --border:   rgba(var(--_p),0.22);
+  --border-hot: rgba(var(--_p),0.55);
 
-  --grad: linear-gradient(90deg,#1A1F4E,#5C6BC0,#7E57C2,#9575CD);
+  --grad: linear-gradient(90deg,#1A1F4E,#4A5BC8,#6C63FF,#9C8FFF);
 
-  --text:        #E2E8F0;
-  --text-dim:    #94A3B8;
-  --text-bright: #F1F5F9;
+  --text:        #E8E6FF;
+  --text-dim:    #A8A4CC;
+  --text-bright: #F4F2FF;
 
-  --green:      #34D399;
-  --green-dim:  #10B981;
-  --green-glow: rgba(var(--_lt),.15);
-  --red:        #F87171;
-  --red-dim:    #EF4444;
-  --red-glow:   rgba(248,113,113,.15);
-  --gold:       #FBBF24;
-  --gold-dim:   #F59E0B;
-  --gold-glow:  rgba(251,191,36,.15);
+  --green:      #69FFBD;
+  --green-dim:  #34D399;
+  --green-glow: rgba(105,255,189,.20);
+  --red:        #FF6B8A;
+  --red-dim:    #F87171;
+  --red-glow:   rgba(255,107,138,.20);
+  --gold:       #FFD54F;
+  --gold-dim:   #FFCA28;
+  --gold-glow:  rgba(255,213,79,.20);
 
-  --cyan:       #38BDF8;
-  --cyan-dim:   #0EA5E9;
-  --cyan-glow:  rgba(56,189,248,.15);
+  --cyan:       #80D8FF;
+  --cyan-dim:   #40C4FF;
+  --cyan-glow:  rgba(128,216,255,.20);
 }
 
 html {
@@ -322,8 +322,8 @@ body.login-page {
   animation: glyphPulse 3s ease-in-out infinite;
 }
 @keyframes glyphPulse {
-  0%,100% { filter: drop-shadow(0 0 8px var(--p2)); }
-  50%     { filter: drop-shadow(0 0 22px var(--p3)) drop-shadow(0 0 44px var(--p2)); }
+  0%,100% { filter: drop-shadow(0 0 10px var(--p3)); }
+  50%     { filter: drop-shadow(0 0 28px var(--p4)) drop-shadow(0 0 56px var(--p3)); }
 }
 .logo-stack { display: flex; flex-direction: column; }
 .logo-main {
@@ -1167,20 +1167,43 @@ textarea.field-input { resize: vertical; min-height: 100px; line-height: 1.6; pa
 }
 
 /* ════════════════════════════════════════════════
-   LIGHT MODE SPECIFIC OVERRIDES
+   LIGHT MODE — BACKGROUND ANIMATION & OVERRIDES
 ════════════════════════════════════════════════ */
-html:not([data-theme="dark"]) #space-canvas { display: none; }
-html:not([data-theme="dark"]) body.login-page {
-  background: linear-gradient(135deg, #E8EBF2 0%, #F0F2F5 40%, #EAE8F5 100%);
+@keyframes meshGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }
+html:not([data-theme="dark"]) #space-canvas { display: none; }
+
+/* Animated indigo-lavender mesh — login page */
+html:not([data-theme="dark"]) body.login-page {
+  background: linear-gradient(-45deg, #DDE5FA, #ECF0FD, #E6E0F8, #F2ECFC, #DDE5FA);
+  background-size: 400% 400%;
+  animation: meshGradient 14s ease infinite;
+}
+/* Animated indigo mesh — dashboard */
+html:not([data-theme="dark"]) body:not(.login-page) {
+  background: linear-gradient(-45deg, #E0E7FB, #EDF0FD, #EBE6FA, #F3EFFD, #E0E7FB);
+  background-size: 400% 400%;
+  animation: meshGradient 20s ease infinite;
+}
+/* Clock glow stays in light mode */
 html:not([data-theme="dark"]) .clock-display {
-  text-shadow: 0 1px 4px rgba(var(--_p),.15);
+  text-shadow: 0 0 14px rgba(var(--_p),.30), 0 0 28px rgba(var(--_a),.18);
+}
+/* Card hover ring in light mode */
+html:not([data-theme="dark"]) .card:hover {
+  box-shadow: 0 0 0 2px rgba(var(--_p),.18), 0 8px 32px rgba(var(--_p),.12);
+}
+/* Sidebar animated border more visible on light bg */
+html:not([data-theme="dark"]) .sidebar::before {
+  opacity: .8;
 }
 
 /* ── Dark mode select arrows ─────────────────── */
 [data-theme="dark"] select.field-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235C6BC0'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236C63FF'/%3E%3C/svg%3E");
 }
 [data-theme="dark"] .condo-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235C6BC0'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236C63FF'/%3E%3C/svg%3E");
 }
