@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
@@ -22,7 +22,7 @@ class RegistroInput(BaseModel):
 
 
 @router.post("/registro", status_code=201)
-def registrar_sindico(dados: RegistroInput, db: Session = Depends(get_db)):
+def registrar_sindico(dados: RegistroInput, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     if len(dados.senha) < 8:
         raise HTTPException(status_code=400, detail="A senha deve ter pelo menos 8 caracteres.")
 
@@ -62,7 +62,7 @@ def registrar_sindico(dados: RegistroInput, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(sindico)
 
-    enviar_boas_vindas(sindico.email, sindico.nome)
+    background_tasks.add_task(enviar_boas_vindas, sindico.email, sindico.nome)
 
     token = criar_token({"sub": sindico.email, "tipo": sindico.tipo})
     return {

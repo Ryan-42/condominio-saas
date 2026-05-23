@@ -2,7 +2,7 @@ import uuid
 import logging
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt as _jwt, JWTError
 from pydantic import BaseModel, EmailStr
@@ -268,7 +268,7 @@ def atualizar_usuario(
 # ── POST /usuarios/esqueci-senha ──────────────────────────────
 
 @router.post("/usuarios/esqueci-senha", status_code=200)
-def esqueci_senha(dados: EsqueciSenhaInput, request: Request, db: Session = Depends(get_db)):
+def esqueci_senha(dados: EsqueciSenhaInput, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Gera token de reset e envia e-mail. Sempre retorna 200 para não
     revelar se o e-mail existe na base (prevenção de user enumeration).
@@ -282,9 +282,7 @@ def esqueci_senha(dados: EsqueciSenhaInput, request: Request, db: Session = Depe
         usuario.reset_token        = token
         usuario.reset_token_expira = datetime.now(timezone.utc) + timedelta(hours=1)
         db.commit()
-        ok = enviar_reset_senha(usuario.email, usuario.nome, token)
-        if not ok:
-            logger.warning("Falha ao enviar e-mail de reset para %s", usuario.email)
+        background_tasks.add_task(enviar_reset_senha, usuario.email, usuario.nome, token)
     return {"message": "Se o e-mail estiver cadastrado, você receberá as instruções em breve."}
 
 

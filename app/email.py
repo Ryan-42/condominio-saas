@@ -81,11 +81,11 @@ def enviar_email(destinatario: str, assunto: str, html: str) -> bool:
         msg.attach(MIMEText(html, "html", "utf-8"))
 
         if _SMTP_PORT == 465:
-            with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT) as server:
+            with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, timeout=10) as server:
                 server.login(_SMTP_USER, _SMTP_PASS)
                 server.sendmail(_SMTP_USER, destinatario, msg.as_string())
         else:
-            with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT) as server:
+            with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT, timeout=10) as server:
                 server.ehlo()
                 server.starttls()
                 server.login(_SMTP_USER, _SMTP_PASS)
