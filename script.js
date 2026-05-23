@@ -243,6 +243,36 @@ async function carregarBillingInfo() {
   } catch {}
 }
 
+async function _verificarRetornoStripe() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("upgrade")) return;
+  history.replaceState(null, "", window.location.pathname);
+  if (params.get("upgrade") === "cancel") {
+    exibirToast("Upgrade cancelado.", "erro");
+    return;
+  }
+  // upgrade=ok — webhook pode ainda não ter chegado; faz polling por até 12s
+  exibirToast("⏳ Confirmando assinatura PRO…", "ok");
+  const token = getToken();
+  for (let i = 0; i < 6; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    try {
+      const res = await fetch(`${API_BASE}/billing/plano`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!res.ok) continue;
+      const d = await res.json();
+      if (d.plano === "PRO" || d.plano === "ENTERPRISE") {
+        await carregarBillingInfo();
+        exibirToast("✦ Bem-vindo ao CONDO//SYS PRO!");
+        return;
+      }
+    } catch {}
+  }
+  exibirToast("Assinatura recebida! Atualize a página em alguns instantes.");
+}
+
 async function iniciarUpgrade() {
   exibirToast("⏳ Abrindo checkout…", "ok");
   try {
@@ -1585,6 +1615,7 @@ async function init() {
   limparFormulario("desp-data", "rec-data");
   exibirUsuarioLogado();
   carregarBillingInfo();
+  _verificarRetornoStripe();
   initClock();
   initUptime();
   // Delegated listener for payment toggle buttons (avoids inline onclick with DB ids)
