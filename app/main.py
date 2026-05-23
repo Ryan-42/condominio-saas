@@ -91,7 +91,7 @@ def _init_db():
             for table, cols in _migrations.items():
                 for col, col_type in cols:
                     try:
-                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {col_type}"))
                         conn.commit()
                         logger.info("Coluna '%s' adicionada à tabela %s.", col, table)
                     except Exception:
