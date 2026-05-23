@@ -502,7 +502,7 @@ function renderRows(tbodyId, rows, colspan = 3, mensagem = "Nenhum registro enco
     return;
   }
   tbody.innerHTML = rows.map((html, i) => {
-    const anim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.04}s`;
+    const anim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.04, 0.4)}s`;
     return `<tr style="${anim}">${html}</tr>`;
   }).join("");
 }
@@ -759,7 +759,7 @@ async function carregarResumoMensal() {
     const label = new Date(ano, m - 1)
       .toLocaleDateString("pt-BR", { month: "short", year: "numeric" })
       .toUpperCase();
-    const mensalAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.07}s`;
+    const mensalAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.07, 0.4)}s`;
     return `
       <div class="mensal-item" style="${mensalAnim}">
         <div class="mensal-row">
@@ -848,7 +848,7 @@ function renderAlertas(alertas) {
     return;
   }
   container.innerHTML = alertas.map((a, i) => `
-    <div class="insight-item ${(a.nivel || "info")}" style="animation-delay:${i * 0.08}s">
+    <div class="insight-item ${(a.nivel || "info")}" style="animation-delay:${Math.min(i * 0.08, 0.4)}s">
       <div class="insight-body">
         <span class="insight-icone">${escHTML(a.icone || "•")}</span>
         <span>${escHTML(a.mensagem)}</span>
@@ -866,7 +866,7 @@ function renderResumo(resumo) {
     return;
   }
   container.innerHTML = resumo.map((r, i) => `
-    <div class="resumo-item" style="animation-delay:${i * 0.08}s">
+    <div class="resumo-item" style="animation-delay:${Math.min(i * 0.08, 0.4)}s">
       <span class="resumo-titulo">${escHTML(r.titulo).toUpperCase()}</span>
       <span class="resumo-valor">${escHTML(String(r.valor))}</span>
     </div>`
@@ -881,7 +881,7 @@ function renderSugestoes(sugestoes) {
     return;
   }
   container.innerHTML = sugestoes.map((s, i) => `
-    <div class="sugestao-item" style="animation-delay:${i * 0.08}s">${escHTML(s)}</div>`
+    <div class="sugestao-item" style="animation-delay:${Math.min(i * 0.08, 0.4)}s">${escHTML(s)}</div>`
   ).join("");
 }
 
@@ -1518,7 +1518,7 @@ async function carregarPagamentos() {
       const statusText  = p.pago ? "✔ PAGO" : "✖ PENDENTE";
       const btnClass    = p.pago ? "btn-linha--editar" : "btn-linha--pagar";
       const btnLabel    = p.pago ? "↩ DESFAZER" : "✔ MARCAR PAGO";
-      const pagAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.04}s`;
+      const pagAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.04, 0.4)}s`;
       return `
         <tr style="${pagAnim}" class="${p.pago ? "" : "row-pendente"}">
           <td>${escHTML(p.morador_nome) || "—"}</td>
@@ -2270,7 +2270,7 @@ async function carregarGestao() {
       return;
     }
     tbody.innerHTML = condominios.map((c, i) => {
-      const gestaoAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.04}s`;
+      const gestaoAnim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.04, 0.4)}s`;
       return `
       <tr style="${gestaoAnim}">
         <td>${escHTML(c.nome).toUpperCase()}</td>
@@ -2307,7 +2307,7 @@ async function carregarUsuarios() {
       return;
     }
     tbody.innerHTML = usuarios.map((u, i) => {
-      const anim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${i * 0.04}s`;
+      const anim = _PREFERS_NO_MOTION ? "" : `opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.04, 0.4)}s`;
       const tipoColor = u.tipo === "ADMIN" ? "var(--p3)" : "var(--p2)";
       const condoNome = u.condominio_id ? escHTML(condoMap[u.condominio_id] || `ID ${u.condominio_id}`) : `<span style="opacity:.35">—</span>`;
       return `<tr style="${anim}">

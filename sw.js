@@ -1,4 +1,4 @@
-const CACHE_NAME = 'condosys-v4';
+const CACHE_NAME = 'condosys-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/login.html',
@@ -15,6 +15,8 @@ const ASSETS_TO_CACHE = [
   '/Space.js',
   '/config.js',
   '/manifest.json',
+  '/assets/icon-192.svg',
+  '/assets/icon-512.svg',
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap'
 ];
 

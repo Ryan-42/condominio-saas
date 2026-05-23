@@ -91,6 +91,7 @@ body.login-page {
   position: relative;
   z-index: 1;
   animation: fadeUp .6s ease forwards;
+  will-change: transform;
 }
 
 .login-logo {

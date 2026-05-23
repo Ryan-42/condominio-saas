@@ -147,8 +147,8 @@
         // Linha herda cor da partícula mais brilhante (teal/emerald) ou fica neutra
         const isColored = a.color !== WHITE || b.color !== WHITE;
         ctx.strokeStyle = isColored
-          ? `rgba(6,182,212,${(t * t * 0.45).toFixed(3)})`
-          : `rgba(110,231,183,${(t * t * 0.28).toFixed(3)})`;
+          ? `rgba(6,182,212,${t * t * 0.45})`
+          : `rgba(110,231,183,${t * t * 0.28})`;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -162,7 +162,7 @@
       const dd = d2(p.x, p.y, mouse.x, mouse.y);
       if (dd > mouseD2) return;
       const t  = 1 - dd / mouseD2;
-      ctx.strokeStyle = `rgba(52,211,153,${(t * t * 0.65).toFixed(3)})`;
+      ctx.strokeStyle = `rgba(52,211,153,${t * t * 0.65})`;
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
       ctx.lineTo(mouse.x, mouse.y);
@@ -181,19 +181,23 @@
     });
     ctx.globalAlpha = 1;
 
-    // ── Pontos coloridos — glow sutil ──────────────────
-    ctx.shadowBlur = 10;
+    // ── Pontos coloridos — glow via double-circle (sem shadowBlur) ─
     dots.forEach((p) => {
       if (p.color === WHITE) return;
       const near = d2(p.x, p.y, mouse.x, mouse.y) < mouseD2;
-      ctx.globalAlpha = near ? Math.min(p.alpha + 0.35, 1) : p.alpha;
-      ctx.fillStyle   = p.color;
-      ctx.shadowColor = p.color;
+      const r    = near ? p.r * 1.4 : p.r;
+      ctx.fillStyle = p.color;
+      // halo externo: mesmo ponto com raio 3× e opacidade baixa
+      ctx.globalAlpha = (near ? Math.min(p.alpha + 0.35, 1) : p.alpha) * 0.18;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, near ? p.r * 1.4 : p.r, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+      // ponto principal
+      ctx.globalAlpha = near ? Math.min(p.alpha + 0.35, 1) : p.alpha;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fill();
     });
-    ctx.shadowBlur  = 0;
     ctx.globalAlpha = 1;
   }
 
