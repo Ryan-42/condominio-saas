@@ -21,13 +21,8 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-_STRIPE_KEY     = os.getenv("STRIPE_SECRET_KEY", "")
-_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-_PRICE_PRO      = os.getenv("STRIPE_PRICE_PRO", "")
-_APP_BASE_URL   = os.getenv("APP_BASE_URL", "http://localhost:5500").rstrip("/")
-
-
 def _get_stripe():
+    _STRIPE_KEY = os.getenv("STRIPE_SECRET_KEY", "")
     if not _STRIPE_KEY:
         raise RuntimeError("STRIPE_SECRET_KEY não configurada.")
     import stripe
@@ -42,6 +37,8 @@ def criar_checkout_session(
 ) -> str:
     """Cria uma Checkout Session PRO e retorna a URL de pagamento."""
     stripe = _get_stripe()
+    _PRICE_PRO    = os.getenv("STRIPE_PRICE_PRO", "")
+    _APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:5500").rstrip("/")
     if not _PRICE_PRO:
         raise RuntimeError("STRIPE_PRICE_PRO não configurada.")
 
@@ -70,6 +67,7 @@ def criar_checkout_session(
 def criar_portal_session(stripe_customer_id: str) -> str:
     """Cria sessão do Billing Portal para o síndico gerenciar a assinatura."""
     stripe = _get_stripe()
+    _APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:5500").rstrip("/")
     session = stripe.billing_portal.Session.create(
         customer=stripe_customer_id,
         return_url=f"{_APP_BASE_URL}/index.html",
@@ -83,6 +81,7 @@ def processar_webhook(payload: bytes, sig_header: str) -> dict:
     Retorna dict com `event_type` e dados relevantes.
     Levanta ValueError em caso de assinatura inválida.
     """
+    _WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
     if not _WEBHOOK_SECRET:
         raise RuntimeError("STRIPE_WEBHOOK_SECRET não configurada.")
 
