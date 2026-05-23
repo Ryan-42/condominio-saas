@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap&font-display=swap" rel="stylesheet">
   <meta name="theme-color" content="#06060f">
   <link rel="manifest" href="manifest.json">
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
   <link rel="stylesheet" href="styles.css">
   <style>
     @media (prefers-reduced-motion: no-preference) {
@@ -41,6 +42,7 @@
 
 <body class="login-page">
 
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro/escuro">🌙</button>
   <canvas id="space-canvas" aria-hidden="true"></canvas>
 
   <main>
@@ -135,7 +137,7 @@
         <span class="login-version">v2.4.1 · SECURE</span>
       </div>
 
-      <div style="display:flex;justify-content:center;gap:20px;padding:14px 28px;border-top:1px solid var(--border);background:rgba(16,185,129,.02);">
+      <div style="display:flex;justify-content:center;gap:20px;padding:14px 28px;border-top:1px solid var(--border);background:rgba(var(--_p),.02);">
         <a href="privacidade.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Privacidade</a>
         <a href="termos.html" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;" target="_blank">Termos de Uso</a>
         <a href="mailto:contato@condosys.com.br" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;">Suporte</a>
@@ -146,6 +148,7 @@
   </div>
   </main>
 
+  <script src="js/theme.js"></script>
   <script src="config.js"></script>
   <script src="Space.js"></script>
   <script>

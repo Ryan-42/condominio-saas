@@ -7,6 +7,7 @@
   <title>CondoSYS — Primeiro Acesso</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
   <link rel="stylesheet" href="styles.css">
   <style>
     .onboarding-wrap {
@@ -56,6 +57,7 @@
 </head>
 <body class="login-page">
 
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro/escuro">🌙</button>
   <canvas id="space-canvas" aria-hidden="true"></canvas>
 
   <main>
@@ -163,6 +165,7 @@
   </div>
   </main>
 
+  <script src="js/theme.js"></script>
   <script src="config.js"></script>
   <script src="Space.js"></script>
   <script>

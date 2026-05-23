@@ -7,6 +7,7 @@
   <title>CondoSYS — Portal do Morador</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
   <link rel="stylesheet" href="styles.css">
   <style>
     /* ─── Layout ─────────────────────────────────────── */
@@ -14,7 +15,7 @@
     .portal-header {
       display:flex; justify-content:space-between; align-items:center;
       padding:16px 24px; border-bottom:1px solid var(--border);
-      background:rgba(3,13,10,.94); position:sticky; top:0; z-index:100;
+      background:var(--surface2); position:sticky; top:0; z-index:100;
       backdrop-filter:blur(8px);
     }
     .portal-title-group { display:flex; align-items:center; gap:12px; }
@@ -26,7 +27,7 @@
     /* ─── Tabs ────────────────────────────────────────── */
     .portal-tabs {
       display:flex; gap:0; border-bottom:1px solid var(--border);
-      background:rgba(3,13,10,.7); overflow-x:auto; -webkit-overflow-scrolling:touch;
+      background:var(--surface); overflow-x:auto; -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
     }
     .portal-tabs::-webkit-scrollbar { display:none; }
@@ -51,8 +52,8 @@
     .dash-greeting {
       margin-bottom:24px;
       padding:20px 24px;
-      background:linear-gradient(135deg, rgba(16,185,129,.08) 0%, rgba(6,182,212,.05) 100%);
-      border:1px solid rgba(16,185,129,.2); border-radius:12px;
+      background:linear-gradient(135deg, rgba(var(--_p),.08) 0%, rgba(var(--_a),.05) 100%);
+      border:1px solid rgba(var(--_p),.2); border-radius:12px;
     }
     .dash-greeting-nome { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--text-bright); margin-bottom:4px; }
     .dash-greeting-sub  { font-family:var(--font-mono); font-size:11px; color:var(--p3); letter-spacing:1px; }
@@ -63,7 +64,7 @@
       cursor:pointer; transition:border-color .2s, background .2s;
       position:relative; overflow:hidden;
     }
-    .dash-card:hover { border-color:rgba(16,185,129,.4); background:rgba(16,185,129,.06); }
+    .dash-card:hover { border-color:rgba(var(--_p),.4); background:rgba(var(--_p),.06); }
     .dash-card-icon { font-size:24px; margin-bottom:10px; }
     .dash-card-label { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
     .dash-card-value { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--text-bright); }
@@ -82,7 +83,7 @@
     .dash-urgente-body  { font-family:Rajdhani,sans-serif; font-size:14px; color:var(--text); line-height:1.5; }
     .dash-manut {
       padding:14px 18px; border-radius:8px; margin-bottom:24px;
-      background:rgba(6,182,212,.07); border:1px solid rgba(6,182,212,.25);
+      background:rgba(var(--_a),.07); border:1px solid rgba(var(--_a),.25);
       animation:fadeUp .3s ease;
     }
     .dash-manut-label { font-family:var(--font-mono); font-size:9px; color:var(--cyan); letter-spacing:2px; margin-bottom:6px; }
@@ -102,9 +103,9 @@
       box-shadow:0 4px 24px rgba(0,0,0,.4);
       animation:toastIn .25s ease forwards;
     }
-    .portal-toast.ok   { background:rgba(16,185,129,.95); border:1px solid rgba(16,185,129,.5); }
+    .portal-toast.ok   { background:rgba(var(--_p),.95); border:1px solid rgba(var(--_p),.5); }
     .portal-toast.erro { background:rgba(220,38,38,.95);  border:1px solid rgba(255,68,102,.5); }
-    .portal-toast.info { background:rgba(6,182,212,.9);   border:1px solid rgba(6,182,212,.5); }
+    .portal-toast.info { background:rgba(var(--_a),.9);   border:1px solid rgba(var(--_a),.5); }
     .portal-toast.saindo { animation:toastOut .25s ease forwards; }
     @keyframes toastIn  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
     @keyframes toastOut { from{opacity:1;transform:none} to{opacity:0;transform:translateY(8px)} }
@@ -125,7 +126,7 @@
     /* ─── Taxas ───────────────────────────────────────── */
     .boleto-box {
       display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-      padding:16px 20px; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.25);
+      padding:16px 20px; background:rgba(var(--_p),.07); border:1px solid rgba(var(--_p),.25);
       border-radius:var(--radius); margin-bottom:12px; opacity:0;
       animation:fadeUp .3s ease forwards;
     }
@@ -136,27 +137,27 @@
     .status-badge.aberto { background:rgba(0,229,255,.1); color:var(--cyan); border:1px solid rgba(0,229,255,.3); }
     .status-badge.pago   { background:rgba(0,255,170,.1); color:var(--green); border:1px solid rgba(0,255,170,.3); }
     .btn-portal-sm { font-family:var(--font-mono); font-size:11px; padding:7px 14px; border-radius:var(--radius); cursor:pointer; border:1px solid; background:transparent; transition:background .2s; color:var(--p3); border-color:var(--p3); }
-    .btn-portal-sm:hover { background:rgba(6,182,212,.12); }
+    .btn-portal-sm:hover { background:rgba(var(--_a),.12); }
 
     /* ─── IA Chat ─────────────────────────────────────── */
     .ia-chat-area { min-height:320px; max-height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:1rem; padding:1.2rem; scroll-behavior:smooth; }
     .ia-chat-area::-webkit-scrollbar { width:4px; }
-    .ia-chat-area::-webkit-scrollbar-thumb { background:rgba(16,185,129,.25); border-radius:2px; }
+    .ia-chat-area::-webkit-scrollbar-thumb { background:rgba(var(--_p),.25); border-radius:2px; }
     .ia-msg { display:flex; gap:.65rem; animation:fadeUp .25s ease; }
     .ia-msg-user { flex-direction:row-reverse; }
-    .ia-avatar { width:32px; height:32px; min-width:32px; display:flex; align-items:center; justify-content:center; background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.35); border-radius:8px; font-size:.95rem; color:var(--p2); margin-top:2px; flex-shrink:0; }
+    .ia-avatar { width:32px; height:32px; min-width:32px; display:flex; align-items:center; justify-content:center; background:rgba(var(--_p),.15); border:1px solid rgba(var(--_p),.35); border-radius:8px; font-size:.95rem; color:var(--p2); margin-top:2px; flex-shrink:0; }
     .ia-msg-bubble { max-width:78%; padding:.8rem 1.1rem; border-radius:10px; font-family:var(--font-body,Rajdhani,sans-serif); font-size:.97rem; line-height:1.65; word-break:break-word; }
-    .ia-msg-bubble-user { background:rgba(6,182,212,.12); border:1px solid rgba(6,182,212,.30); color:var(--text); border-bottom-right-radius:3px; white-space:pre-wrap; }
-    .ia-msg-bubble-bot  { background:rgba(3,18,12,.90); border:1px solid rgba(16,185,129,.20); color:var(--lavender); border-bottom-left-radius:3px; }
+    .ia-msg-bubble-user { background:rgba(var(--_a),.12); border:1px solid rgba(var(--_a),.30); color:var(--text); border-bottom-right-radius:3px; white-space:pre-wrap; }
+    .ia-msg-bubble-bot  { background:var(--surface2); border:1px solid var(--border); color:var(--lavender); border-bottom-left-radius:3px; }
     .ia-input-row { display:flex; gap:8px; padding:14px 16px; border-top:1px solid var(--border); }
     .ia-input { flex:1; background:rgba(3,18,12,.7); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:10px 14px; font-family:var(--font-mono); font-size:12px; outline:none; transition:border-color .2s; }
     .ia-input:focus { border-color:var(--p2); }
-    .ia-send-btn { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:var(--p2); border-radius:8px; padding:10px 18px; font-family:var(--font-mono); font-size:12px; cursor:pointer; transition:background .2s; }
-    .ia-send-btn:hover:not(:disabled) { background:rgba(16,185,129,.28); }
+    .ia-send-btn { background:rgba(var(--_p),.15); border:1px solid rgba(var(--_p),.4); color:var(--p2); border-radius:8px; padding:10px 18px; font-family:var(--font-mono); font-size:12px; cursor:pointer; transition:background .2s; }
+    .ia-send-btn:hover:not(:disabled) { background:rgba(var(--_p),.28); }
     .ia-send-btn:disabled { opacity:.45; cursor:default; }
     .ia-sugestoes { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 14px; }
-    .ia-sugestao { background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.25); border-radius:20px; color:var(--lavender); padding:.3rem .9rem; font-family:var(--font-mono); font-size:.76rem; cursor:pointer; transition:background .18s,border-color .18s; }
-    .ia-sugestao:hover { background:rgba(16,185,129,.18); border-color:var(--p3); }
+    .ia-sugestao { background:rgba(var(--_p),.08); border:1px solid rgba(var(--_p),.25); border-radius:20px; color:var(--lavender); padding:.3rem .9rem; font-family:var(--font-mono); font-size:.76rem; cursor:pointer; transition:background .18s,border-color .18s; }
+    .ia-sugestao:hover { background:rgba(var(--_p),.18); border-color:var(--p3); }
     .ia-typing { display:flex; gap:5px; align-items:center; padding:.6rem .8rem; }
     .ia-typing-dot { width:7px; height:7px; border-radius:50%; background:var(--p2); opacity:.6; animation:typingBounce 1.2s ease-in-out infinite; }
     .ia-typing-dot:nth-child(2) { animation-delay:.2s; }
@@ -179,11 +180,11 @@
     .rec-badge--ABERTA     { background:rgba(0,229,255,.1); color:var(--cyan); border:1px solid rgba(0,229,255,.3); }
     .rec-badge--EM_ANALISE { background:rgba(255,165,0,.1); color:#FFA500; border:1px solid rgba(255,165,0,.3); }
     .rec-badge--RESOLVIDA  { background:rgba(0,255,170,.1); color:var(--green); border:1px solid rgba(0,255,170,.3); }
-    .rec-badge--BAIXA { background:rgba(16,185,129,.1); color:var(--p2); border:1px solid rgba(16,185,129,.25); }
-    .rec-badge--MEDIA { background:rgba(6,182,212,.1); color:var(--cyan); border:1px solid rgba(6,182,212,.25); }
+    .rec-badge--BAIXA { background:rgba(var(--_p),.1); color:var(--p2); border:1px solid rgba(var(--_p),.25); }
+    .rec-badge--MEDIA { background:rgba(var(--_a),.1); color:var(--cyan); border:1px solid rgba(var(--_a),.25); }
     .rec-badge--ALTA  { background:rgba(255,68,102,.1); color:var(--red); border:1px solid rgba(255,68,102,.3); }
     .rec-desc { font-family:Rajdhani,sans-serif; font-size:14px; color:var(--text); line-height:1.6; margin-bottom:8px; }
-    .rec-resposta { margin-top:10px; padding:10px 14px; background:rgba(16,185,129,.06); border-left:2px solid var(--p2); border-radius:4px; }
+    .rec-resposta { margin-top:10px; padding:10px 14px; background:rgba(var(--_p),.06); border-left:2px solid var(--p2); border-radius:4px; }
     .rec-resposta-label { font-family:var(--font-mono); font-size:9px; color:var(--p3); letter-spacing:1px; margin-bottom:4px; }
     .rec-resposta-text  { font-family:Rajdhani,sans-serif; font-size:13px; color:var(--lavender); }
     .rec-meta { font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-top:10px; }
@@ -193,8 +194,8 @@
     /* ─── Misc ────────────────────────────────────────── */
     .section-title { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:2px; text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
     .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-    .btn-submit-portal { font-family:var(--font-mono); font-size:12px; letter-spacing:1px; padding:11px 24px; border-radius:var(--radius); cursor:pointer; border:1px solid var(--p2); background:rgba(16,185,129,.12); color:var(--p2); transition:background .2s; font-weight:700; }
-    .btn-submit-portal:hover:not(:disabled) { background:rgba(16,185,129,.25); }
+    .btn-submit-portal { font-family:var(--font-mono); font-size:12px; letter-spacing:1px; padding:11px 24px; border-radius:var(--radius); cursor:pointer; border:1px solid var(--p2); background:rgba(var(--_p),.12); color:var(--p2); transition:background .2s; font-weight:700; }
+    .btn-submit-portal:hover:not(:disabled) { background:rgba(var(--_p),.25); }
     .btn-submit-portal:disabled { opacity:.45; cursor:default; }
     .portal-feedback { margin-top:10px; font-family:var(--font-mono); font-size:11px; min-height:18px; }
     .portal-feedback.ok   { color:var(--green); }
@@ -213,6 +214,7 @@
 </head>
 <body>
 
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro/escuro">🌙</button>
 <div id="portal-toast-area"></div>
 
 <div class="portal-wrap">
@@ -469,6 +471,7 @@
 
 </div><!-- /portal-wrap -->
 
+<script src="js/theme.js"></script>
 <script src="config.js"></script>
 <script>
 // ── Estado global ──────────────────────────────────────────────────────────
@@ -1117,7 +1120,7 @@ function _renderVotacao(v) {
   const total    = v.total_votos || 0;
   const barra = c => {
     const pct = total > 0 ? Math.round(c/total*100) : 0;
-    return `<div style="background:rgba(16,185,129,.12);border-radius:4px;overflow:hidden;height:8px;margin-top:4px">
+    return `<div style="background:rgba(var(--_p),.12);border-radius:4px;overflow:hidden;height:8px;margin-top:4px">
       <div style="background:var(--p2);width:${pct}%;height:100%;border-radius:4px;transition:width .5s"></div></div>`;
   };
   const opcoesHTML = v.opcoes.map((op,i) => {
@@ -1131,7 +1134,7 @@ function _renderVotacao(v) {
              <span style="color:var(--text-dim)">${count}v · ${pct}%</span>
            </div>${barra(count)}</div>`
       : `<button data-votar="${v.id}" data-opcao="${i}"
-           style="width:100%;text-align:left;margin-bottom:8px;padding:10px 14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;color:var(--text);font-family:Rajdhani,sans-serif;font-size:14px;cursor:pointer;transition:background .2s">
+           style="width:100%;text-align:left;margin-bottom:8px;padding:10px 14px;background:rgba(var(--_p),.06);border:1px solid rgba(var(--_p),.2);border-radius:8px;color:var(--text);font-family:Rajdhani,sans-serif;font-size:14px;cursor:pointer;transition:background .2s">
            ${_esc(op)}
          </button>`;
   }).join("");
@@ -1193,7 +1196,7 @@ async function carregarDocumentosPortal() {
           </div>
         </div>
         <button data-baixar="${d.id}"
-          style="font-family:var(--font-mono);font-size:11px;padding:8px 16px;border-radius:6px;cursor:pointer;border:1px solid rgba(16,185,129,.4);background:transparent;color:var(--p2);transition:background .2s">
+          style="font-family:var(--font-mono);font-size:11px;padding:8px 16px;border-radius:6px;cursor:pointer;border:1px solid rgba(var(--_p),.4);background:transparent;color:var(--p2);transition:background .2s">
           ↓ BAIXAR
         </button>
       </div>`).join("");

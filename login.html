@@ -13,6 +13,9 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <!-- FOUC prevention — aplica tema antes do CSS renderizar -->
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+
   <!-- SEU styles.css — contém todas as classes do login -->
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -42,6 +45,8 @@
 </head>
 
 <body class="login-page">
+
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro/escuro">🌙</button>
 
   <!-- Canvas do Space.js — id obrigatório: space-canvas -->
   <canvas id="space-canvas" aria-hidden="true"></canvas>
@@ -177,6 +182,7 @@
   <!-- /login-wrap -->
   </main>
 
+  <script src="js/theme.js"></script>
   <!-- Space.js ANTES do auth_client.js -->
   <script src="config.js"></script>
   <script src="Space.js"></script>
