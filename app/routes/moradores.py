@@ -2,7 +2,7 @@ import os
 import secrets
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from jose import JWTError, jwt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -15,6 +15,19 @@ from app.models.usuario import Usuario, TipoUsuario
 from app.schemas.morador import MoradorCreate, Morador as MoradorSchema, MoradorAtivacaoInput, MoradorPerfilUpdate, ConviteOut, AutoRegistroInput, QRRegistroOut
 
 router = APIRouter()
+
+_ENV = os.getenv("ENV", "development")
+
+def _frontend_base(request: Request) -> str:
+    """Retorna a URL base do frontend.
+    Em produção usa request.base_url (mesma origem no Railway).
+    Em desenvolvimento usa FRONTEND_URL env ou localhost:5500.
+    """
+    if os.getenv("FRONTEND_URL"):
+        return os.getenv("FRONTEND_URL").rstrip("/")
+    if _ENV == "production":
+        return str(request.base_url).rstrip("/")
+    return "http://localhost:5500"
 
 
 @router.get("/moradores", response_model=list[MoradorSchema])
@@ -140,6 +153,7 @@ def deletar_morador(morador_id: int, db: Session = Depends(get_db), usuario: Usu
 @router.post("/moradores/{morador_id}/convidar", response_model=ConviteOut)
 def convidar_morador(
     morador_id: int,
+    request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(get_usuario_logado),
@@ -159,7 +173,7 @@ def convidar_morador(
     m.convite_token_expira = datetime.now(timezone.utc) + timedelta(days=7)
     db.commit()
 
-    base_url = os.getenv("FRONTEND_URL", "http://localhost:5500")
+    base_url = _frontend_base(request)
     onboarding_url = f"{base_url}/onboarding.html?token={token}"
 
     background_tasks.add_task(enviar_convite_morador, m.email, m.nome, onboarding_url)
@@ -169,6 +183,7 @@ def convidar_morador(
 @router.get("/moradores/{morador_id}/portal-token")
 def gerar_portal_token(
     morador_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(somente_gestor),
 ):
@@ -189,7 +204,7 @@ def gerar_portal_token(
         horas=24 * 30,
     )
 
-    base_url = os.getenv("FRONTEND_URL", "http://localhost:5500")
+    base_url = _frontend_base(request)
     portal_url = f"{base_url}/portal.html?qr_token={token}"
 
     return {
@@ -230,6 +245,7 @@ def ativar_morador(dados: MoradorAtivacaoInput, db: Session = Depends(get_db)):
 @router.get("/condominios/{condo_id}/qr-registro", response_model=QRRegistroOut)
 def gerar_qr_registro(
     condo_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(somente_gestor),
 ):
@@ -240,7 +256,7 @@ def gerar_qr_registro(
     checar_acesso_condominio(usuario, condo_id)
 
     token = criar_token({"sub": f"registro:{condo_id}", "tipo": "REGISTRO_CONDO"}, horas=24 * 30)
-    base_url = os.getenv("FRONTEND_URL", "http://localhost:5500")
+    base_url = _frontend_base(request)
     registro_url = f"{base_url}/onboarding.html?condo_token={token}"
     return QRRegistroOut(registro_url=registro_url, condo_nome=condo.nome)
 
