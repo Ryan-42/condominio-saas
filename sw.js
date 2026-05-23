@@ -1,4 +1,4 @@
-const CACHE_NAME = 'condosys-v3';
+const CACHE_NAME = 'condosys-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/login.html',
@@ -41,11 +41,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Apenas faz cache de requisições GET (ignora API calls POST/PUT/DELETE)
   if (event.request.method !== 'GET') return;
 
-  // Não faz fallback para a API
-  if (event.request.url.includes('/api/')) return;
+  // Só faz cache dos assets estáticos da lista — chamadas à API passam direto
+  const url = new URL(event.request.url);
+  const isStaticAsset = ASSETS_TO_CACHE.some(
+    (asset) => asset === url.pathname || asset === event.request.url
+  );
+  if (!isStaticAsset) return;
 
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -56,7 +59,6 @@ self.addEventListener('fetch', (event) => {
         });
       });
     }).catch(() => {
-      // Se offline e falhar ao buscar, podemos retornar uma página offline.html genérica se quisermos
       if (event.request.mode === 'navigate') {
         return caches.match('/login.html');
       }
