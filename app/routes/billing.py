@@ -39,14 +39,20 @@ def meu_plano(
             trial_ends = trial_ends.replace(tzinfo=tz.utc)
         trial_ativo = datetime.now(timezone.utc) < trial_ends
 
+    from app.models.morador import Morador
+    total_moradores = db.query(Morador).filter(
+        Morador.condominio_id == db_usuario.condominio_id
+    ).count() if db_usuario.condominio_id else 0
+
     return {
-        "plano":          plano_str,
-        "nome":           config.nome,
-        "max_moradores":  config.max_moradores,
-        "preco_mensal":   config.preco_mensal_brl,
-        "trial_ativo":    trial_ativo,
-        "trial_ends_at":  trial_ends.isoformat() if trial_ends else None,
-        "tem_stripe":     bool(getattr(db_usuario, "stripe_customer_id", None)),
+        "plano":            plano_str,
+        "nome":             config.nome,
+        "max_moradores":    config.max_moradores,
+        "total_moradores":  total_moradores,
+        "preco_mensal":     config.preco_mensal_brl,
+        "trial_ativo":      trial_ativo,
+        "trial_ends_at":    trial_ends.isoformat() if trial_ends else None,
+        "tem_stripe":       bool(getattr(db_usuario, "stripe_customer_id", None)),
     }
 
 
@@ -96,7 +102,7 @@ def iniciar_checkout(
         logger.error("checkout error usuario_id=%d: %s", db_usuario.id, e)
         raise HTTPException(status_code=503, detail="Serviço de pagamento não disponível.")
 
-    return {"checkout_url": url}
+    return {"url": url}
 
 
 # ── POST /billing/portal ──────────────────────────────────────────────────────
@@ -122,7 +128,7 @@ def billing_portal(
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail="Serviço de pagamento não disponível.")
 
-    return {"portal_url": url}
+    return {"url": url}
 
 
 # ── POST /billing/webhook ─────────────────────────────────────────────────────

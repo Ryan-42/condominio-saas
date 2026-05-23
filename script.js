@@ -131,9 +131,19 @@ function getUsuario() {
   return raw ? JSON.parse(raw) : null;
 }
 
-function logout() {
+async function logout() {
   if (_clockInterval) clearInterval(_clockInterval);
   if (_uptimeInterval) clearInterval(_uptimeInterval);
+  const token = getToken();
+  if (token) {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch {}
+  }
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("usuario");
   window.location.href = "login.html";
@@ -172,6 +182,88 @@ function exibirUsuarioLogado() {
       <span class="usuario-nome">${escHTML(usuario.nome).toUpperCase()}</span>
       <span class="usuario-tipo tipo-${escHTML(usuario.tipo.toLowerCase())}">${escHTML(usuario.tipo)}</span>
     `;
+  }
+}
+
+// ── 2b. BILLING BADGE ────────────────────────────────────────
+
+async function carregarBillingInfo() {
+  const usuario = getUsuario();
+  if (!usuario || usuario.tipo !== "SINDICO") return;
+  const badge = document.getElementById("billing-badge");
+  if (badge) badge.style.display = "";
+  try {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}/billing/plano`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+
+    const nomeEl  = document.getElementById("billing-plano-nome");
+    const trialEl = document.getElementById("billing-trial-info");
+    const upgBtn  = document.getElementById("billing-upgrade-btn");
+    const barWrap = document.getElementById("billing-limit-bar");
+    const countEl = document.getElementById("billing-moradores-count");
+    const fillEl  = document.getElementById("billing-limit-fill");
+
+    if (nomeEl) {
+      const labels = { FREE: "FREE", PRO: "PRO ✦", ENTERPRISE: "ENTERPRISE" };
+      nomeEl.textContent = labels[d.plano] || d.plano;
+      nomeEl.style.color = d.plano === "PRO" ? "var(--p2)" : d.plano === "ENTERPRISE" ? "var(--p3)" : "var(--text-dim)";
+    }
+
+    if (trialEl) {
+      if (d.trial_ativo && d.trial_ends_at) {
+        const ends = new Date(d.trial_ends_at);
+        const dias = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
+        trialEl.textContent = `TRIAL PRO · ${dias}d restante${dias !== 1 ? "s" : ""}`;
+        trialEl.style.color = dias <= 3 ? "var(--red, #f87171)" : "var(--p3, #06B6D4)";
+      } else {
+        trialEl.textContent = "";
+      }
+    }
+
+    if (upgBtn) {
+      upgBtn.style.display = d.plano === "FREE" && !d.trial_ativo ? "" : "none";
+    }
+
+    if (d.max_moradores > 0) {
+      const total = d.total_moradores ?? 0;
+      const max   = d.max_moradores;
+      const pct   = Math.min(100, Math.round((total / max) * 100));
+      if (barWrap) barWrap.style.display = "";
+      if (countEl) countEl.textContent = `${total}/${max}`;
+      if (fillEl) {
+        fillEl.style.width = `${pct}%`;
+        fillEl.style.background = pct >= 90 ? "var(--red, #f87171)" : pct >= 70 ? "#f59e0b" : "var(--p2)";
+      }
+    }
+  } catch {}
+}
+
+async function iniciarUpgrade() {
+  exibirToast("⏳ Abrindo checkout…", "ok");
+  try {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}/billing/checkout`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (res.status === 503) {
+      exibirToast("✖ Pagamentos ainda não configurados. Aguarde.", "erro");
+      return;
+    }
+    if (!res.ok) {
+      exibirToast("✖ Erro ao iniciar checkout.", "erro");
+      return;
+    }
+    const { url } = await res.json();
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  } catch {
+    exibirToast("✖ Não foi possível conectar ao servidor de pagamentos.", "erro");
   }
 }
 
@@ -1492,6 +1584,7 @@ async function init() {
   if (!getToken()) return;
   limparFormulario("desp-data", "rec-data");
   exibirUsuarioLogado();
+  carregarBillingInfo();
   initClock();
   initUptime();
   // Delegated listener for payment toggle buttons (avoids inline onclick with DB ids)
