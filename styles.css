@@ -8,40 +8,40 @@
   --p2: #3949AB;
   --p3: #5C6BC0;
   --p4: #7986CB;
-  --lavender:     #C8D4FF;
-  --lavender-dim: #A0B4F8;
+  --lavender:     #3949AB;
+  --lavender-dim: #5C6BC0;
 
   /* RGB channels — use as rgba(var(--_p), alpha) */
   --_p:   57,73,171;
   --_a:   92,107,192;
   --_lt:  121,134,203;
 
-  --bg:       #3A4E9E;
-  --bg2:      #2E4090;
-  --surface:  rgba(255,255,255,0.16);
-  --surface2: rgba(255,255,255,0.24);
-  --border:   rgba(255,255,255,0.22);
-  --border-hot: rgba(255,255,255,0.48);
+  --bg:       #1E2878;
+  --bg2:      #18206A;
+  --surface:  rgba(235,242,255,0.93);
+  --surface2: rgba(243,247,255,0.97);
+  --border:   rgba(57,73,171,0.22);
+  --border-hot: rgba(57,73,171,0.55);
 
-  --grad: linear-gradient(90deg,#A8BEFF,#C8D4FF,#B0C0FF,#D4C8FF);
+  --grad: linear-gradient(90deg,#1A237E,#3949AB,#5C6BC0,#7986CB);
 
-  --text:        #E8EAFF;
-  --text-dim:    #B0BAE8;
-  --text-bright: #FFFFFF;
+  --text:        #0D0F2E;
+  --text-dim:    #3D52A0;
+  --text-bright: #000010;
 
-  --green:      #4ADE80;
-  --green-dim:  #22C55E;
-  --green-glow: rgba(74,222,128,.20);
-  --red:        #F87171;
+  --green:      #15803D;
+  --green-dim:  #16A34A;
+  --green-glow: rgba(21,128,61,.14);
+  --red:        #DC2626;
   --red-dim:    #EF4444;
-  --red-glow:   rgba(248,113,113,.20);
-  --gold:       #FCD34D;
+  --red-glow:   rgba(220,38,38,.14);
+  --gold:       #D97706;
   --gold-dim:   #F59E0B;
-  --gold-glow:  rgba(252,211,77,.20);
+  --gold-glow:  rgba(217,119,6,.14);
 
-  --cyan:       #67E8F9;
-  --cyan-dim:   #22D3EE;
-  --cyan-glow:  rgba(103,232,249,.20);
+  --cyan:       #0369A1;
+  --cyan-dim:   #0284C7;
+  --cyan-glow:  rgba(3,105,161,.14);
 
   --sidebar-w: 250px;
   --radius:    8px;
@@ -1175,50 +1175,74 @@ textarea.field-input { resize: vertical; min-height: 100px; line-height: 1.6; pa
 }
 html:not([data-theme="dark"]) #space-canvas { display: none; }
 
-/* Animated dark-blue mesh — login page */
+/* Fundo animado azul-escuro → violeta — login */
 html:not([data-theme="dark"]) body.login-page {
-  background: linear-gradient(-45deg, #25368A, #36489E, #2A2A94, #4438AA, #25368A);
+  background: linear-gradient(-45deg, #111A6A, #2A38A8, #160C88, #4428B8, #111A6A);
+  background-size: 400% 400%;
+  animation: meshGradient 10s ease infinite;
+}
+/* Fundo animado — dashboard */
+html:not([data-theme="dark"]) body:not(.login-page) {
+  background: linear-gradient(-45deg, #161E74, #2C3AAC, #181490, #3E28BC, #161E74);
   background-size: 400% 400%;
   animation: meshGradient 14s ease infinite;
 }
-/* Animated dark-blue mesh — dashboard */
-html:not([data-theme="dark"]) body:not(.login-page) {
-  background: linear-gradient(-45deg, #2E428C, #3E52A0, #323298, #4C42B2, #2E428C);
-  background-size: 400% 400%;
-  animation: meshGradient 20s ease infinite;
+/* Main content — véu leve para texto não ficar direto no fundo escuro */
+html:not([data-theme="dark"]) .main {
+  background: rgba(210,222,255,0.18);
+  backdrop-filter: blur(0px);
 }
-/* Sidebar — glass branco sobre fundo azul */
+/* Sidebar — opaca clara com letras pretas */
 html:not([data-theme="dark"]) .sidebar {
-  background: rgba(255,255,255,0.12);
-  border-right: 1px solid rgba(255,255,255,0.20);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: rgba(230,238,255,0.95);
+  border-right: 1px solid rgba(57,73,171,0.28);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
 }
 html:not([data-theme="dark"]) .sidebar::before { opacity: 1; }
-/* Cards — glass branco translúcido */
+/* Cards — opacos claros, letras pretas */
 html:not([data-theme="dark"]) .card {
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(235,243,255,0.93);
+  border: 1px solid rgba(57,73,171,0.20);
+  box-shadow: 0 4px 20px rgba(0,0,60,0.22);
 }
 html:not([data-theme="dark"]) .card:hover {
-  background: rgba(255,255,255,0.24);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.40), 0 8px 32px rgba(0,0,80,0.30);
+  background: rgba(240,247,255,0.97);
+  box-shadow: 0 0 0 2px rgba(57,73,171,0.28), 0 8px 32px rgba(0,0,60,0.30);
   transform: translateY(-2px);
 }
-/* Panels — glass */
+/* Panels e formulários */
 html:not([data-theme="dark"]) .panel,
 html:not([data-theme="dark"]) .insights-panel,
 html:not([data-theme="dark"]) .form-panel {
-  background: rgba(255,255,255,0.16);
-  border: 1px solid rgba(255,255,255,0.24);
+  background: rgba(232,241,255,0.93);
+  border: 1px solid rgba(57,73,171,0.18);
+  box-shadow: 0 4px 20px rgba(0,0,60,0.18);
 }
+/* Topbar — véu leve para legibilidade */
 html:not([data-theme="dark"]) .topbar {
-  border-bottom-color: rgba(255,255,255,0.22);
+  background: rgba(215,228,255,0.55);
+  border-radius: 10px;
+  padding-inline: 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom-color: rgba(57,73,171,0.22);
 }
-/* Clock glow */
+/* Clock — texto azul escuro legível */
 html:not([data-theme="dark"]) .clock-display {
-  text-shadow: 0 0 14px rgba(200,212,255,.55), 0 0 28px rgba(160,180,255,.30);
+  color: #1A237E;
+  text-shadow: 0 0 14px rgba(57,73,171,.25);
 }
+/* Card saldo — texto azul escuro */
+html:not([data-theme="dark"]) .card--saldo .card-value {
+  color: var(--p1);
+  text-shadow: 0 0 18px rgba(var(--_p),.22);
+}
+html:not([data-theme="dark"]) .card--saldo .card-corner { border-color: var(--p2); }
+/* Nav items na sidebar — letras legíveis */
+html:not([data-theme="dark"]) .nav-item { color: var(--text-dim); }
+html:not([data-theme="dark"]) .nav-item:hover { color: var(--text-bright); background: rgba(var(--_p),.10); }
+html:not([data-theme="dark"]) .nav-item.active { color: var(--p1); background: rgba(var(--_p),.12); }
 
 /* ── Dark mode select arrows ─────────────────── */
 [data-theme="dark"] select.field-input {
