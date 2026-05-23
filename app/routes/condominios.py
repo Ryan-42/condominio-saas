@@ -132,7 +132,7 @@ def deletar_condominio(
         db.execute(text("DELETE FROM moradores       WHERE condominio_id=:c"), {"c": cid})
         db.execute(text("DELETE FROM despesas        WHERE condominio_id=:c"), {"c": cid})
         db.execute(text("DELETE FROM receitas        WHERE condominio_id=:c"), {"c": cid})
-        db.execute(text("UPDATE usuarios SET condominio_id=NULL WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM usuarios WHERE condominio_id=:c AND tipo != 'ADMIN'"), {"c": cid})
         db.delete(condo)
         db.commit()
     except Exception as exc:
