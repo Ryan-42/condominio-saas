@@ -8,40 +8,40 @@
   --p2: #3949AB;
   --p3: #5C6BC0;
   --p4: #7986CB;
-  --lavender:     #3949AB;
-  --lavender-dim: #5C6BC0;
+  --lavender:     #C8D4FF;
+  --lavender-dim: #A0B4F8;
 
   /* RGB channels — use as rgba(var(--_p), alpha) */
   --_p:   57,73,171;
   --_a:   92,107,192;
   --_lt:  121,134,203;
 
-  --bg:       #C2CFf0;
-  --bg2:      #B4C2E8;
-  --surface:  rgba(234,240,255,0.92);
-  --surface2: rgba(241,246,255,0.97);
-  --border:   rgba(var(--_p),0.22);
-  --border-hot: rgba(var(--_a),0.55);
+  --bg:       #3A4E9E;
+  --bg2:      #2E4090;
+  --surface:  rgba(255,255,255,0.16);
+  --surface2: rgba(255,255,255,0.24);
+  --border:   rgba(255,255,255,0.22);
+  --border-hot: rgba(255,255,255,0.48);
 
-  --grad: linear-gradient(90deg,#1A237E,#3949AB,#5C6BC0,#7986CB);
+  --grad: linear-gradient(90deg,#A8BEFF,#C8D4FF,#B0C0FF,#D4C8FF);
 
-  --text:        #0D0F2E;
-  --text-dim:    #3D52A0;
-  --text-bright: #050618;
+  --text:        #E8EAFF;
+  --text-dim:    #B0BAE8;
+  --text-bright: #FFFFFF;
 
-  --green:      #2E7D32;
-  --green-dim:  #388E3C;
-  --green-glow: rgba(46,125,50,.14);
-  --red:        #C62828;
-  --red-dim:    #D32F2F;
-  --red-glow:   rgba(198,40,40,.14);
-  --gold:       #E65100;
-  --gold-dim:   #EF6C00;
-  --gold-glow:  rgba(230,81,0,.14);
+  --green:      #4ADE80;
+  --green-dim:  #22C55E;
+  --green-glow: rgba(74,222,128,.20);
+  --red:        #F87171;
+  --red-dim:    #EF4444;
+  --red-glow:   rgba(248,113,113,.20);
+  --gold:       #FCD34D;
+  --gold-dim:   #F59E0B;
+  --gold-glow:  rgba(252,211,77,.20);
 
-  --cyan:       #0277BD;
-  --cyan-dim:   #0288D1;
-  --cyan-glow:  rgba(2,119,189,.14);
+  --cyan:       #67E8F9;
+  --cyan-dim:   #22D3EE;
+  --cyan-glow:  rgba(103,232,249,.20);
 
   --sidebar-w: 250px;
   --radius:    8px;
@@ -1175,60 +1175,49 @@ textarea.field-input { resize: vertical; min-height: 100px; line-height: 1.6; pa
 }
 html:not([data-theme="dark"]) #space-canvas { display: none; }
 
-/* Animated indigo-lavender mesh — login page */
+/* Animated dark-blue mesh — login page */
 html:not([data-theme="dark"]) body.login-page {
-  background: linear-gradient(-45deg, #8AACD8, #A6BCEE, #9494CE, #B0A6E8, #8AACD8);
+  background: linear-gradient(-45deg, #25368A, #36489E, #2A2A94, #4438AA, #25368A);
   background-size: 400% 400%;
   animation: meshGradient 14s ease infinite;
 }
-/* Animated indigo mesh — dashboard */
+/* Animated dark-blue mesh — dashboard */
 html:not([data-theme="dark"]) body:not(.login-page) {
-  background: linear-gradient(-45deg, #A4BADE, #B8C8EE, #A8A8D4, #BEBAEA, #A4BADE);
+  background: linear-gradient(-45deg, #2E428C, #3E52A0, #323298, #4C42B2, #2E428C);
   background-size: 400% 400%;
   animation: meshGradient 20s ease infinite;
 }
-/* Clock glow stays in light mode */
-html:not([data-theme="dark"]) .clock-display {
-  text-shadow: 0 0 14px rgba(var(--_p),.30), 0 0 28px rgba(var(--_a),.18);
-}
-/* Card hover ring in light mode */
-html:not([data-theme="dark"]) .card:hover {
-  box-shadow: 0 0 0 2px rgba(var(--_p),.18), 0 8px 32px rgba(var(--_p),.12);
-}
-/* Sidebar animated border more visible on light bg */
-html:not([data-theme="dark"]) .sidebar::before {
-  opacity: .8;
-}
-/* Sidebar — more distinct blue in light mode */
+/* Sidebar — glass branco sobre fundo azul */
 html:not([data-theme="dark"]) .sidebar {
-  background: rgba(200,216,255,0.90);
-  border-right: 1px solid rgba(57,73,171,0.28);
+  background: rgba(255,255,255,0.12);
+  border-right: 1px solid rgba(255,255,255,0.20);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
 }
-/* Cards — stronger borders + subtle blue tint in light mode */
+html:not([data-theme="dark"]) .sidebar::before { opacity: 1; }
+/* Cards — glass branco translúcido */
 html:not([data-theme="dark"]) .card {
-  background: rgba(238,244,255,0.92);
-  border: 1px solid rgba(57,73,171,0.22);
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.28);
 }
+html:not([data-theme="dark"]) .card:hover {
+  background: rgba(255,255,255,0.24);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.40), 0 8px 32px rgba(0,0,80,0.30);
+  transform: translateY(-2px);
+}
+/* Panels — glass */
 html:not([data-theme="dark"]) .panel,
 html:not([data-theme="dark"]) .insights-panel,
 html:not([data-theme="dark"]) .form-panel {
-  border: 1px solid rgba(57,73,171,0.20);
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.24);
 }
 html:not([data-theme="dark"]) .topbar {
-  border-bottom-color: rgba(57,73,171,0.25);
+  border-bottom-color: rgba(255,255,255,0.22);
 }
-/* Saldo card value — force deep blue in light mode so it's readable */
-html:not([data-theme="dark"]) .card--saldo .card-value {
-  color: var(--p1);
-  text-shadow: 0 0 20px rgba(var(--_p),.25);
-}
-html:not([data-theme="dark"]) .card--saldo .card-tag {
-  color: var(--p2);
-  border-color: rgba(var(--_p),.35);
-  background: rgba(var(--_p),.08);
-}
-html:not([data-theme="dark"]) .card--saldo .card-corner {
-  border-color: var(--p2);
+/* Clock glow */
+html:not([data-theme="dark"]) .clock-display {
+  text-shadow: 0 0 14px rgba(200,212,255,.55), 0 0 28px rgba(160,180,255,.30);
 }
 
 /* ── Dark mode select arrows ─────────────────── */
