@@ -8,20 +8,20 @@
   --p2: #3949AB;
   --p3: #5C6BC0;
   --p4: #7986CB;
-  --lavender:     #9FA8DA;
-  --lavender-dim: #7986CB;
+  --lavender:     #3949AB;
+  --lavender-dim: #5C6BC0;
 
   /* RGB channels — use as rgba(var(--_p), alpha) */
   --_p:   57,73,171;
   --_a:   92,107,192;
   --_lt:  121,134,203;
 
-  --bg:       #E8ECFA;
-  --bg2:      #DDE2F5;
-  --surface:  rgba(246,248,255,0.92);
-  --surface2: rgba(238,242,255,0.97);
-  --border:   rgba(var(--_p),0.14);
-  --border-hot: rgba(var(--_a),0.50);
+  --bg:       #C2CFf0;
+  --bg2:      #B4C2E8;
+  --surface:  rgba(234,240,255,0.92);
+  --surface2: rgba(241,246,255,0.97);
+  --border:   rgba(var(--_p),0.22);
+  --border-hot: rgba(var(--_a),0.55);
 
   --grad: linear-gradient(90deg,#1A237E,#3949AB,#5C6BC0,#7986CB);
 
@@ -1177,13 +1177,13 @@ html:not([data-theme="dark"]) #space-canvas { display: none; }
 
 /* Animated indigo-lavender mesh — login page */
 html:not([data-theme="dark"]) body.login-page {
-  background: linear-gradient(-45deg, #DDE5FA, #ECF0FD, #E6E0F8, #F2ECFC, #DDE5FA);
+  background: linear-gradient(-45deg, #8AACD8, #A6BCEE, #9494CE, #B0A6E8, #8AACD8);
   background-size: 400% 400%;
   animation: meshGradient 14s ease infinite;
 }
 /* Animated indigo mesh — dashboard */
 html:not([data-theme="dark"]) body:not(.login-page) {
-  background: linear-gradient(-45deg, #E0E7FB, #EDF0FD, #EBE6FA, #F3EFFD, #E0E7FB);
+  background: linear-gradient(-45deg, #A4BADE, #B8C8EE, #A8A8D4, #BEBAEA, #A4BADE);
   background-size: 400% 400%;
   animation: meshGradient 20s ease infinite;
 }
@@ -1198,6 +1198,37 @@ html:not([data-theme="dark"]) .card:hover {
 /* Sidebar animated border more visible on light bg */
 html:not([data-theme="dark"]) .sidebar::before {
   opacity: .8;
+}
+/* Sidebar — more distinct blue in light mode */
+html:not([data-theme="dark"]) .sidebar {
+  background: rgba(200,216,255,0.90);
+  border-right: 1px solid rgba(57,73,171,0.28);
+}
+/* Cards — stronger borders + subtle blue tint in light mode */
+html:not([data-theme="dark"]) .card {
+  background: rgba(238,244,255,0.92);
+  border: 1px solid rgba(57,73,171,0.22);
+}
+html:not([data-theme="dark"]) .panel,
+html:not([data-theme="dark"]) .insights-panel,
+html:not([data-theme="dark"]) .form-panel {
+  border: 1px solid rgba(57,73,171,0.20);
+}
+html:not([data-theme="dark"]) .topbar {
+  border-bottom-color: rgba(57,73,171,0.25);
+}
+/* Saldo card value — force deep blue in light mode so it's readable */
+html:not([data-theme="dark"]) .card--saldo .card-value {
+  color: var(--p1);
+  text-shadow: 0 0 20px rgba(var(--_p),.25);
+}
+html:not([data-theme="dark"]) .card--saldo .card-tag {
+  color: var(--p2);
+  border-color: rgba(var(--_p),.35);
+  background: rgba(var(--_p),.08);
+}
+html:not([data-theme="dark"]) .card--saldo .card-corner {
+  border-color: var(--p2);
 }
 
 /* ── Dark mode select arrows ─────────────────── */
