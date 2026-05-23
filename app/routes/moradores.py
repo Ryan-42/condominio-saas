@@ -19,13 +19,15 @@ router = APIRouter()
 _ENV = os.getenv("ENV", "development")
 
 def _frontend_base(request: Request) -> str:
-    """Retorna a URL base do frontend.
-    Em produção usa request.base_url (mesma origem no Railway).
-    Em desenvolvimento usa FRONTEND_URL env ou localhost:5500.
-    """
     if os.getenv("FRONTEND_URL"):
         return os.getenv("FRONTEND_URL").rstrip("/")
     if _ENV == "production":
+        # Railway termina SSL no proxy — ler headers encaminhados
+        proto = request.headers.get("x-forwarded-proto", "https")
+        host  = request.headers.get("x-forwarded-host") or request.headers.get("host", "")
+        host  = host.split(",")[0].strip()  # pode vir como lista
+        if host:
+            return f"{proto}://{host}"
         return str(request.base_url).rstrip("/")
     return "http://localhost:5500"
 

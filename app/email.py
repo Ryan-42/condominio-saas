@@ -26,7 +26,12 @@ _SMTP_USER   = os.getenv("SMTP_USER", "")
 _SMTP_PASS   = os.getenv("SMTP_PASS", "")
 _EMAIL_FROM  = os.getenv("EMAIL_FROM", _SMTP_USER) or "CONDO//SYS <onboarding@resend.dev>"
 _SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "suporte@condosys.com.br")
-APP_URL = os.getenv("APP_URL") or os.getenv("APP_BASE_URL", "http://localhost:5500")
+APP_URL = (
+    os.getenv("APP_URL")
+    or os.getenv("APP_BASE_URL")
+    or (f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN')}" if os.getenv("RAILWAY_PUBLIC_DOMAIN") else None)
+    or "http://localhost:5500"
+)
 
 
 def _html_base(titulo: str, corpo: str) -> str:
