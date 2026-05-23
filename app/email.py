@@ -19,11 +19,12 @@ from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 
-_SMTP_HOST = os.getenv("SMTP_HOST", "")
-_SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-_SMTP_USER = os.getenv("SMTP_USER", "")
-_SMTP_PASS = os.getenv("SMTP_PASS", "")
-_EMAIL_FROM = os.getenv("EMAIL_FROM", _SMTP_USER) or "CONDO//SYS <noreply@condosys.com.br>"
+_RESEND_KEY  = os.getenv("RESEND_API_KEY", "")
+_SMTP_HOST   = os.getenv("SMTP_HOST", "")
+_SMTP_PORT   = int(os.getenv("SMTP_PORT", "587"))
+_SMTP_USER   = os.getenv("SMTP_USER", "")
+_SMTP_PASS   = os.getenv("SMTP_PASS", "")
+_EMAIL_FROM  = os.getenv("EMAIL_FROM", _SMTP_USER) or "CONDO//SYS <onboarding@resend.dev>"
 _SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "suporte@condosys.com.br")
 APP_URL = os.getenv("APP_URL") or os.getenv("APP_BASE_URL", "http://localhost:5500")
 
@@ -65,36 +66,61 @@ def _html_base(titulo: str, corpo: str) -> str:
 
 
 def enviar_email(destinatario: str, assunto: str, html: str) -> bool:
-    if not _SMTP_HOST:
+    # ── Resend (HTTP API — funciona em Railway) ───────────────────
+    _key = os.getenv("RESEND_API_KEY", "")
+    if _key:
+        try:
+            import resend
+            resend.api_key = _key
+            from_addr = os.getenv("EMAIL_FROM", "CONDO//SYS <onboarding@resend.dev>")
+            resend.Emails.send({
+                "from": from_addr,
+                "to": [destinatario],
+                "subject": assunto,
+                "html": html,
+            })
+            logger.info("E-mail (Resend) enviado para %s [%s]", destinatario, assunto)
+            return True
+        except Exception as exc:
+            logger.error("Falha Resend para %s: %s", destinatario, exc)
+            return False
+
+    # ── SMTP fallback ─────────────────────────────────────────────
+    _host = os.getenv("SMTP_HOST", "")
+    if not _host:
         logger.info(
-            "EMAIL (modo dev — sem SMTP_HOST):\n"
+            "EMAIL (modo dev — sem RESEND_API_KEY/SMTP_HOST):\n"
             "  Para: %s\n  Assunto: %s\n  [HTML omitido]",
             destinatario, assunto,
         )
         return True
 
     try:
+        _port = int(os.getenv("SMTP_PORT", "587"))
+        _user = os.getenv("SMTP_USER", "")
+        _pass = os.getenv("SMTP_PASS", "")
+        _from = os.getenv("EMAIL_FROM", _user)
         msg = MIMEMultipart("alternative")
         msg["Subject"] = assunto
-        msg["From"] = _EMAIL_FROM
-        msg["To"] = destinatario
+        msg["From"]    = _from
+        msg["To"]      = destinatario
         msg.attach(MIMEText(html, "html", "utf-8"))
 
-        if _SMTP_PORT == 465:
-            with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, timeout=10) as server:
-                server.login(_SMTP_USER, _SMTP_PASS)
-                server.sendmail(_SMTP_USER, destinatario, msg.as_string())
+        if _port == 465:
+            with smtplib.SMTP_SSL(_host, _port, timeout=10) as server:
+                server.login(_user, _pass)
+                server.sendmail(_user, destinatario, msg.as_string())
         else:
-            with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT, timeout=10) as server:
+            with smtplib.SMTP(_host, _port, timeout=10) as server:
                 server.ehlo()
                 server.starttls()
-                server.login(_SMTP_USER, _SMTP_PASS)
-                server.sendmail(_SMTP_USER, destinatario, msg.as_string())
+                server.login(_user, _pass)
+                server.sendmail(_user, destinatario, msg.as_string())
 
-        logger.info("E-mail enviado para %s [%s]", destinatario, assunto)
+        logger.info("E-mail (SMTP) enviado para %s [%s]", destinatario, assunto)
         return True
     except Exception as exc:
-        logger.error("Falha ao enviar e-mail para %s: %s", destinatario, exc)
+        logger.error("Falha SMTP para %s: %s", destinatario, exc)
         return False
 
 
