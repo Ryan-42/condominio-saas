@@ -113,6 +113,29 @@ def deletar_condominio(
     condo = db.query(Condominio).filter(Condominio.id == condominio_id).first()
     if not condo:
         raise HTTPException(status_code=404, detail="Condomínio não encontrado")
-    db.delete(condo)
-    db.commit()
+
+    # Cascade manual — deleta dependentes na ordem correta antes do condomínio
+    from sqlalchemy import text
+    cid = condominio_id
+    try:
+        db.execute(text("DELETE FROM votos_morador WHERE votacao_id IN (SELECT id FROM votacoes WHERE condominio_id=:c)"), {"c": cid})
+        db.execute(text("DELETE FROM votacoes       WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM reservas        WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM espacos         WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM pagamentos      WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM taxas_condominio WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM documentos      WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM manutencoes     WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM mensagens       WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM reclamacoes     WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM avisos          WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM moradores       WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM despesas        WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("DELETE FROM receitas        WHERE condominio_id=:c"), {"c": cid})
+        db.execute(text("UPDATE usuarios SET condominio_id=NULL WHERE condominio_id=:c"), {"c": cid})
+        db.delete(condo)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao excluir: {exc}")
     return None
