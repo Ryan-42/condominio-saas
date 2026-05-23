@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:8000 http://localhost:8000; object-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:8000 http://localhost:8000 https://condominio-saas-production-32fb.up.railway.app; object-src 'none';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CondoSYS — Portal do Morador</title>
   <link rel="manifest" href="manifest.json">
@@ -10,254 +10,210 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     /* ─── Layout ─────────────────────────────────────── */
-    .portal-wrap {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    .portal-wrap { min-height:100vh; display:flex; flex-direction:column; }
     .portal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 28px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(3,13,10,.92);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 24px; border-bottom:1px solid var(--border);
+      background:rgba(3,13,10,.94); position:sticky; top:0; z-index:100;
+      backdrop-filter:blur(8px);
     }
-    .portal-title-group { display: flex; align-items: center; gap: 12px; }
-    .portal-condo-nome {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--p3);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .usuario-info { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .usuario-nome-p { font-family: var(--font-display); font-size: 14px; color: var(--text-bright); font-weight: 700; }
-    .usuario-apto   { font-family: var(--font-mono); font-size: 10px; color: var(--p3); letter-spacing: 1px; }
+    .portal-title-group { display:flex; align-items:center; gap:12px; }
+    .portal-condo-nome { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:2px; text-transform:uppercase; }
+    .usuario-info { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+    .usuario-nome-p { font-family:var(--font-display); font-size:14px; color:var(--text-bright); font-weight:700; }
+    .usuario-apto   { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:1px; }
 
     /* ─── Tabs ────────────────────────────────────────── */
     .portal-tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--border);
-      background: rgba(3,13,10,.6);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      display:flex; gap:0; border-bottom:1px solid var(--border);
+      background:rgba(3,13,10,.7); overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
     }
+    .portal-tabs::-webkit-scrollbar { display:none; }
     .tab-btn {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      padding: 14px 24px;
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-dim);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: color .2s, border-color .2s;
+      font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px;
+      padding:14px 20px; background:transparent; border:none;
+      border-bottom:2px solid transparent; color:var(--text-dim);
+      cursor:pointer; white-space:nowrap; transition:color .2s,border-color .2s;
+      flex-shrink:0;
     }
-    .tab-btn:hover  { color: var(--lavender); }
-    .tab-btn.active { color: var(--p2); border-bottom-color: var(--p2); }
+    .tab-btn:hover  { color:var(--lavender); }
+    .tab-btn.active { color:var(--p2); border-bottom-color:var(--p2); }
     .tab-badge {
-      display: inline-block;
-      background: var(--red);
-      color: #fff;
-      font-size: 9px;
-      font-family: var(--font-mono);
-      border-radius: 8px;
-      padding: 1px 5px;
-      margin-left: 5px;
-      vertical-align: middle;
+      display:inline-block; background:var(--red); color:#fff;
+      font-size:9px; font-family:var(--font-mono); border-radius:8px;
+      padding:1px 5px; margin-left:5px; vertical-align:middle;
     }
+    .tab-pane  { display:none; padding:24px; max-width:1000px; margin:0 auto; width:100%; box-sizing:border-box; }
+    .tab-pane.active { display:block; }
 
-    /* ─── Tab content ─────────────────────────────────── */
-    .tab-pane  { display: none; padding: 28px; max-width: 1000px; margin: 0 auto; width: 100%; }
-    .tab-pane.active { display: block; }
+    /* ─── Dashboard INÍCIO ────────────────────────────── */
+    .dash-greeting {
+      margin-bottom:24px;
+      padding:20px 24px;
+      background:linear-gradient(135deg, rgba(16,185,129,.08) 0%, rgba(6,182,212,.05) 100%);
+      border:1px solid rgba(16,185,129,.2); border-radius:12px;
+    }
+    .dash-greeting-nome { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--text-bright); margin-bottom:4px; }
+    .dash-greeting-sub  { font-family:var(--font-mono); font-size:11px; color:var(--p3); letter-spacing:1px; }
+    .dash-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:24px; }
+    .dash-card {
+      padding:18px 20px; border-radius:10px;
+      background:rgba(6,18,12,.7); border:1px solid var(--border);
+      cursor:pointer; transition:border-color .2s, background .2s;
+      position:relative; overflow:hidden;
+    }
+    .dash-card:hover { border-color:rgba(16,185,129,.4); background:rgba(16,185,129,.06); }
+    .dash-card-icon { font-size:24px; margin-bottom:10px; }
+    .dash-card-label { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+    .dash-card-value { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--text-bright); }
+    .dash-card-sub   { font-family:var(--font-mono); font-size:10px; color:var(--p3); margin-top:4px; }
+    .dash-card--ok   { border-left:3px solid var(--green); }
+    .dash-card--warn { border-left:3px solid var(--red); }
+    .dash-card--info { border-left:3px solid var(--cyan); }
+    .dash-card--neutral { border-left:3px solid var(--border); }
+    .dash-urgente {
+      padding:14px 18px; border-radius:8px; margin-bottom:24px;
+      background:rgba(255,68,102,.08); border:1px solid rgba(255,68,102,.3);
+      animation:fadeUp .3s ease;
+    }
+    .dash-urgente-label { font-family:var(--font-mono); font-size:9px; color:var(--red); letter-spacing:2px; margin-bottom:6px; }
+    .dash-urgente-titulo { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--text-bright); margin-bottom:4px; }
+    .dash-urgente-body  { font-family:Rajdhani,sans-serif; font-size:14px; color:var(--text); line-height:1.5; }
+    .dash-manut {
+      padding:14px 18px; border-radius:8px; margin-bottom:24px;
+      background:rgba(6,182,212,.07); border:1px solid rgba(6,182,212,.25);
+      animation:fadeUp .3s ease;
+    }
+    .dash-manut-label { font-family:var(--font-mono); font-size:9px; color:var(--cyan); letter-spacing:2px; margin-bottom:6px; }
+    .dash-manut-titulo { font-family:var(--font-display); font-size:14px; font-weight:700; color:var(--text-bright); }
+    .dash-manut-sub    { font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-top:4px; }
+
+    /* ─── Toast system ────────────────────────────────── */
+    #portal-toast-area {
+      position:fixed; bottom:24px; right:24px; z-index:9999;
+      display:flex; flex-direction:column-reverse; gap:10px;
+      pointer-events:none;
+    }
+    .portal-toast {
+      min-width:240px; max-width:340px; padding:12px 16px;
+      border-radius:10px; font-family:var(--font-mono); font-size:12px;
+      color:#fff; pointer-events:auto; display:flex; align-items:center; gap:10px;
+      box-shadow:0 4px 24px rgba(0,0,0,.4);
+      animation:toastIn .25s ease forwards;
+    }
+    .portal-toast.ok   { background:rgba(16,185,129,.95); border:1px solid rgba(16,185,129,.5); }
+    .portal-toast.erro { background:rgba(220,38,38,.95);  border:1px solid rgba(255,68,102,.5); }
+    .portal-toast.info { background:rgba(6,182,212,.9);   border:1px solid rgba(6,182,212,.5); }
+    .portal-toast.saindo { animation:toastOut .25s ease forwards; }
+    @keyframes toastIn  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+    @keyframes toastOut { from{opacity:1;transform:none} to{opacity:0;transform:translateY(8px)} }
+
+    /* ─── Skeleton loading ────────────────────────────── */
+    .skeleton {
+      background:linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.5s infinite;
+      border-radius:6px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .skel-line  { height:12px; margin-bottom:10px; }
+    .skel-card  { height:72px; margin-bottom:12px; border-radius:var(--radius); }
+    .skel-short { width:60%; }
+    .skel-mid   { width:80%; }
 
     /* ─── Taxas ───────────────────────────────────────── */
     .boleto-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 16px 20px;
-      background: rgba(16,185,129,.07);
-      border: 1px solid rgba(16,185,129,.25);
-      border-radius: var(--radius);
-      margin-bottom: 14px;
-      opacity: 0;
-      animation: fadeUp .3s ease forwards;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+      padding:16px 20px; background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.25);
+      border-radius:var(--radius); margin-bottom:12px; opacity:0;
+      animation:fadeUp .3s ease forwards;
     }
-    .boleto-info { display: flex; flex-direction: column; gap: 4px; }
-    .boleto-mes { font-family: var(--font-mono); font-size: 11px; color: var(--lavender); letter-spacing: 1px; text-transform: uppercase; }
-    .boleto-valor { font-family: var(--font-display); font-size: 20px; color: var(--text-bright); }
-    .status-badge { font-family: var(--font-mono); font-size: 10px; padding: 4px 10px; border-radius: 4px; letter-spacing: 1px; font-weight: bold; }
-    .status-badge.aberto { background: rgba(0,229,255,.1); color: var(--cyan); border: 1px solid rgba(0,229,255,.3); }
-    .status-badge.pago   { background: rgba(0,255,170,.1); color: var(--green); border: 1px solid rgba(0,255,170,.3); }
-    .btn-portal-sm {
-      font-family: var(--font-mono); font-size: 11px; padding: 7px 14px;
-      border-radius: var(--radius); cursor: pointer; border: 1px solid;
-      background: transparent; transition: background .2s;
-      color: var(--p3); border-color: var(--p3);
-    }
-    .btn-portal-sm:hover { background: rgba(6,182,212,.12); }
+    .boleto-info   { display:flex; flex-direction:column; gap:4px; }
+    .boleto-mes    { font-family:var(--font-mono); font-size:11px; color:var(--lavender); letter-spacing:1px; text-transform:uppercase; }
+    .boleto-valor  { font-family:var(--font-display); font-size:20px; color:var(--text-bright); }
+    .status-badge  { font-family:var(--font-mono); font-size:10px; padding:4px 10px; border-radius:4px; letter-spacing:1px; font-weight:bold; }
+    .status-badge.aberto { background:rgba(0,229,255,.1); color:var(--cyan); border:1px solid rgba(0,229,255,.3); }
+    .status-badge.pago   { background:rgba(0,255,170,.1); color:var(--green); border:1px solid rgba(0,255,170,.3); }
+    .btn-portal-sm { font-family:var(--font-mono); font-size:11px; padding:7px 14px; border-radius:var(--radius); cursor:pointer; border:1px solid; background:transparent; transition:background .2s; color:var(--p3); border-color:var(--p3); }
+    .btn-portal-sm:hover { background:rgba(6,182,212,.12); }
 
     /* ─── IA Chat ─────────────────────────────────────── */
-    .ia-chat-area {
-      min-height: 340px;
-      max-height: 420px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1.2rem;
-      scroll-behavior: smooth;
-    }
-    .ia-chat-area::-webkit-scrollbar { width: 4px; }
-    .ia-chat-area::-webkit-scrollbar-thumb { background: rgba(16,185,129,.25); border-radius: 2px; }
-    .ia-msg { display: flex; gap: .65rem; animation: fadeUp .25s ease; }
-    .ia-msg-user { flex-direction: row-reverse; }
-    .ia-avatar {
-      width: 32px; height: 32px; min-width: 32px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(16,185,129,.15);
-      border: 1px solid rgba(16,185,129,.35);
-      border-radius: 8px; font-size: .95rem;
-      color: var(--p2); margin-top: 2px; flex-shrink: 0;
-    }
-    .ia-msg-bubble {
-      max-width: 78%; padding: .8rem 1.1rem; border-radius: 10px;
-      font-family: var(--font-body, Rajdhani, sans-serif); font-size: .97rem;
-      line-height: 1.65; white-space: pre-wrap; word-break: break-word;
-    }
-    .ia-msg-bubble-user {
-      background: rgba(6,182,212,.12); border: 1px solid rgba(6,182,212,.30);
-      color: var(--text); border-bottom-right-radius: 3px;
-    }
-    .ia-msg-bubble-bot {
-      background: rgba(3,18,12,.90); border: 1px solid rgba(16,185,129,.20);
-      color: var(--lavender); border-bottom-left-radius: 3px;
-    }
-    .ia-input-row {
-      display: flex; gap: 8px; padding: 14px 16px;
-      border-top: 1px solid var(--border);
-    }
-    .ia-input {
-      flex: 1; background: rgba(3,18,12,.7); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--text); padding: 10px 14px;
-      font-family: var(--font-mono); font-size: 12px; outline: none;
-      transition: border-color .2s;
-    }
-    .ia-input:focus { border-color: var(--p2); }
-    .ia-send-btn {
-      background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4);
-      color: var(--p2); border-radius: 8px; padding: 10px 18px;
-      font-family: var(--font-mono); font-size: 12px; cursor: pointer;
-      transition: background .2s;
-    }
-    .ia-send-btn:hover:not(:disabled) { background: rgba(16,185,129,.28); }
-    .ia-send-btn:disabled { opacity: .45; cursor: default; }
-    .ia-sugestoes { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 14px; }
-    .ia-sugestao {
-      background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.25);
-      border-radius: 20px; color: var(--lavender); padding: .3rem .9rem;
-      font-family: var(--font-mono); font-size: .76rem; cursor: pointer;
-      transition: background .18s, border-color .18s;
-    }
-    .ia-sugestao:hover { background: rgba(16,185,129,.18); border-color: var(--p3); }
-    .ia-typing { display: flex; gap: 5px; align-items: center; padding: .6rem .8rem; }
-    .ia-typing-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--p2); opacity: .6;
-      animation: typingBounce 1.2s ease-in-out infinite;
-    }
-    .ia-typing-dot:nth-child(2) { animation-delay: .2s; }
-    .ia-typing-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes typingBounce {
-      0%,60%,100% { transform: translateY(0); opacity: .6; }
-      30%          { transform: translateY(-6px); opacity: 1; }
-    }
+    .ia-chat-area { min-height:320px; max-height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:1rem; padding:1.2rem; scroll-behavior:smooth; }
+    .ia-chat-area::-webkit-scrollbar { width:4px; }
+    .ia-chat-area::-webkit-scrollbar-thumb { background:rgba(16,185,129,.25); border-radius:2px; }
+    .ia-msg { display:flex; gap:.65rem; animation:fadeUp .25s ease; }
+    .ia-msg-user { flex-direction:row-reverse; }
+    .ia-avatar { width:32px; height:32px; min-width:32px; display:flex; align-items:center; justify-content:center; background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.35); border-radius:8px; font-size:.95rem; color:var(--p2); margin-top:2px; flex-shrink:0; }
+    .ia-msg-bubble { max-width:78%; padding:.8rem 1.1rem; border-radius:10px; font-family:var(--font-body,Rajdhani,sans-serif); font-size:.97rem; line-height:1.65; word-break:break-word; }
+    .ia-msg-bubble-user { background:rgba(6,182,212,.12); border:1px solid rgba(6,182,212,.30); color:var(--text); border-bottom-right-radius:3px; white-space:pre-wrap; }
+    .ia-msg-bubble-bot  { background:rgba(3,18,12,.90); border:1px solid rgba(16,185,129,.20); color:var(--lavender); border-bottom-left-radius:3px; }
+    .ia-input-row { display:flex; gap:8px; padding:14px 16px; border-top:1px solid var(--border); }
+    .ia-input { flex:1; background:rgba(3,18,12,.7); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:10px 14px; font-family:var(--font-mono); font-size:12px; outline:none; transition:border-color .2s; }
+    .ia-input:focus { border-color:var(--p2); }
+    .ia-send-btn { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:var(--p2); border-radius:8px; padding:10px 18px; font-family:var(--font-mono); font-size:12px; cursor:pointer; transition:background .2s; }
+    .ia-send-btn:hover:not(:disabled) { background:rgba(16,185,129,.28); }
+    .ia-send-btn:disabled { opacity:.45; cursor:default; }
+    .ia-sugestoes { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 14px; }
+    .ia-sugestao { background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.25); border-radius:20px; color:var(--lavender); padding:.3rem .9rem; font-family:var(--font-mono); font-size:.76rem; cursor:pointer; transition:background .18s,border-color .18s; }
+    .ia-sugestao:hover { background:rgba(16,185,129,.18); border-color:var(--p3); }
+    .ia-typing { display:flex; gap:5px; align-items:center; padding:.6rem .8rem; }
+    .ia-typing-dot { width:7px; height:7px; border-radius:50%; background:var(--p2); opacity:.6; animation:typingBounce 1.2s ease-in-out infinite; }
+    .ia-typing-dot:nth-child(2) { animation-delay:.2s; }
+    .ia-typing-dot:nth-child(3) { animation-delay:.4s; }
+    @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.6} 30%{transform:translateY(-6px);opacity:1} }
+    .ia-valor  { color:var(--p2); font-weight:700; }
+    .ia-section-title { font-family:var(--font-mono); font-size:.8rem; color:var(--p3); letter-spacing:1px; margin:.5rem 0 .25rem; text-transform:uppercase; }
 
     /* ─── Reclamações ─────────────────────────────────── */
-    .rec-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-    @media (max-width: 600px) { .rec-form { grid-template-columns: 1fr; } }
-    .rec-form-full { grid-column: 1 / -1; }
-    .rec-textarea {
-      width: 100%; box-sizing: border-box;
-      background: rgba(3,18,12,.7); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--text); padding: 10px 14px;
-      font-family: var(--font-mono); font-size: 12px; outline: none;
-      resize: vertical; min-height: 80px; transition: border-color .2s;
-    }
-    .rec-textarea:focus { border-color: var(--p2); }
-
-    .rec-card {
-      background: rgba(6,18,12,.6); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
-      animation: fadeUp .3s ease forwards;
-    }
-    .rec-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-    .rec-titulo { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-bright); }
-    .rec-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-    .rec-badge {
-      font-family: var(--font-mono); font-size: 9px; padding: 3px 8px;
-      border-radius: 4px; letter-spacing: 1px; font-weight: bold;
-    }
-    .rec-badge--ABERTA     { background: rgba(0,229,255,.1); color: var(--cyan); border: 1px solid rgba(0,229,255,.3); }
-    .rec-badge--EM_ANALISE { background: rgba(255,165,0,.1);  color: #FFA500;     border: 1px solid rgba(255,165,0,.3); }
-    .rec-badge--RESOLVIDA  { background: rgba(0,255,170,.1); color: var(--green); border: 1px solid rgba(0,255,170,.3); }
-    .rec-badge--BAIXA      { background: rgba(16,185,129,.1); color: var(--p2); border: 1px solid rgba(16,185,129,.25); }
-    .rec-badge--MEDIA      { background: rgba(6,182,212,.1);  color: var(--cyan); border: 1px solid rgba(6,182,212,.25); }
-    .rec-badge--ALTA       { background: rgba(255,68,102,.1); color: var(--red);  border: 1px solid rgba(255,68,102,.3); }
-    .rec-desc { font-family: Rajdhani, sans-serif; font-size: 14px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
-    .rec-resposta {
-      margin-top: 10px; padding: 10px 14px;
-      background: rgba(16,185,129,.06); border-left: 2px solid var(--p2);
-      border-radius: 4px;
-    }
-    .rec-resposta-label { font-family: var(--font-mono); font-size: 9px; color: var(--p3); letter-spacing: 1px; margin-bottom: 4px; }
-    .rec-resposta-text  { font-family: Rajdhani, sans-serif; font-size: 13px; color: var(--lavender); }
-    .rec-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 10px; }
-    .btn-rec-cancel {
-      font-family: var(--font-mono); font-size: 10px; padding: 5px 10px;
-      border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,68,102,.4);
-      background: transparent; color: var(--red); transition: background .2s;
-    }
-    .btn-rec-cancel:hover { background: rgba(255,68,102,.1); }
+    .rec-form { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+    @media (max-width:600px) { .rec-form { grid-template-columns:1fr; } }
+    .rec-form-full { grid-column:1/-1; }
+    .rec-textarea { width:100%; box-sizing:border-box; background:rgba(3,18,12,.7); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:10px 14px; font-family:var(--font-mono); font-size:12px; outline:none; resize:vertical; min-height:80px; transition:border-color .2s; }
+    .rec-textarea:focus { border-color:var(--p2); }
+    .rec-card { background:rgba(6,18,12,.6); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:12px; animation:fadeUp .3s ease forwards; }
+    .rec-card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .rec-titulo { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--text-bright); }
+    .rec-badges { display:flex; gap:6px; flex-wrap:wrap; }
+    .rec-badge { font-family:var(--font-mono); font-size:9px; padding:3px 8px; border-radius:4px; letter-spacing:1px; font-weight:bold; }
+    .rec-badge--ABERTA     { background:rgba(0,229,255,.1); color:var(--cyan); border:1px solid rgba(0,229,255,.3); }
+    .rec-badge--EM_ANALISE { background:rgba(255,165,0,.1); color:#FFA500; border:1px solid rgba(255,165,0,.3); }
+    .rec-badge--RESOLVIDA  { background:rgba(0,255,170,.1); color:var(--green); border:1px solid rgba(0,255,170,.3); }
+    .rec-badge--BAIXA { background:rgba(16,185,129,.1); color:var(--p2); border:1px solid rgba(16,185,129,.25); }
+    .rec-badge--MEDIA { background:rgba(6,182,212,.1); color:var(--cyan); border:1px solid rgba(6,182,212,.25); }
+    .rec-badge--ALTA  { background:rgba(255,68,102,.1); color:var(--red); border:1px solid rgba(255,68,102,.3); }
+    .rec-desc { font-family:Rajdhani,sans-serif; font-size:14px; color:var(--text); line-height:1.6; margin-bottom:8px; }
+    .rec-resposta { margin-top:10px; padding:10px 14px; background:rgba(16,185,129,.06); border-left:2px solid var(--p2); border-radius:4px; }
+    .rec-resposta-label { font-family:var(--font-mono); font-size:9px; color:var(--p3); letter-spacing:1px; margin-bottom:4px; }
+    .rec-resposta-text  { font-family:Rajdhani,sans-serif; font-size:13px; color:var(--lavender); }
+    .rec-meta { font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-top:10px; }
+    .btn-rec-cancel { font-family:var(--font-mono); font-size:10px; padding:5px 10px; border-radius:4px; cursor:pointer; border:1px solid rgba(255,68,102,.4); background:transparent; color:var(--red); transition:background .2s; }
+    .btn-rec-cancel:hover { background:rgba(255,68,102,.1); }
 
     /* ─── Misc ────────────────────────────────────────── */
-    .section-title {
-      font-family: var(--font-mono); font-size: 10px; color: var(--p3);
-      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px;
-      display: flex; align-items: center; gap: 10px;
+    .section-title { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:2px; text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+    .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+    .btn-submit-portal { font-family:var(--font-mono); font-size:12px; letter-spacing:1px; padding:11px 24px; border-radius:var(--radius); cursor:pointer; border:1px solid var(--p2); background:rgba(16,185,129,.12); color:var(--p2); transition:background .2s; font-weight:700; }
+    .btn-submit-portal:hover:not(:disabled) { background:rgba(16,185,129,.25); }
+    .btn-submit-portal:disabled { opacity:.45; cursor:default; }
+    .portal-feedback { margin-top:10px; font-family:var(--font-mono); font-size:11px; min-height:18px; }
+    .portal-feedback.ok   { color:var(--green); }
+    .portal-feedback.erro { color:var(--red); }
+    .btn-logout-portal { font-family:var(--font-mono); font-size:10px; letter-spacing:1px; padding:5px 12px; border-radius:4px; cursor:pointer; border:1px solid rgba(255,68,102,.4); background:transparent; color:var(--red); transition:background .2s; }
+    .btn-logout-portal:hover { background:rgba(255,68,102,.1); }
+
+    /* ─── Mobile adjustments ──────────────────────────── */
+    @media (max-width:480px) {
+      .portal-header { padding:12px 16px; }
+      .tab-pane { padding:16px; }
+      .dash-grid { grid-template-columns:1fr 1fr; }
+      .ia-chat-area { min-height:260px; }
     }
-    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .btn-submit-portal {
-      font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px;
-      padding: 11px 24px; border-radius: var(--radius); cursor: pointer;
-      border: 1px solid var(--p2); background: rgba(16,185,129,.12);
-      color: var(--p2); transition: background .2s; font-weight: 700;
-    }
-    .btn-submit-portal:hover:not(:disabled) { background: rgba(16,185,129,.25); }
-    .btn-submit-portal:disabled { opacity: .45; cursor: default; }
-    .portal-feedback { margin-top: 10px; font-family: var(--font-mono); font-size: 11px; min-height: 18px; }
-    .portal-feedback.ok   { color: var(--green); }
-    .portal-feedback.erro { color: var(--red); }
-    .btn-logout-portal {
-      font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
-      padding: 5px 12px; border-radius: 4px; cursor: pointer;
-      border: 1px solid rgba(255,68,102,.4); background: transparent;
-      color: var(--red); transition: background .2s;
-    }
-    .btn-logout-portal:hover { background: rgba(255,68,102,.1); }
   </style>
 </head>
 <body>
+
+<div id="portal-toast-area"></div>
 
 <div class="portal-wrap">
   <!-- Header -->
@@ -274,29 +230,48 @@
     <div class="usuario-info">
       <span class="usuario-nome-p" id="morador-nome">Carregando…</span>
       <span class="usuario-apto" id="morador-apto">APTO --</span>
-      <button class="btn-logout-portal" onclick="fazerLogout()">⏻ SAIR</button>
+      <button class="btn-logout-portal" id="btn-logout">⏻ SAIR</button>
     </div>
   </header>
 
   <!-- Tabs -->
   <nav class="portal-tabs" role="tablist">
-    <button class="tab-btn active" data-tab="taxas"       onclick="mudarAba('taxas')"       role="tab">TAXAS</button>
-    <button class="tab-btn"        data-tab="avisos"      onclick="mudarAba('avisos')"      role="tab">AVISOS</button>
-    <button class="tab-btn"        data-tab="ia"          onclick="mudarAba('ia')"          role="tab">ASSISTENTE IA</button>
-    <button class="tab-btn"        data-tab="reclamacoes" onclick="mudarAba('reclamacoes')" role="tab" id="tab-btn-reclamacoes">RECLAMAÇÕES</button>
-    <button class="tab-btn"        data-tab="reservas"    onclick="mudarAba('reservas')"    role="tab">RESERVAS</button>
-    <button class="tab-btn"        data-tab="votacoes"    onclick="mudarAba('votacoes')"    role="tab">VOTAÇÕES</button>
-    <button class="tab-btn"        data-tab="documentos"  onclick="mudarAba('documentos')"  role="tab">DOCUMENTOS</button>
-    <button class="tab-btn"        data-tab="manutencoes" onclick="mudarAba('manutencoes')" role="tab">MANUTENÇÕES</button>
-    <button class="tab-btn"        data-tab="chat"        onclick="mudarAba('chat')"        role="tab" id="tab-btn-chat">CHAT</button>
-    <button class="tab-btn"        data-tab="perfil"      onclick="mudarAba('perfil')"      role="tab">PERFIL</button>
+    <button class="tab-btn active" data-tab="inicio"      role="tab">INÍCIO</button>
+    <button class="tab-btn"        data-tab="taxas"        role="tab">TAXAS</button>
+    <button class="tab-btn"        data-tab="avisos"       role="tab">AVISOS</button>
+    <button class="tab-btn"        data-tab="ia"           role="tab">ASSISTENTE IA</button>
+    <button class="tab-btn"        data-tab="reclamacoes"  role="tab" id="tab-btn-reclamacoes">RECLAMAÇÕES</button>
+    <button class="tab-btn"        data-tab="reservas"     role="tab">RESERVAS</button>
+    <button class="tab-btn"        data-tab="votacoes"     role="tab">VOTAÇÕES</button>
+    <button class="tab-btn"        data-tab="documentos"   role="tab">DOCUMENTOS</button>
+    <button class="tab-btn"        data-tab="manutencoes"  role="tab">MANUTENÇÕES</button>
+    <button class="tab-btn"        data-tab="chat"         role="tab" id="tab-btn-chat">CHAT</button>
+    <button class="tab-btn"        data-tab="perfil"       role="tab">PERFIL</button>
   </nav>
 
+  <!-- ── ABA: INÍCIO ── -->
+  <div class="tab-pane active" id="pane-inicio" role="tabpanel">
+    <div id="dash-greeting" class="dash-greeting">
+      <div class="dash-greeting-nome" id="dash-nome">Olá!</div>
+      <div class="dash-greeting-sub" id="dash-sub">PORTAL DO MORADOR — CONDO//SYS</div>
+    </div>
+    <div id="dash-urgente-wrap"></div>
+    <div id="dash-manut-wrap"></div>
+    <div class="dash-grid" id="dash-grid">
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
+    </div>
+  </div>
+
   <!-- ── ABA: TAXAS ── -->
-  <div class="tab-pane active" id="pane-taxas" role="tabpanel">
+  <div class="tab-pane" id="pane-taxas" role="tabpanel">
     <div class="section-title">// MINHAS TAXAS CONDOMINIAIS</div>
     <div id="boletos-container">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
     </div>
   </div>
 
@@ -304,7 +279,8 @@
   <div class="tab-pane" id="pane-avisos" role="tabpanel">
     <div class="section-title">// MURAL DE AVISOS</div>
     <div class="avisos-grid" id="portal-avisos-list">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
     </div>
   </div>
 
@@ -312,22 +288,16 @@
   <div class="tab-pane" id="pane-ia" role="tabpanel">
     <div class="section-title">// ASSISTENTE VIRTUAL</div>
     <div class="panel panel--ia" style="margin-bottom:0">
-      <div class="ia-sugestoes" id="ia-sugestoes">
-        <button class="ia-sugestao" onclick="enviarSugestaoPortal('Qual é a taxa mensal?')">Taxa mensal</button>
-        <button class="ia-sugestao" onclick="enviarSugestaoPortal('Quais são as regras do condomínio?')">Regras</button>
-        <button class="ia-sugestao" onclick="enviarSugestaoPortal('Como reservo as áreas comuns?')">Reserva de espaços</button>
-        <button class="ia-sugestao" onclick="enviarSugestaoPortal('Como entro em contato com o síndico?')">Falar com síndico</button>
-      </div>
+      <div class="ia-sugestoes" id="ia-sugestoes-portal"></div>
       <div class="ia-chat-area" id="ia-chat-area-portal">
         <div class="ia-msg ia-msg-bot">
           <div class="ia-avatar">⬡</div>
-          <div class="ia-msg-bubble ia-msg-bubble-bot">Olá! Sou o assistente virtual do seu condomínio. Posso ajudar com dúvidas sobre regras, áreas comuns, comunicados e muito mais. Como posso te ajudar?</div>
+          <div class="ia-msg-bubble ia-msg-bubble-bot">Olá! Sou o assistente do seu condomínio. Posso ajudar com dúvidas sobre taxa, reservas, reclamações e muito mais.</div>
         </div>
       </div>
       <div class="ia-input-row">
-        <input class="ia-input" id="ia-input-portal" placeholder="Digite sua dúvida…" maxlength="500"
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemPortal();}">
-        <button class="ia-send-btn" id="ia-send-btn-portal" onclick="enviarMensagemPortal()">▶ ENVIAR</button>
+        <input class="ia-input" id="ia-input-portal" placeholder="Digite sua dúvida…" maxlength="500">
+        <button class="ia-send-btn" id="ia-send-btn-portal">▶ ENVIAR</button>
       </div>
     </div>
   </div>
@@ -335,16 +305,15 @@
   <!-- ── ABA: RECLAMAÇÕES ── -->
   <div class="tab-pane" id="pane-reclamacoes" role="tabpanel">
     <div class="section-title">// ENVIAR RECLAMAÇÃO</div>
-
     <div style="margin-bottom:28px">
       <div class="rec-form">
         <div class="field">
-          <label class="field-label" for="rec-titulo">TÍTULO</label>
+          <label class="field-label">TÍTULO</label>
           <input class="field-input" id="rec-titulo" type="text" placeholder="ex: Barulho no corredor">
           <span class="field-erro" id="rec-titulo-erro"></span>
         </div>
         <div class="field">
-          <label class="field-label" for="rec-prioridade">PRIORIDADE</label>
+          <label class="field-label">PRIORIDADE</label>
           <select class="field-input" id="rec-prioridade">
             <option value="BAIXA">BAIXA</option>
             <option value="MEDIA" selected>MÉDIA</option>
@@ -352,42 +321,38 @@
           </select>
         </div>
         <div class="field rec-form-full">
-          <label class="field-label" for="rec-descricao">DESCRIÇÃO</label>
+          <label class="field-label">DESCRIÇÃO</label>
           <textarea class="rec-textarea" id="rec-descricao" placeholder="Descreva o problema com detalhes…"></textarea>
           <span class="field-erro" id="rec-descricao-erro"></span>
         </div>
       </div>
-      <button class="btn-submit-portal" id="rec-btn" onclick="enviarReclamacao()">
-        <span id="rec-btn-label">▶ ENVIAR RECLAMAÇÃO</span>
-      </button>
+      <button class="btn-submit-portal" id="rec-btn"><span id="rec-btn-label">▶ ENVIAR RECLAMAÇÃO</span></button>
       <div class="portal-feedback" id="rec-feedback"></div>
     </div>
-
     <div class="section-title">// MINHAS RECLAMAÇÕES</div>
     <div id="reclamacoes-lista">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
+      <div class="skel-card skeleton"></div>
+      <div class="skel-card skeleton"></div>
     </div>
   </div>
+
   <!-- ── ABA: RESERVAS ── -->
   <div class="tab-pane" id="pane-reservas" role="tabpanel">
     <div class="section-title">// RESERVAR ESPAÇO</div>
-
     <div style="margin-bottom:28px" id="reservas-form-wrap">
       <div class="rec-form" style="margin-bottom:14px">
         <div class="field">
-          <label class="field-label" for="res-espaco">ESPAÇO</label>
-          <select class="field-input" id="res-espaco">
-            <option value="">Selecione…</option>
-          </select>
+          <label class="field-label">ESPAÇO</label>
+          <select class="field-input" id="res-espaco"><option value="">Selecione…</option></select>
           <span class="field-erro" id="res-espaco-erro"></span>
         </div>
         <div class="field">
-          <label class="field-label" for="res-data">DATA</label>
+          <label class="field-label">DATA</label>
           <input class="field-input" id="res-data" type="date">
           <span class="field-erro" id="res-data-erro"></span>
         </div>
         <div class="field">
-          <label class="field-label" for="res-periodo">PERÍODO</label>
+          <label class="field-label">PERÍODO</label>
           <select class="field-input" id="res-periodo">
             <option value="MANHA">Manhã (08h–12h)</option>
             <option value="TARDE">Tarde (12h–18h)</option>
@@ -396,44 +361,33 @@
           </select>
         </div>
         <div class="field">
-          <label class="field-label" for="res-obs">OBSERVAÇÃO (opcional)</label>
+          <label class="field-label">OBSERVAÇÃO (opcional)</label>
           <input class="field-input" id="res-obs" type="text" placeholder="ex: Aniversário, reunião…">
         </div>
       </div>
-      <button class="btn-submit-portal" id="res-btn" onclick="enviarReserva()">
-        <span id="res-btn-label">▶ SOLICITAR RESERVA</span>
-      </button>
+      <button class="btn-submit-portal" id="res-btn"><span id="res-btn-label">▶ SOLICITAR RESERVA</span></button>
       <div class="portal-feedback" id="res-feedback"></div>
     </div>
-
     <div class="section-title">// MINHAS RESERVAS</div>
-    <div id="reservas-lista">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
-    </div>
+    <div id="reservas-lista"><div class="skel-card skeleton"></div></div>
   </div>
 
   <!-- ── ABA: VOTAÇÕES ── -->
   <div class="tab-pane" id="pane-votacoes" role="tabpanel">
     <div class="section-title">// VOTAÇÕES E ENQUETES</div>
-    <div id="votacoes-lista">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
-    </div>
+    <div id="votacoes-lista"><div class="skel-card skeleton"></div></div>
   </div>
 
   <!-- ── ABA: DOCUMENTOS ── -->
   <div class="tab-pane" id="pane-documentos" role="tabpanel">
     <div class="section-title">// DOCUMENTOS DO CONDOMÍNIO</div>
-    <div id="documentos-lista">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
-    </div>
+    <div id="documentos-lista"><div class="skel-card skeleton"></div></div>
   </div>
 
   <!-- ── ABA: MANUTENÇÕES ── -->
   <div class="tab-pane" id="pane-manutencoes" role="tabpanel">
     <div class="section-title">// MANUTENÇÕES PROGRAMADAS</div>
-    <div id="manutencoes-lista">
-      <div class="empty-state"><span class="blink">█</span> CARREGANDO…</div>
-    </div>
+    <div id="manutencoes-lista"><div class="skel-card skeleton"></div></div>
   </div>
 
   <!-- ── ABA: CHAT ── -->
@@ -441,12 +395,12 @@
     <div class="section-title">// MENSAGENS COM O SÍNDICO</div>
     <div class="panel panel--ia" style="margin-bottom:0;max-width:680px">
       <div class="ia-chat-area" id="chat-area-portal" style="min-height:300px">
-        <div class="empty-state" style="margin:auto"><span class="blink">█</span> CARREGANDO…</div>
+        <div class="skel-card skeleton" style="width:60%"></div>
+        <div class="skel-card skeleton" style="width:50%;align-self:flex-end"></div>
       </div>
       <div class="ia-input-row">
-        <input class="ia-input" id="chat-input-portal" placeholder="Digite sua mensagem…" maxlength="1000"
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsgPortal();}">
-        <button class="ia-send-btn" id="chat-send-portal" onclick="enviarMsgPortal()">▶ ENVIAR</button>
+        <input class="ia-input" id="chat-input-portal" placeholder="Digite sua mensagem…" maxlength="1000">
+        <button class="ia-send-btn" id="chat-send-portal">▶ ENVIAR</button>
       </div>
     </div>
   </div>
@@ -458,7 +412,7 @@
       <div class="panel-header">
         <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">DADOS PESSOAIS</span></div>
       </div>
-      <div class="form-body open" id="perfil-form-body">
+      <div class="form-body open">
         <div class="form-grid">
           <div class="field">
             <label class="field-label">NOME</label>
@@ -478,15 +432,12 @@
             <input class="field-input" id="perfil-telefone" type="tel" autocomplete="tel">
           </div>
           <div class="field field--action">
-            <button class="btn-submit" id="perfil-btn" onclick="atualizarPerfil()">
-              <span id="perfil-btn-label">▶ SALVAR ALTERAÇÕES</span>
-            </button>
+            <button class="btn-submit" id="perfil-btn"><span id="perfil-btn-label">▶ SALVAR ALTERAÇÕES</span></button>
           </div>
         </div>
         <div class="form-feedback" id="perfil-feedback"></div>
       </div>
     </div>
-
     <div class="panel panel--form" style="max-width:520px;margin-top:16px">
       <div class="panel-header">
         <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">ALTERAR SENHA</span></div>
@@ -495,23 +446,20 @@
         <div class="form-grid">
           <div class="field field--full">
             <label class="field-label">SENHA ATUAL</label>
-            <input class="field-input" id="senha-atual" type="password" autocomplete="current-password">
-            <span class="field-erro" id="senha-atual-erro"></span>
+            <input class="field-input" id="senha-atual" type="password" autocomplete="current-password" style="font-size:16px">
           </div>
           <div class="field">
             <label class="field-label">NOVA SENHA</label>
-            <input class="field-input" id="nova-senha" type="password" autocomplete="new-password">
+            <input class="field-input" id="nova-senha" type="password" autocomplete="new-password" style="font-size:16px">
             <span class="field-erro" id="nova-senha-erro"></span>
           </div>
           <div class="field">
             <label class="field-label">CONFIRMAR NOVA SENHA</label>
-            <input class="field-input" id="nova-senha-conf" type="password" autocomplete="new-password">
+            <input class="field-input" id="nova-senha-conf" type="password" autocomplete="new-password" style="font-size:16px">
             <span class="field-erro" id="nova-senha-conf-erro"></span>
           </div>
           <div class="field field--action">
-            <button class="btn-submit" id="senha-btn" onclick="alterarSenhaPortal()">
-              <span id="senha-btn-label">▶ ALTERAR SENHA</span>
-            </button>
+            <button class="btn-submit" id="senha-btn"><span id="senha-btn-label">▶ ALTERAR SENHA</span></button>
           </div>
         </div>
         <div class="form-feedback" id="senha-feedback"></div>
@@ -523,861 +471,1010 @@
 
 <script src="config.js"></script>
 <script>
-  // ── Estado ─────────────────────────────────────────────
-  let currentUser = null;
-  let iaHistorialPortal = [];
+// ── Estado global ──────────────────────────────────────────────────────────
+let currentUser      = null;
+let iaHistorialPortal = [];
+let _chatPolling      = null;
+let _dashData         = {};
 
-  const MESES = ["","JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
-                 "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
+const MESES = ["","JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
+               "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
 
-  // ── Autenticação (normal + QR) ─────────────────────────
-  async function checkMoradorAuth() {
-    const params   = new URLSearchParams(window.location.search);
-    const qrToken  = params.get("qr_token");
+// ── Fetch centralizado: auth + AbortController + timeout ───────────────────
+async function _fp(url, opts = {}) {
+  const token = sessionStorage.getItem("token");
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), opts.timeout || 15000);
+  try {
+    const res = await fetch(url, {
+      ...opts,
+      headers: { Authorization: `Bearer ${token}`, ...(opts.headers || {}) },
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (res.status === 401) { _forceLogout(); return null; }
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") throw new Error("Tempo limite excedido. Verifique a conexão.");
+    throw e;
+  }
+}
 
-    if (qrToken) {
-      // Autenticação via QR: armazena token e busca dados do usuário
-      sessionStorage.setItem("token", qrToken);
-      // Limpa o token da URL sem recarregar a página
-      window.history.replaceState({}, "", window.location.pathname);
-      try {
-        const res = await fetch(`${API_BASE}/usuarios/me`, {
-          headers: { Authorization: `Bearer ${qrToken}` }
-        });
-        if (!res.ok) throw new Error("Token inválido");
-        const usuario = await res.json();
-        sessionStorage.setItem("usuario", JSON.stringify(usuario));
-      } catch {
-        sessionStorage.removeItem("token");
-        window.location.href = "/login.html";
-        return;
-      }
-    }
+// ── Toast notifications ────────────────────────────────────────────────────
+function _toast(msg, tipo = "ok", duration = 3500) {
+  const area  = document.getElementById("portal-toast-area");
+  const el    = document.createElement("div");
+  el.className = `portal-toast ${tipo}`;
+  const icon  = tipo === "ok" ? "✔" : tipo === "erro" ? "✖" : "ℹ";
+  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  area.appendChild(el);
+  const remove = () => {
+    el.classList.add("saindo");
+    setTimeout(() => el.remove(), 250);
+  };
+  setTimeout(remove, duration);
+  el.addEventListener("click", remove);
+}
 
-    const token = sessionStorage.getItem("token");
-    if (!token) { window.location.href = "/login.html"; return; }
+// ── XSS escape ────────────────────────────────────────────────────────────
+function _esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 
-    const userStr = sessionStorage.getItem("usuario");
-    if (userStr) {
-      try { currentUser = JSON.parse(userStr); } catch {}
-    }
+// ── Logout (chama endpoint para revogar token) ─────────────────────────────
+async function fazerLogout() {
+  try {
+    await _fp(`${API_BASE}/auth/logout`, { method: "POST" });
+  } catch {}
+  _forceLogout();
+}
 
-    if (!currentUser || currentUser.tipo !== "MORADOR") {
+function _forceLogout() {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("usuario");
+  window.location.href = "/login.html";
+}
+
+// ── Auth ───────────────────────────────────────────────────────────────────
+async function checkMoradorAuth() {
+  const params  = new URLSearchParams(window.location.search);
+  const qrToken = params.get("qr_token");
+
+  if (qrToken) {
+    sessionStorage.setItem("token", qrToken);
+    window.history.replaceState({}, "", window.location.pathname);
+    try {
+      const res = await fetch(`${API_BASE}/usuarios/me`, {
+        headers: { Authorization: `Bearer ${qrToken}` }
+      });
+      if (!res.ok) throw new Error();
+      sessionStorage.setItem("usuario", JSON.stringify(await res.json()));
+    } catch {
+      sessionStorage.removeItem("token");
       window.location.href = "/login.html";
       return;
     }
-
-    document.getElementById("morador-nome").textContent = currentUser.nome || "Morador";
-    document.getElementById("morador-apto").textContent = currentUser.apartamento
-      ? `APTO ${currentUser.apartamento}` : "PORTAL DO MORADOR";
-
-    if (currentUser.condominio_id) carregarNomeCondo(currentUser.condominio_id);
-
-    carregarTaxas();
-    carregarAvisos();
-    carregarReclamacoes();
   }
 
-  async function carregarNomeCondo(id) {
-    try {
-      const res = await fetch(`${API_BASE}/condominios/${id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (res.ok) {
-        const c = await res.json();
-        if (c.nome) document.getElementById("portal-condo-nome").textContent = c.nome.toUpperCase();
-      }
-    } catch {}
+  const token = sessionStorage.getItem("token");
+  if (!token) { window.location.href = "/login.html"; return; }
+
+  try { currentUser = JSON.parse(sessionStorage.getItem("usuario") || "null"); } catch {}
+  if (!currentUser || currentUser.tipo !== "MORADOR") {
+    window.location.href = "/login.html";
+    return;
   }
 
-  // ── Navegação por abas ─────────────────────────────────
-  function mudarAba(aba) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === aba));
-    document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${aba}`));
-  }
+  document.getElementById("morador-nome").textContent = currentUser.nome || "Morador";
+  document.getElementById("morador-apto").textContent = currentUser.apartamento ? `APTO ${currentUser.apartamento}` : "PORTAL DO MORADOR";
 
-  // ── TAXAS ──────────────────────────────────────────────
-  async function carregarTaxas() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("boletos-container");
-    try {
-      const res = await fetch(`${API_BASE}/pagamentos/${currentUser.condominio_id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      let pags = await res.json();
-      if (currentUser.morador_id) pags = pags.filter(p => p.morador_id === currentUser.morador_id);
-      if (!pags.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma taxa registrada para sua unidade.</div>`;
-        return;
-      }
-      pags.sort((a,b) => b.ano !== a.ano ? b.ano - a.ano : b.mes - a.mes);
-      container.innerHTML = pags.map((p, i) => {
-        const mes = MESES[p.mes] || `MÊS ${p.mes}`;
-        const val = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(p.valor);
-        return p.pago
-          ? `<div class="boleto-box" style="animation-delay:${i*.05}s;opacity:.75">
-               <div class="boleto-info">
-                 <span class="boleto-mes">Taxa Condominial · ${mes}/${p.ano}</span>
-                 <span class="boleto-valor">${val}</span>
-               </div>
-               <span class="status-badge pago">PAGO</span>
-               <span style="font-family:var(--font-mono);font-size:11px;color:var(--green)">
-                 Recebido em ${p.data_pagamento ? new Date(p.data_pagamento).toLocaleDateString("pt-BR") : "—"}
-               </span>
-             </div>`
-          : `<div class="boleto-box" style="animation-delay:${i*.05}s">
-               <div class="boleto-info">
-                 <span class="boleto-mes">Taxa Condominial · ${mes}/${p.ano}</span>
-                 <span class="boleto-valor">${val}</span>
-               </div>
-               <span class="status-badge aberto">EM ABERTO</span>
-             </div>`;
-      }).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar taxas. Tente recarregar.</div>`;
+  if (currentUser.condominio_id) _carregarNomeCondo(currentUser.condominio_id);
+  carregarDashboard();
+  _setupEventDelegation();
+}
+
+async function _carregarNomeCondo(id) {
+  try {
+    const res = await _fp(`${API_BASE}/condominios/${id}`);
+    if (res?.ok) {
+      const c = await res.json();
+      if (c.nome) document.getElementById("portal-condo-nome").textContent = c.nome.toUpperCase();
     }
-  }
+  } catch {}
+}
 
-  // ── AVISOS ─────────────────────────────────────────────
-  async function carregarAvisos() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("portal-avisos-list");
-    try {
-      const res = await fetch(`${API_BASE}/avisos?condominio_id=${currentUser.condominio_id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      const avisos = await res.json();
-      if (!avisos.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✓</div>Nenhum aviso ativo no momento.</div>`;
-        return;
-      }
-      container.innerHTML = "";
-      avisos.forEach(a => {
-        const card = document.createElement("div");
-        card.className = `aviso-card aviso-card--${a.tipo||"NORMAL"}`;
-        const badge = document.createElement("div");
-        badge.className = `aviso-badge aviso-badge--${a.tipo||"NORMAL"}`;
-        badge.textContent = a.tipo || "NORMAL";
-        const body = document.createElement("div");
-        body.className = "aviso-body";
-        const titulo = document.createElement("div");
-        titulo.className = "aviso-titulo";
-        titulo.textContent = a.titulo;
-        const conteudo = document.createElement("div");
-        conteudo.className = "aviso-conteudo";
-        conteudo.textContent = a.conteudo;
-        const meta = document.createElement("div");
-        meta.className = "aviso-meta";
-        meta.textContent = `Publicado em: ${new Date(a.criado_em).toLocaleString("pt-BR")}`;
-        body.append(titulo, conteudo, meta);
-        card.append(badge, body);
-        container.appendChild(card);
-      });
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar avisos.</div>`;
+// ── Navegação ──────────────────────────────────────────────────────────────
+const _abasCarregadas = new Set(["inicio"]);
+const _carregadoresAbas = {
+  taxas:      carregarTaxas,
+  avisos:     carregarAvisos,
+  reclamacoes: carregarReclamacoes,
+  reservas:   () => { carregarEspacosPortal(); carregarReservasPortal(); },
+  votacoes:   carregarVotacoesPortal,
+  documentos: carregarDocumentosPortal,
+  manutencoes:carregarManutencoesPortal,
+  chat: () => {
+    carregarChatPortal();
+    if (_chatPolling) clearInterval(_chatPolling);
+    _chatPolling = setInterval(() => carregarChatPortal(true), 5000);
+  },
+  perfil: carregarPerfilPortal,
+};
+
+function mudarAba(aba) {
+  if (aba !== "chat" && _chatPolling) { clearInterval(_chatPolling); _chatPolling = null; }
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === aba));
+  document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${aba}`));
+  if (!_abasCarregadas.has(aba) && _carregadoresAbas[aba]) {
+    _abasCarregadas.add(aba);
+    _carregadoresAbas[aba]();
+  } else if (aba === "chat" && _abasCarregadas.has("chat") && !_chatPolling) {
+    _chatPolling = setInterval(() => carregarChatPortal(true), 5000);
+  }
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+async function carregarDashboard() {
+  if (!currentUser?.condominio_id) return;
+
+  const nomeEl = document.getElementById("dash-nome");
+  const subEl  = document.getElementById("dash-sub");
+  nomeEl.textContent = `Olá, ${(currentUser.nome || "Morador").split(" ")[0]}!`;
+  subEl.textContent  = `PORTAL DO MORADOR · ${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}`.toUpperCase();
+
+  try {
+    const [resPag, resAv, resRec, resMan] = await Promise.all([
+      _fp(`${API_BASE}/pagamentos/${currentUser.condominio_id}`),
+      _fp(`${API_BASE}/avisos?condominio_id=${currentUser.condominio_id}`),
+      _fp(`${API_BASE}/reclamacoes?condominio_id=${currentUser.condominio_id}`),
+      _fp(`${API_BASE}/manutencoes?condominio_id=${currentUser.condominio_id}`),
+    ]);
+
+    const pags     = resPag?.ok ? await resPag.json() : [];
+    const avisos   = resAv?.ok  ? await resAv.json()  : [];
+    const recs     = resRec?.ok ? await resRec.json()  : [];
+    const manuts   = resMan?.ok ? await resMan.json()  : [];
+
+    // Cache para sugestões dinâmicas da IA
+    _dashData = { pags, avisos, recs, manuts };
+    _carregarSugestoesIA();
+
+    // Aviso urgente
+    const urgente = avisos.find(a => a.tipo === "URGENTE");
+    const urgenteWrap = document.getElementById("dash-urgente-wrap");
+    if (urgente) {
+      urgenteWrap.innerHTML = `
+        <div class="dash-urgente">
+          <div class="dash-urgente-label">⚠ AVISO URGENTE</div>
+          <div class="dash-urgente-titulo">${_esc(urgente.titulo)}</div>
+          <div class="dash-urgente-body">${_esc(urgente.conteudo)}</div>
+        </div>`;
     }
-  }
 
-  // ── ASSISTENTE IA ──────────────────────────────────────
-  function _escHTML(s) {
-    if (!s) return "";
-    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
+    // Próxima manutenção
+    const proxManut = manuts.find(m => m.status === "AGENDADA" || m.status === "EM_ANDAMENTO");
+    const manutWrap = document.getElementById("dash-manut-wrap");
+    if (proxManut) {
+      const dt = proxManut.data_inicio ? new Date(proxManut.data_inicio).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}) : "—";
+      manutWrap.innerHTML = `
+        <div class="dash-manut">
+          <div class="dash-manut-label">🔧 MANUTENÇÃO PROGRAMADA</div>
+          <div class="dash-manut-titulo">${_esc(proxManut.titulo)}</div>
+          <div class="dash-manut-sub">${dt} · ${_esc(proxManut.categoria)}</div>
+        </div>`;
+    }
 
-  function _appendMsg(role, content) {
-    const area = document.getElementById("ia-chat-area-portal");
-    const div  = document.createElement("div");
-    div.className = `ia-msg ia-msg-${role}`;
-    const avatar = document.createElement("div");
-    avatar.className = "ia-avatar";
-    avatar.textContent = role === "user" ? "👤" : "⬡";
-    const bubble = document.createElement("div");
-    bubble.className = `ia-msg-bubble ia-msg-bubble-${role}`;
+    // Pagamentos do morador
+    const meusPags = currentUser.morador_id ? pags.filter(p => p.morador_id === currentUser.morador_id) : pags;
+    const pendentes = meusPags.filter(p => !p.pago);
+    const val = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(pendentes.reduce((s,p)=>s+p.valor,0));
+
+    const recAbertas = recs.filter(r => r.status === "ABERTA").length;
+    const avTotal    = avisos.length;
+    const manutAtiv  = manuts.filter(m => m.status === "EM_ANDAMENTO").length;
+
+    document.getElementById("dash-grid").innerHTML = `
+      <div class="dash-card ${pendentes.length ? "dash-card--warn" : "dash-card--ok"}" onclick="mudarAba('taxas')">
+        <div class="dash-card-icon">${pendentes.length ? "⚠" : "✅"}</div>
+        <div class="dash-card-label">TAXAS PENDENTES</div>
+        <div class="dash-card-value">${pendentes.length}</div>
+        <div class="dash-card-sub">${pendentes.length ? val + " em aberto" : "Tudo em dia!"}</div>
+      </div>
+      <div class="dash-card ${recAbertas ? "dash-card--warn" : "dash-card--neutral"}" onclick="mudarAba('reclamacoes')">
+        <div class="dash-card-icon">📋</div>
+        <div class="dash-card-label">RECLAMAÇÕES ABERTAS</div>
+        <div class="dash-card-value">${recAbertas}</div>
+        <div class="dash-card-sub">de ${recs.length} total</div>
+      </div>
+      <div class="dash-card dash-card--info" onclick="mudarAba('avisos')">
+        <div class="dash-card-icon">📢</div>
+        <div class="dash-card-label">AVISOS ATIVOS</div>
+        <div class="dash-card-value">${avTotal}</div>
+        <div class="dash-card-sub">${urgente ? "⚠ inclui urgente" : "Sem urgências"}</div>
+      </div>
+      <div class="dash-card ${manutAtiv ? "dash-card--warn" : "dash-card--neutral"}" onclick="mudarAba('manutencoes')">
+        <div class="dash-card-icon">🔧</div>
+        <div class="dash-card-label">MANUTENÇÕES</div>
+        <div class="dash-card-value">${manuts.length}</div>
+        <div class="dash-card-sub">${manutAtiv ? `${manutAtiv} em andamento` : "Nenhuma em andamento"}</div>
+      </div>`;
+  } catch (e) {
+    document.getElementById("dash-grid").innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar dashboard.</div>`;
+  }
+}
+
+// ── Sugestões dinâmicas da IA ──────────────────────────────────────────────
+function _carregarSugestoesIA() {
+  const el  = document.getElementById("ia-sugestoes-portal");
+  const sug = [];
+  const { pags, recs, avisos, manuts } = _dashData;
+
+  const meusPags = (pags || []).filter(p => !p.pago && (!currentUser.morador_id || p.morador_id === currentUser.morador_id));
+  if (meusPags.length) sug.push("Qual é o valor da minha taxa em aberto?");
+  if ((recs || []).some(r => r.status === "ABERTA")) sug.push("Qual o status das minhas reclamações?");
+  if ((avisos || []).some(a => a.tipo === "URGENTE")) sug.push("Me explique o aviso urgente.");
+  if ((manuts || []).some(m => m.status === "AGENDADA")) sug.push("Quais manutenções estão agendadas?");
+  sug.push("Como reservo uma área comum?");
+  sug.push("Como entro em contato com o síndico?");
+
+  el.innerHTML = sug.slice(0,4).map(s =>
+    `<button class="ia-sugestao" data-sug="${_esc(s)}">${_esc(s)}</button>`
+  ).join("");
+}
+
+// ── TAXAS ─────────────────────────────────────────────────────────────────
+async function carregarTaxas() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("boletos-container");
+  try {
+    const res = await _fp(`${API_BASE}/pagamentos/${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    let pags = await res.json();
+    if (currentUser.morador_id) pags = pags.filter(p => p.morador_id === currentUser.morador_id);
+    if (!pags.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma taxa registrada para sua unidade.</div>`;
+      return;
+    }
+    pags.sort((a,b) => b.ano !== a.ano ? b.ano - a.ano : b.mes - a.mes);
+    container.innerHTML = pags.map((p,i) => {
+      const mes = MESES[p.mes] || `MÊS ${p.mes}`;
+      const val = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(p.valor);
+      return p.pago
+        ? `<div class="boleto-box" style="animation-delay:${i*.05}s;opacity:.75">
+             <div class="boleto-info">
+               <span class="boleto-mes">Taxa Condominial · ${mes}/${p.ano}</span>
+               <span class="boleto-valor">${val}</span>
+             </div>
+             <span class="status-badge pago">✔ PAGO</span>
+             <span style="font-family:var(--font-mono);font-size:11px;color:var(--green)">
+               ${p.data_pagamento ? new Date(p.data_pagamento).toLocaleDateString("pt-BR") : "—"}
+             </span>
+           </div>`
+        : `<div class="boleto-box" style="animation-delay:${i*.05}s">
+             <div class="boleto-info">
+               <span class="boleto-mes">Taxa Condominial · ${mes}/${p.ano}</span>
+               <span class="boleto-valor">${val}</span>
+             </div>
+             <span class="status-badge aberto">EM ABERTO</span>
+           </div>`;
+    }).join("");
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar taxas. Tente recarregar.</div>`;
+  }
+}
+
+// ── AVISOS ────────────────────────────────────────────────────────────────
+async function carregarAvisos() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("portal-avisos-list");
+  try {
+    const res = await _fp(`${API_BASE}/avisos?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    const avisos = await res.json();
+    if (!avisos.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✓</div>Nenhum aviso ativo no momento.</div>`;
+      return;
+    }
+    container.innerHTML = "";
+    avisos.forEach(a => {
+      const card = document.createElement("div");
+      card.className = `aviso-card aviso-card--${a.tipo||"NORMAL"}`;
+      const badge = document.createElement("div");
+      badge.className = `aviso-badge aviso-badge--${a.tipo||"NORMAL"}`;
+      badge.textContent = a.tipo || "NORMAL";
+      const body = document.createElement("div");
+      body.className = "aviso-body";
+      const titulo = document.createElement("div");
+      titulo.className = "aviso-titulo";
+      titulo.textContent = a.titulo;
+      const conteudo = document.createElement("div");
+      conteudo.className = "aviso-conteudo";
+      conteudo.textContent = a.conteudo;
+      const meta = document.createElement("div");
+      meta.className = "aviso-meta";
+      meta.textContent = `Publicado em: ${new Date(a.criado_em).toLocaleString("pt-BR")}`;
+      body.append(titulo, conteudo, meta);
+      card.append(badge, body);
+      container.appendChild(card);
+    });
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar avisos.</div>`;
+  }
+}
+
+// ── ASSISTENTE IA ─────────────────────────────────────────────────────────
+function _formatIA(texto) {
+  const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return esc(texto)
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+    .replace(/^###\s(.+)$/gm,'<div class="ia-section-title">$1</div>')
+    .replace(/^##\s(.+)$/gm, '<div class="ia-section-title">$1</div>')
+    .replace(/^-\s(.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>[\s\S]*?<\/li>)(\n|$)+/g, m => `<ul style="margin:.3rem 0 .3rem 1rem;padding:0">${m}</ul>`)
+    .replace(/R\$\s?[\d.,]+/g, m => `<span class="ia-valor">${m}</span>`)
+    .replace(/\n/g, "<br>");
+}
+
+function _appendMsg(role, content) {
+  const area = document.getElementById("ia-chat-area-portal");
+  const div  = document.createElement("div");
+  div.className = `ia-msg ia-msg-${role}`;
+  const avatar = document.createElement("div");
+  avatar.className = "ia-avatar";
+  avatar.textContent = role === "user" ? "👤" : "⬡";
+  const bubble = document.createElement("div");
+  bubble.className = `ia-msg-bubble ia-msg-bubble-${role === "user" ? "user" : "bot"}`;
+  if (role === "user") {
     bubble.textContent = content;
-    div.append(avatar, bubble);
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
-    return div;
+  } else {
+    bubble.innerHTML = _formatIA(content);
   }
+  div.append(avatar, bubble);
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
 
-  function _showTyping() {
-    const area = document.getElementById("ia-chat-area-portal");
-    const div  = document.createElement("div");
-    div.className = "ia-msg ia-msg-bot";
-    div.id = "ia-typing-indicator-portal";
-    div.innerHTML = `<div class="ia-avatar">⬡</div><div class="ia-msg-bubble ia-msg-bubble-bot"><div class="ia-typing"><div class="ia-typing-dot"></div><div class="ia-typing-dot"></div><div class="ia-typing-dot"></div></div></div>`;
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
-  }
+function _showTyping() {
+  const area = document.getElementById("ia-chat-area-portal");
+  const div  = document.createElement("div");
+  div.className = "ia-msg ia-msg-bot";
+  div.id = "ia-typing-portal";
+  div.innerHTML = `<div class="ia-avatar">⬡</div><div class="ia-msg-bubble ia-msg-bubble-bot"><div class="ia-typing"><div class="ia-typing-dot"></div><div class="ia-typing-dot"></div><div class="ia-typing-dot"></div></div></div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
 
-  function _removeTyping() {
-    const el = document.getElementById("ia-typing-indicator-portal");
-    if (el) el.remove();
-  }
+function _removeTyping() {
+  document.getElementById("ia-typing-portal")?.remove();
+}
 
-  async function enviarMensagemPortal() {
-    const input = document.getElementById("ia-input-portal");
-    const btn   = document.getElementById("ia-send-btn-portal");
-    const msg   = input.value.trim();
-    if (!msg || !currentUser?.condominio_id) return;
+let _iaSending = false;
+async function enviarMensagemPortal() {
+  if (_iaSending) return;
+  const input = document.getElementById("ia-input-portal");
+  const btn   = document.getElementById("ia-send-btn-portal");
+  const msg   = input.value.trim();
+  if (!msg || !currentUser?.condominio_id) return;
 
-    input.value = "";
-    btn.disabled = true;
-    document.getElementById("ia-sugestoes").style.display = "none";
+  input.value = "";
+  _iaSending  = true;
+  btn.disabled = true;
+  document.getElementById("ia-sugestoes-portal").style.display = "none";
+  _appendMsg("user", msg);
+  _showTyping();
 
-    _appendMsg("user", msg);
-    _showTyping();
-
+  let tentativas = 0;
+  const tentar = async () => {
     try {
-      const res = await fetch(`${API_BASE}/ai/chat`, {
+      const res = await _fp(`${API_BASE}/ai/chat`, {
         method: "POST",
-        headers: { "Content-Type":"application/json", Authorization:`Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ mensagem: msg, condominio_id: currentUser.condominio_id, historico: iaHistorialPortal })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensagem:msg, condominio_id:currentUser.condominio_id, historico:iaHistorialPortal }),
+        timeout: 30000,
       });
       _removeTyping();
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        _appendMsg("bot", err.detail || "Erro ao contactar o assistente. Tente novamente.");
+      if (!res?.ok) {
+        const e = await res?.json().catch(()=>({}));
+        _appendMsg("bot", e.detail || "Erro ao contactar o assistente. Tente novamente.");
       } else {
         const data = await res.json();
         _appendMsg("bot", data.resposta);
-        iaHistorialPortal.push({ role:"user", content: msg });
-        iaHistorialPortal.push({ role:"assistant", content: data.resposta });
+        iaHistorialPortal.push({role:"user",content:msg});
+        iaHistorialPortal.push({role:"assistant",content:data.resposta});
         if (iaHistorialPortal.length > 40) iaHistorialPortal = iaHistorialPortal.slice(-40);
       }
-    } catch {
+    } catch (e) {
+      if ((e.message?.includes("503") || e.message?.includes("429")) && tentativas < 2) {
+        tentativas++;
+        await new Promise(r => setTimeout(r, 1200 * tentativas));
+        return tentar();
+      }
       _removeTyping();
       _appendMsg("bot", "Sem conexão com o assistente. Verifique sua internet.");
     } finally {
+      _iaSending   = false;
       btn.disabled = false;
       input.focus();
     }
-  }
+  };
+  tentar();
+}
 
-  function enviarSugestaoPortal(texto) {
-    document.getElementById("ia-input-portal").value = texto;
-    enviarMensagemPortal();
-  }
+// ── RECLAMAÇÕES ───────────────────────────────────────────────────────────
+async function carregarReclamacoes() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("reclamacoes-lista");
+  try {
+    const res = await _fp(`${API_BASE}/reclamacoes?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    const recs = await res.json();
 
-  // ── RECLAMAÇÕES ────────────────────────────────────────
-  async function carregarReclamacoes() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("reclamacoes-lista");
-    try {
-      const res = await fetch(`${API_BASE}/reclamacoes?condominio_id=${currentUser.condominio_id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      const recs = await res.json();
+    // Badge na aba
+    const tabBtn = document.getElementById("tab-btn-reclamacoes");
+    const oldBadge = tabBtn.querySelector(".tab-badge");
+    if (recs.length) {
+      if (!oldBadge) { const b = document.createElement("span"); b.className="tab-badge"; b.textContent=recs.length; tabBtn.appendChild(b); }
+      else oldBadge.textContent = recs.length;
+    } else if (oldBadge) oldBadge.remove();
 
-      // Atualiza badge na aba
-      const abertas = recs.filter(r => r.status === "ABERTA").length;
-      const tabBtn = document.getElementById("tab-btn-reclamacoes");
-      const badge = tabBtn.querySelector(".tab-badge");
-      if (recs.length) {
-        if (!badge) {
-          const b = document.createElement("span");
-          b.className = "tab-badge";
-          b.textContent = recs.length;
-          tabBtn.appendChild(b);
-        } else {
-          badge.textContent = recs.length;
-        }
-      }
-
-      if (!recs.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Você ainda não enviou nenhuma reclamação.</div>`;
-        return;
-      }
-      container.innerHTML = recs.map(r => `
-        <div class="rec-card">
-          <div class="rec-card-header">
-            <span class="rec-titulo">${_escHTML(r.titulo)}</span>
-            <div class="rec-badges">
-              <span class="rec-badge rec-badge--${r.status}">${_labelStatus(r.status)}</span>
-              <span class="rec-badge rec-badge--${r.prioridade}">${r.prioridade}</span>
-            </div>
+    if (!recs.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Você ainda não enviou nenhuma reclamação.</div>`;
+      return;
+    }
+    container.innerHTML = recs.map(r => `
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <span class="rec-titulo">${_esc(r.titulo)}</span>
+          <div class="rec-badges">
+            <span class="rec-badge rec-badge--${r.status}">${_labelStatus(r.status)}</span>
+            <span class="rec-badge rec-badge--${r.prioridade}">${r.prioridade}</span>
           </div>
-          <div class="rec-desc">${_escHTML(r.descricao)}</div>
-          ${r.resposta ? `<div class="rec-resposta"><div class="rec-resposta-label">// RESPOSTA DO SÍNDICO</div><div class="rec-resposta-text">${_escHTML(r.resposta)}</div></div>` : ""}
-          <div class="rec-meta">
-            Enviada em ${new Date(r.criado_em).toLocaleString("pt-BR")}
-            ${r.respondido_em ? ` · Respondida em ${new Date(r.respondido_em).toLocaleString("pt-BR")}` : ""}
-            ${r.status === "ABERTA" ? ` · <button class="btn-rec-cancel" onclick="cancelarReclamacao(${r.id})">CANCELAR</button>` : ""}
-          </div>
-        </div>`).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar reclamações.</div>`;
+        </div>
+        <div class="rec-desc">${_esc(r.descricao)}</div>
+        ${r.resposta ? `<div class="rec-resposta"><div class="rec-resposta-label">// RESPOSTA DO SÍNDICO</div><div class="rec-resposta-text">${_esc(r.resposta)}</div></div>` : ""}
+        <div class="rec-meta">
+          Enviada em ${new Date(r.criado_em).toLocaleString("pt-BR")}
+          ${r.respondido_em ? ` · Respondida em ${new Date(r.respondido_em).toLocaleString("pt-BR")}` : ""}
+          ${r.status === "ABERTA" ? `<br><button class="btn-rec-cancel" data-cancel-rec="${r.id}" style="margin-top:6px">CANCELAR RECLAMAÇÃO</button>` : ""}
+        </div>
+      </div>`).join("");
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar reclamações.</div>`;
+  }
+}
+
+function _labelStatus(s) {
+  return { ABERTA:"ABERTA", EM_ANALISE:"EM ANÁLISE", RESOLVIDA:"RESOLVIDA" }[s] || s;
+}
+
+async function _cancelarReclamacao(id) {
+  try {
+    const res = await _fp(`${API_BASE}/reclamacoes/${id}`, { method:"DELETE" });
+    if (!res?.ok) throw new Error();
+    _toast("Reclamação cancelada.", "ok");
+    carregarReclamacoes();
+  } catch { _toast("Erro ao cancelar. Tente novamente.", "erro"); }
+}
+
+async function enviarReclamacao() {
+  const titulo    = document.getElementById("rec-titulo").value.trim();
+  const descricao = document.getElementById("rec-descricao").value.trim();
+  const prioridade = document.getElementById("rec-prioridade").value;
+  document.getElementById("rec-titulo-erro").textContent   = "";
+  document.getElementById("rec-descricao-erro").textContent = "";
+  let ok = true;
+  if (!titulo)    { document.getElementById("rec-titulo-erro").textContent   = "Informe o título";      ok=false; }
+  if (!descricao) { document.getElementById("rec-descricao-erro").textContent = "Descreva o problema"; ok=false; }
+  if (!ok) return;
+
+  const btn = document.getElementById("rec-btn");
+  const lbl = document.getElementById("rec-btn-label");
+  const fb  = document.getElementById("rec-feedback");
+  btn.disabled = true; lbl.textContent = "ENVIANDO…"; fb.textContent = ""; fb.className = "portal-feedback";
+  try {
+    const res = await _fp(`${API_BASE}/reclamacoes`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({titulo, descricao, prioridade, condominio_id:currentUser.condominio_id}),
+    });
+    if (!res?.ok) { const e = await res?.json().catch(()=>({})); throw new Error(e.detail||"Erro ao enviar"); }
+    document.getElementById("rec-titulo").value    = "";
+    document.getElementById("rec-descricao").value = "";
+    fb.textContent = "✔ Reclamação enviada!"; fb.className = "portal-feedback ok";
+    _toast("Reclamação enviada com sucesso!", "ok");
+    await carregarReclamacoes();
+  } catch (err) {
+    fb.textContent = `✖ ${err.message}`; fb.className = "portal-feedback erro";
+  } finally {
+    btn.disabled = false; lbl.textContent = "▶ ENVIAR RECLAMAÇÃO";
+  }
+}
+
+// ── RESERVAS ──────────────────────────────────────────────────────────────
+async function carregarEspacosPortal() {
+  if (!currentUser?.condominio_id) return;
+  try {
+    const res = await _fp(`${API_BASE}/espacos?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) return;
+    const espacos = await res.json();
+    const sel = document.getElementById("res-espaco");
+    sel.innerHTML = '<option value="">Selecione…</option>' +
+      espacos.map(e => `<option value="${e.id}">${_esc(e.nome)}${e.capacidade?` (cap. ${e.capacidade})`:""}</option>`).join("");
+  } catch {}
+}
+
+async function carregarReservasPortal() {
+  if (!currentUser?.condominio_id) return;
+  const container  = document.getElementById("reservas-lista");
+  const formWrap   = document.getElementById("reservas-form-wrap");
+  try {
+    const [resEsp, resRes] = await Promise.all([
+      _fp(`${API_BASE}/espacos?condominio_id=${currentUser.condominio_id}`),
+      _fp(`${API_BASE}/reservas?condominio_id=${currentUser.condominio_id}`),
+    ]);
+    const espacos  = resEsp?.ok  ? await resEsp.json()  : [];
+    const reservas = resRes?.ok ? await resRes.json() : [];
+    if (formWrap) formWrap.style.display = espacos.length ? "block" : "none";
+    if (!espacos.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhum espaço disponível para reserva.</div>`;
+      return;
     }
-  }
-
-  function _labelStatus(s) {
-    return { ABERTA:"ABERTA", EM_ANALISE:"EM ANÁLISE", RESOLVIDA:"RESOLVIDA" }[s] || s;
-  }
-
-  async function enviarReclamacao() {
-    const titulo    = document.getElementById("rec-titulo").value.trim();
-    const descricao = document.getElementById("rec-descricao").value.trim();
-    const prioridade = document.getElementById("rec-prioridade").value;
-
-    document.getElementById("rec-titulo-erro").textContent   = "";
-    document.getElementById("rec-descricao-erro").textContent = "";
-
-    let ok = true;
-    if (!titulo) { document.getElementById("rec-titulo-erro").textContent = "Informe o título"; ok = false; }
-    if (!descricao) { document.getElementById("rec-descricao-erro").textContent = "Descreva o problema"; ok = false; }
-    if (!ok) return;
-
-    const btn = document.getElementById("rec-btn");
-    const lbl = document.getElementById("rec-btn-label");
-    const fb  = document.getElementById("rec-feedback");
-    btn.disabled = true;
-    lbl.textContent = "ENVIANDO…";
-    fb.textContent  = "";
-    fb.className    = "portal-feedback";
-
-    try {
-      const res = await fetch(`${API_BASE}/reclamacoes`, {
-        method: "POST",
-        headers: { "Content-Type":"application/json", Authorization:`Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ titulo, descricao, prioridade, condominio_id: currentUser.condominio_id })
-      });
-      if (!res.ok) {
-        const e = await res.json().catch(()=>({}));
-        throw new Error(e.detail || "Erro ao enviar");
-      }
-      document.getElementById("rec-titulo").value    = "";
-      document.getElementById("rec-descricao").value = "";
-      fb.textContent = "✔ Reclamação enviada com sucesso!";
-      fb.className   = "portal-feedback ok";
-      await carregarReclamacoes();
-      mudarAba("reclamacoes");
-    } catch (err) {
-      fb.textContent = "✖ " + err.message;
-      fb.className   = "portal-feedback erro";
-    } finally {
-      btn.disabled = false;
-      lbl.textContent = "▶ ENVIAR RECLAMAÇÃO";
+    if (!reservas.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Você ainda não fez reservas.</div>`;
+      return;
     }
+    const _sc = { PENDENTE:"var(--cyan)", APROVADA:"var(--green)", REJEITADA:"var(--red)", CANCELADA:"var(--text-dim)" };
+    container.innerHTML = reservas.map(r => `
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <span class="rec-titulo">${_esc(r.espaco_nome||"—")}</span>
+          <span class="rec-badge" style="color:${_sc[r.status]||"var(--text)"};border:1px solid ${_sc[r.status]||"var(--border)"};background:transparent">${r.status}</span>
+        </div>
+        <div class="rec-desc">${_esc(_fmtDate(r.data))} · ${_esc(_labelPeriodo(r.periodo))}</div>
+        ${r.observacao ? `<div class="rec-desc" style="opacity:.7">${_esc(r.observacao)}</div>` : ""}
+        ${r.resposta   ? `<div class="rec-resposta"><div class="rec-resposta-label">// RESPOSTA</div><div class="rec-resposta-text">${_esc(r.resposta)}</div></div>` : ""}
+        <div class="rec-meta">Solicitada em ${new Date(r.criado_em).toLocaleString("pt-BR")}
+          ${r.status==="PENDENTE" ? `<br><button class="btn-rec-cancel" data-cancel-res="${r.id}" style="margin-top:6px">CANCELAR RESERVA</button>` : ""}
+        </div>
+      </div>`).join("");
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar reservas.</div>`;
   }
+}
 
-  async function cancelarReclamacao(id) {
-    if (!confirm("Cancelar esta reclamação?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/reclamacoes/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      await carregarReclamacoes();
-    } catch {
-      alert("Erro ao cancelar. Tente novamente.");
+function _labelPeriodo(p) {
+  return { MANHA:"Manhã (08h–12h)", TARDE:"Tarde (12h–18h)", NOITE:"Noite (18h–22h)", DIA_TODO:"Dia todo" }[p] || p;
+}
+function _fmtDate(d) {
+  if (!d) return "—";
+  const [y,m,day] = d.split("-");
+  return `${day}/${m}/${y}`;
+}
+
+async function enviarReserva() {
+  const espaco_id = document.getElementById("res-espaco").value;
+  const data      = document.getElementById("res-data").value;
+  const periodo   = document.getElementById("res-periodo").value;
+  const obs       = document.getElementById("res-obs").value.trim();
+  document.getElementById("res-espaco-erro").textContent = "";
+  document.getElementById("res-data-erro").textContent   = "";
+  let ok = true;
+  if (!espaco_id) { document.getElementById("res-espaco-erro").textContent = "Selecione um espaço"; ok=false; }
+  if (!data)      { document.getElementById("res-data-erro").textContent   = "Informe a data";      ok=false; }
+  if (!ok) return;
+
+  const btn = document.getElementById("res-btn");
+  const lbl = document.getElementById("res-btn-label");
+  const fb  = document.getElementById("res-feedback");
+  btn.disabled=true; lbl.textContent="ENVIANDO…"; fb.textContent=""; fb.className="portal-feedback";
+  try {
+    const res = await _fp(`${API_BASE}/reservas`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({espaco_id:parseInt(espaco_id), data, periodo, observacao:obs||null, condominio_id:currentUser.condominio_id}),
+    });
+    if (!res?.ok) { const e = await res?.json().catch(()=>({})); throw new Error(e.detail||"Erro"); }
+    document.getElementById("res-data").value = "";
+    document.getElementById("res-obs").value  = "";
+    fb.textContent="✔ Reserva solicitada! Aguarde aprovação."; fb.className="portal-feedback ok";
+    _toast("Reserva solicitada com sucesso!", "ok");
+    await carregarReservasPortal();
+  } catch(err) {
+    fb.textContent=`✖ ${err.message}`; fb.className="portal-feedback erro";
+  } finally { btn.disabled=false; lbl.textContent="▶ SOLICITAR RESERVA"; }
+}
+
+async function _cancelarReserva(id) {
+  try {
+    const res = await _fp(`${API_BASE}/reservas/${id}`, { method:"DELETE" });
+    if (!res?.ok) throw new Error();
+    _toast("Reserva cancelada.", "ok");
+    carregarReservasPortal();
+  } catch { _toast("Erro ao cancelar. Tente novamente.", "erro"); }
+}
+
+// ── VOTAÇÕES ──────────────────────────────────────────────────────────────
+async function carregarVotacoesPortal() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("votacoes-lista");
+  try {
+    const res = await _fp(`${API_BASE}/votacoes?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    const votacoes = await res.json();
+    if (!votacoes.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma votação ativa no momento.</div>`;
+      return;
     }
+    container.innerHTML = votacoes.map(v => _renderVotacao(v)).join("");
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar votações.</div>`;
   }
+}
 
-  // ── Logout ─────────────────────────────────────────────
-  function fazerLogout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("usuario");
-    window.location.href = "/login.html";
-  }
+function _renderVotacao(v) {
+  const jaVotou  = v.meu_voto !== null && v.meu_voto >= 0;
+  const encerrada = !v.ativa;
+  const total    = v.total_votos || 0;
+  const barra = c => {
+    const pct = total > 0 ? Math.round(c/total*100) : 0;
+    return `<div style="background:rgba(16,185,129,.12);border-radius:4px;overflow:hidden;height:8px;margin-top:4px">
+      <div style="background:var(--p2);width:${pct}%;height:100%;border-radius:4px;transition:width .5s"></div></div>`;
+  };
+  const opcoesHTML = v.opcoes.map((op,i) => {
+    const count  = v.resultados?.[i] ?? 0;
+    const pct    = total > 0 ? Math.round(count/total*100) : 0;
+    const meuVoto = v.meu_voto === i;
+    return jaVotou || encerrada
+      ? `<div style="margin-bottom:10px">
+           <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px">
+             <span style="color:${meuVoto?"var(--p2)":"var(--text)"}">${meuVoto?"✔ ":""}${_esc(op)}</span>
+             <span style="color:var(--text-dim)">${count}v · ${pct}%</span>
+           </div>${barra(count)}</div>`
+      : `<button data-votar="${v.id}" data-opcao="${i}"
+           style="width:100%;text-align:left;margin-bottom:8px;padding:10px 14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;color:var(--text);font-family:Rajdhani,sans-serif;font-size:14px;cursor:pointer;transition:background .2s">
+           ${_esc(op)}
+         </button>`;
+  }).join("");
+  return `<div class="rec-card" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <span class="rec-titulo">${_esc(v.titulo)}</span>
+      <span class="rec-badge ${encerrada?"rec-badge--RESOLVIDA":"rec-badge--ABERTA"}">${encerrada?"ENCERRADA":"ABERTA"}</span>
+    </div>
+    ${v.descricao ? `<div class="rec-desc" style="margin-bottom:14px">${_esc(v.descricao)}</div>` : ""}
+    <div>${opcoesHTML}</div>
+    <div class="rec-meta">${total} voto${total!==1?"s":""} · Criada em ${new Date(v.criado_em).toLocaleDateString("pt-BR")}
+      ${encerrada?" · Encerrada":""}
+      ${jaVotou&&!encerrada?' · <span style="color:var(--p2)">Você votou ✔</span>':""}
+    </div>
+  </div>`;
+}
 
-  // ── RESERVAS ──────────────────────────────────────────────
-  let _espacosCache = [];
+async function _votar(votacaoId, opcaoIdx) {
+  try {
+    const res = await _fp(`${API_BASE}/votacoes/${votacaoId}/votar`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({opcao_idx:opcaoIdx}),
+    });
+    if (!res?.ok) { const e = await res?.json().catch(()=>({})); throw new Error(e.detail||"Erro"); }
+    _toast("Voto registrado!", "ok");
+    carregarVotacoesPortal();
+  } catch(err) { _toast(err.message, "erro"); }
+}
 
-  async function carregarEspacosPortal() {
-    if (!currentUser?.condominio_id) return;
-    try {
-      const res = await fetch(`${API_BASE}/espacos?condominio_id=${currentUser.condominio_id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) return;
-      _espacosCache = await res.json();
-      const sel = document.getElementById("res-espaco");
-      sel.innerHTML = '<option value="">Selecione…</option>' +
-        _espacosCache.map(e => `<option value="${e.id}">${_escHTML(e.nome)}${e.capacidade ? ` (cap. ${e.capacidade})` : ""}</option>`).join("");
-    } catch {}
-  }
-
-  async function carregarReservasPortal() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("reservas-lista");
-    const semEspacos = document.getElementById("reservas-form-wrap");
-    try {
-      const [resEsp, resRes] = await Promise.all([
-        fetch(`${API_BASE}/espacos?condominio_id=${currentUser.condominio_id}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }),
-        fetch(`${API_BASE}/reservas?condominio_id=${currentUser.condominio_id}`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }),
-      ]);
-      const espacos  = resEsp.ok  ? await resEsp.json()  : [];
-      const reservas = resRes.ok ? await resRes.json() : [];
-
-      if (semEspacos) semEspacos.style.display = espacos.length ? "block" : "none";
-      if (!espacos.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhum espaço disponível para reserva. Aguarde o síndico cadastrar.</div>`;
-        return;
-      }
-      if (!reservas.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Você ainda não fez reservas.</div>`;
-        return;
-      }
-      const _statusColor = { PENDENTE:"var(--cyan)", APROVADA:"var(--green)", REJEITADA:"var(--red)", CANCELADA:"var(--text-dim)" };
-      container.innerHTML = reservas.map(r => `
-        <div class="rec-card">
-          <div class="rec-card-header">
-            <span class="rec-titulo">${_escHTML(r.espaco_nome||"—")}</span>
-            <span class="rec-badge" style="color:${_statusColor[r.status]||"var(--text)"};border:1px solid ${_statusColor[r.status]||"var(--border)"};background:transparent">${r.status}</span>
-          </div>
-          <div class="rec-desc">${_escHTML(_formatDate(r.data))} · ${_escHTML(_labelPeriodo(r.periodo))}</div>
-          ${r.observacao ? `<div class="rec-desc" style="opacity:.7">${_escHTML(r.observacao)}</div>` : ""}
-          ${r.resposta   ? `<div class="rec-resposta"><div class="rec-resposta-label">// RESPOSTA</div><div class="rec-resposta-text">${_escHTML(r.resposta)}</div></div>` : ""}
-          <div class="rec-meta">Solicitada em ${new Date(r.criado_em).toLocaleString("pt-BR")}
-            ${r.status==="PENDENTE" ? ` · <button class="btn-rec-cancel" onclick="cancelarReserva(${r.id})">CANCELAR</button>` : ""}
-          </div>
-        </div>`).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar reservas.</div>`;
+// ── DOCUMENTOS ────────────────────────────────────────────────────────────
+async function carregarDocumentosPortal() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("documentos-lista");
+  try {
+    const res = await _fp(`${API_BASE}/documentos?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    const docs = await res.json();
+    if (!docs.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhum documento disponível no momento.</div>`;
+      return;
     }
-  }
-
-  function _labelPeriodo(p) {
-    return { MANHA:"Manhã (08h–12h)", TARDE:"Tarde (12h–18h)", NOITE:"Noite (18h–22h)", DIA_TODO:"Dia todo" }[p] || p;
-  }
-  function _formatDate(d) {
-    if (!d) return "—";
-    const [y,m,day] = d.split("-");
-    return `${day}/${m}/${y}`;
-  }
-
-  async function enviarReserva() {
-    const espaco_id = document.getElementById("res-espaco").value;
-    const data      = document.getElementById("res-data").value;
-    const periodo   = document.getElementById("res-periodo").value;
-    const obs       = document.getElementById("res-obs").value.trim();
-    document.getElementById("res-espaco-erro").textContent = "";
-    document.getElementById("res-data-erro").textContent   = "";
-    let ok = true;
-    if (!espaco_id) { document.getElementById("res-espaco-erro").textContent = "Selecione um espaço"; ok = false; }
-    if (!data)      { document.getElementById("res-data-erro").textContent   = "Informe a data";       ok = false; }
-    if (!ok) return;
-
-    const btn = document.getElementById("res-btn");
-    const lbl = document.getElementById("res-btn-label");
-    const fb  = document.getElementById("res-feedback");
-    btn.disabled = true; lbl.textContent = "ENVIANDO…"; fb.textContent = ""; fb.className = "portal-feedback";
-    try {
-      const res = await fetch(`${API_BASE}/reservas`, {
-        method: "POST",
-        headers: { "Content-Type":"application/json", Authorization:`Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ espaco_id:parseInt(espaco_id), data, periodo, observacao:obs||null, condominio_id:currentUser.condominio_id }),
-      });
-      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.detail||"Erro"); }
-      document.getElementById("res-data").value = "";
-      document.getElementById("res-obs").value  = "";
-      fb.textContent = "✔ Reserva solicitada! Aguarde aprovação do síndico."; fb.className = "portal-feedback ok";
-      await carregarReservasPortal();
-    } catch(err) { fb.textContent = "✖ " + err.message; fb.className = "portal-feedback erro"; }
-    finally { btn.disabled = false; lbl.textContent = "▶ SOLICITAR RESERVA"; }
-  }
-
-  async function cancelarReserva(id) {
-    if (!confirm("Cancelar esta reserva?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/reservas/${id}`, {
-        method:"DELETE", headers:{ Authorization:`Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      await carregarReservasPortal();
-    } catch { alert("Erro ao cancelar."); }
-  }
-
-  // ── VOTAÇÕES ───────────────────────────────────────────────
-  async function carregarVotacoesPortal() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("votacoes-lista");
-    try {
-      const res = await fetch(`${API_BASE}/votacoes?condominio_id=${currentUser.condominio_id}`, {
-        headers:{ Authorization:`Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      const votacoes = await res.json();
-      if (!votacoes.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma votação ativa no momento.</div>`;
-        return;
-      }
-      container.innerHTML = votacoes.map(v => _renderVotacao(v)).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar votações.</div>`;
-    }
-  }
-
-  function _renderVotacao(v) {
-    const jáVotou  = v.meu_voto !== null && v.meu_voto >= 0;
-    const encerrada = !v.ativa;
-    const total    = v.total_votos || 0;
-    const barra = (count) => {
-      const pct = total > 0 ? Math.round(count / total * 100) : 0;
-      return `<div style="background:rgba(16,185,129,.12);border-radius:4px;overflow:hidden;height:10px;margin-top:4px">
-        <div style="background:var(--p2);width:${pct}%;height:100%;border-radius:4px;transition:width .5s"></div></div>`;
+    const icon = mime => {
+      if (!mime) return "📄";
+      if (mime.includes("pdf")) return "📕";
+      if (mime.includes("image")) return "🖼️";
+      if (mime.includes("spreadsheet")||mime.includes("excel")) return "📊";
+      if (mime.includes("word")) return "📝";
+      return "📄";
     };
-    const opcoesHTML = v.opcoes.map((op, i) => {
-      const count  = v.resultados?.[i] ?? 0;
-      const pct    = total > 0 ? Math.round(count / total * 100) : 0;
-      const meuVoto = v.meu_voto === i;
-      return jáVotou || encerrada
-        ? `<div style="margin-bottom:10px">
-             <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11px">
-               <span style="color:${meuVoto?"var(--p2)":"var(--text)"}">${meuVoto?"✔ ":""}${_escHTML(op)}</span>
-               <span style="color:var(--text-dim)">${count} voto${count!==1?"s":""} · ${pct}%</span>
-             </div>${barra(count)}</div>`
-        : `<button onclick="votar(${v.id},${i})"
-             style="width:100%;text-align:left;margin-bottom:8px;padding:10px 14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;color:var(--text);font-family:Rajdhani,sans-serif;font-size:14px;cursor:pointer;transition:background .2s"
-             onmouseover="this.style.background='rgba(16,185,129,.15)'" onmouseout="this.style.background='rgba(16,185,129,.06)'">
-             ${_escHTML(op)}
-           </button>`;
+    const tamanho = b => b > 1048576 ? `${(b/1048576).toFixed(1)} MB` : `${Math.round(b/1024)} KB`;
+    container.innerHTML = docs.map(d => `
+      <div class="rec-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:14px;flex:1">
+          <span style="font-size:28px">${icon(d.mime_type)}</span>
+          <div>
+            <div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-bright)">${_esc(d.nome)}</div>
+            ${d.descricao ? `<div style="font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text-dim)">${_esc(d.descricao)}</div>` : ""}
+            <div class="rec-meta" style="margin-top:4px">${_esc(d.nome_original)} · ${tamanho(d.tamanho_bytes)} · ${new Date(d.criado_em).toLocaleDateString("pt-BR")}</div>
+          </div>
+        </div>
+        <button data-baixar="${d.id}"
+          style="font-family:var(--font-mono);font-size:11px;padding:8px 16px;border-radius:6px;cursor:pointer;border:1px solid rgba(16,185,129,.4);background:transparent;color:var(--p2);transition:background .2s">
+          ↓ BAIXAR
+        </button>
+      </div>`).join("");
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar documentos.</div>`;
+  }
+}
+
+async function _baixarDoc(docId) {
+  const token = sessionStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_BASE}/documentos/${docId}/download`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+    const blob = await res.blob();
+    const cd   = res.headers.get("Content-Disposition") || "";
+    const match = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    const nome  = match ? match[1].replace(/['"]/g,"") : `documento_${docId}`;
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement("a");
+    a.href=url; a.download=nome; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch { _toast("Erro ao baixar o arquivo.", "erro"); }
+}
+
+// ── MANUTENÇÕES ───────────────────────────────────────────────────────────
+async function carregarManutencoesPortal() {
+  if (!currentUser?.condominio_id) return;
+  const container = document.getElementById("manutencoes-lista");
+  try {
+    const res = await _fp(`${API_BASE}/manutencoes?condominio_id=${currentUser.condominio_id}`);
+    if (!res?.ok) throw new Error();
+    const items = await res.json();
+    if (!items.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma manutenção agendada no momento.</div>`;
+      return;
+    }
+    const _ci = { ELEVADOR:"🛗", PISCINA:"🏊", GERADOR:"⚡", HIDRAULICA:"🔧", ELETRICA:"💡", LIMPEZA:"🧹", JARDINAGEM:"🌿", OUTRO:"🔨" };
+    const _sc = { AGENDADA:"var(--cyan)", EM_ANDAMENTO:"#FFA500", CONCLUIDA:"var(--green)", CANCELADA:"var(--text-dim)" };
+    const _sl = { AGENDADA:"AGENDADA", EM_ANDAMENTO:"EM ANDAMENTO", CONCLUIDA:"CONCLUÍDA", CANCELADA:"CANCELADA" };
+    container.innerHTML = items.map(m => {
+      const dtI = m.data_inicio ? new Date(m.data_inicio).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}) : "—";
+      const dtF = m.data_fim    ? new Date(m.data_fim).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}) : null;
+      const cor = _sc[m.status] || "var(--text)";
+      return `<div class="rec-card">
+        <div class="rec-card-header">
+          <span class="rec-titulo">${_ci[m.categoria]||"🔨"} ${_esc(m.titulo)}</span>
+          <span class="rec-badge" style="color:${cor};border:1px solid ${cor}40;background:${cor}12">${_sl[m.status]||m.status}</span>
+        </div>
+        ${m.descricao ? `<div class="rec-desc">${_esc(m.descricao)}</div>` : ""}
+        ${m.impacto   ? `<div class="rec-resposta"><div class="rec-resposta-label">// IMPACTO</div><div class="rec-resposta-text">${_esc(m.impacto)}</div></div>` : ""}
+        <div class="rec-meta">Início: ${dtI}${dtF?` · Término: ${dtF}`:""} · ${_esc(m.categoria)}</div>
+      </div>`;
     }).join("");
-
-    return `<div class="rec-card" style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-        <span class="rec-titulo">${_escHTML(v.titulo)}</span>
-        <span class="rec-badge ${encerrada?"rec-badge--RESOLVIDA":"rec-badge--ABERTA"}">${encerrada?"ENCERRADA":"ABERTA"}</span>
-      </div>
-      ${v.descricao ? `<div class="rec-desc" style="margin-bottom:14px">${_escHTML(v.descricao)}</div>` : ""}
-      <div>${opcoesHTML}</div>
-      <div class="rec-meta">${total} voto${total!==1?"s":""} · Criada em ${new Date(v.criado_em).toLocaleDateString("pt-BR")}
-        ${encerrada ? " · Encerrada" : ""}
-        ${jáVotou && !encerrada ? " · <span style='color:var(--p2)'>Você votou ✔</span>" : ""}
-      </div>
-    </div>`;
+  } catch {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar manutenções.</div>`;
   }
+}
 
-  async function votar(votacaoId, opcaoIdx) {
-    try {
-      const res = await fetch(`${API_BASE}/votacoes/${votacaoId}/votar`, {
-        method:"POST",
-        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ opcao_idx: opcaoIdx }),
-      });
-      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.detail||"Erro"); }
-      const updated = await res.json();
-      const lista   = document.getElementById("votacoes-lista");
-      const cards   = lista.querySelectorAll(".rec-card");
-      // Encontra o card desta votação e atualiza
-      const idx = [...document.querySelectorAll(".rec-card")].findIndex(c => c.outerHTML.includes(`votar(${votacaoId},`));
-      await carregarVotacoesPortal(); // reload simples
-    } catch(err) { alert(err.message); }
+// ── CHAT ──────────────────────────────────────────────────────────────────
+function _appendChatBubble(autorTipo, conteudo, criado_em) {
+  const area = document.getElementById("chat-area-portal");
+  const isMe = autorTipo === "MORADOR";
+  const div  = document.createElement("div");
+  div.className = `ia-msg ${isMe?"ia-msg-user":"ia-msg-bot"}`;
+  const avatar = document.createElement("div");
+  avatar.className = "ia-avatar";
+  avatar.textContent = isMe ? "👤" : "🏢";
+  const bubble = document.createElement("div");
+  bubble.className = `ia-msg-bubble ${isMe?"ia-msg-bubble-user":"ia-msg-bubble-bot"}`;
+  bubble.textContent = conteudo;
+  if (criado_em) {
+    const ts = document.createElement("div");
+    ts.style.cssText = "font-size:9px;opacity:.5;margin-top:4px;font-family:var(--font-mono)";
+    ts.textContent = new Date(criado_em).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    bubble.appendChild(ts);
   }
+  div.append(avatar, bubble);
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
 
-  // ── DOCUMENTOS ─────────────────────────────────────────────
-  async function carregarDocumentosPortal() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("documentos-lista");
-    try {
-      const res = await fetch(`${API_BASE}/documentos?condominio_id=${currentUser.condominio_id}`, {
-        headers:{ Authorization:`Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      const docs = await res.json();
-      if (!docs.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhum documento disponível no momento.</div>`;
-        return;
-      }
-      const icon = (mime) => {
-        if (!mime) return "📄";
-        if (mime.includes("pdf")) return "📕";
-        if (mime.includes("image")) return "🖼️";
-        if (mime.includes("spreadsheet") || mime.includes("excel")) return "📊";
-        if (mime.includes("word")) return "📝";
-        return "📄";
-      };
-      const tamanho = (b) => b > 1048576 ? `${(b/1048576).toFixed(1)} MB` : `${Math.round(b/1024)} KB`;
-      container.innerHTML = docs.map(d => `
-        <div class="rec-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:14px;flex:1">
-            <span style="font-size:28px">${icon(d.mime_type)}</span>
-            <div>
-              <div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-bright)">${_escHTML(d.nome)}</div>
-              ${d.descricao ? `<div style="font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text-dim)">${_escHTML(d.descricao)}</div>` : ""}
-              <div class="rec-meta" style="margin-top:4px">${_escHTML(d.nome_original)} · ${tamanho(d.tamanho_bytes)} · ${new Date(d.criado_em).toLocaleDateString("pt-BR")}</div>
-            </div>
-          </div>
-          <a href="${API_BASE}/documentos/${d.id}/download?token=${sessionStorage.getItem("token")}"
-             onclick="baixarDoc(event, ${d.id})"
-             style="font-family:var(--font-mono);font-size:11px;padding:8px 16px;border-radius:6px;cursor:pointer;border:1px solid rgba(16,185,129,.4);background:transparent;color:var(--p2);text-decoration:none;transition:background .2s"
-             onmouseover="this.style.background='rgba(16,185,129,.1)'" onmouseout="this.style.background='transparent'">
-            ↓ BAIXAR
-          </a>
-        </div>`).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar documentos.</div>`;
+async function carregarChatPortal(silencioso = false) {
+  if (!currentUser?.condominio_id || !currentUser?.morador_id) return;
+  const area = document.getElementById("chat-area-portal");
+  if (!silencioso) area.innerHTML = `<div class="empty-state" style="margin:auto"><span class="blink">█</span> CARREGANDO…</div>`;
+  try {
+    const res = await _fp(`${API_BASE}/chat/mensagens?condominio_id=${currentUser.condominio_id}&morador_id=${currentUser.morador_id}`);
+    if (!res?.ok) throw new Error();
+    const msgs = await res.json();
+
+    const prevCount = parseInt(area.dataset.count || "-1");
+    if (silencioso && msgs.length === prevCount) return;
+    area.dataset.count = msgs.length;
+
+    if (!msgs.length) {
+      area.innerHTML = `<div class="empty-state" style="margin:auto"><div class="empty-state-icon">💬</div>Nenhuma mensagem ainda. Envie uma mensagem ao síndico!</div>`;
+      return;
     }
-  }
+    area.innerHTML = "";
+    msgs.forEach(m => _appendChatBubble(m.autor_tipo, m.conteudo, m.criado_em));
 
-  async function baixarDoc(e, docId) {
-    e.preventDefault();
-    const token = sessionStorage.getItem("token");
-    try {
-      const res = await fetch(`${API_BASE}/documentos/${docId}/download`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
-      const cd   = res.headers.get("Content-Disposition") || "";
-      const match = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      const nome  = match ? match[1].replace(/['"]/g,"") : `documento_${docId}`;
-      const url   = URL.createObjectURL(blob);
-      const a     = document.createElement("a");
-      a.href = url; a.download = nome; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch { alert("Erro ao baixar o arquivo."); }
-  }
-
-  // ── MANUTENÇÕES ────────────────────────────────────────────
-  async function carregarManutencoesPortal() {
-    if (!currentUser?.condominio_id) return;
-    const container = document.getElementById("manutencoes-lista");
-    try {
-      const res = await fetch(`${API_BASE}/manutencoes?condominio_id=${currentUser.condominio_id}`, {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
-      });
-      if (!res.ok) throw new Error();
-      const items = await res.json();
-      if (!items.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⬡</div>Nenhuma manutenção agendada no momento.</div>`;
-        return;
-      }
-      const _catIcon   = { ELEVADOR:"🛗", PISCINA:"🏊", GERADOR:"⚡", HIDRAULICA:"🔧", ELETRICA:"💡", LIMPEZA:"🧹", JARDINAGEM:"🌿", OUTRO:"🔨" };
-      const _statusCol = { AGENDADA:"var(--cyan)", EM_ANDAMENTO:"#FFA500", CONCLUIDA:"var(--green)", CANCELADA:"var(--text-dim)" };
-      const _statusLbl = { AGENDADA:"AGENDADA", EM_ANDAMENTO:"EM ANDAMENTO", CONCLUIDA:"CONCLUÍDA", CANCELADA:"CANCELADA" };
-      container.innerHTML = items.map(m => {
-        const dtI = m.data_inicio ? new Date(m.data_inicio).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}) : "—";
-        const dtF = m.data_fim    ? new Date(m.data_fim).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})    : null;
-        const cor = _statusCol[m.status] || "var(--text)";
-        return `<div class="rec-card">
-          <div class="rec-card-header">
-            <span class="rec-titulo">${_catIcon[m.categoria]||"🔨"} ${_escHTML(m.titulo)}</span>
-            <span class="rec-badge" style="color:${cor};border:1px solid ${cor}40;background:${cor}12">${_statusLbl[m.status]||m.status}</span>
-          </div>
-          ${m.descricao ? `<div class="rec-desc">${_escHTML(m.descricao)}</div>` : ""}
-          ${m.impacto   ? `<div class="rec-resposta"><div class="rec-resposta-label">// IMPACTO</div><div class="rec-resposta-text">${_escHTML(m.impacto)}</div></div>` : ""}
-          <div class="rec-meta">Início: ${dtI}${dtF?` · Término: ${dtF}`:""} · ${_escHTML(m.categoria)}</div>
-        </div>`;
-      }).join("");
-    } catch {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div>Erro ao carregar manutenções.</div>`;
+    const nlRes = await _fp(`${API_BASE}/chat/nao-lidas?condominio_id=${currentUser.condominio_id}&morador_id=${currentUser.morador_id}`);
+    if (nlRes?.ok) {
+      const { nao_lidas } = await nlRes.json();
+      const tabBtn = document.getElementById("tab-btn-chat");
+      let badge = tabBtn?.querySelector(".tab-badge");
+      if (nao_lidas > 0) {
+        if (!badge) { badge=document.createElement("span"); badge.className="tab-badge"; tabBtn?.appendChild(badge); }
+        badge.textContent = nao_lidas;
+      } else if (badge) badge.remove();
     }
+  } catch {
+    if (!silencioso) area.innerHTML = `<div class="empty-state" style="margin:auto"><div class="empty-state-icon">⚠</div>Erro ao carregar mensagens.</div>`;
   }
+}
 
-  // ── CHAT COM SÍNDICO ────────────────────────────────────────
-  let _chatPollingInterval = null;
+async function enviarMsgPortal() {
+  const input = document.getElementById("chat-input-portal");
+  const btn   = document.getElementById("chat-send-portal");
+  const texto = input.value.trim();
+  if (!texto || !currentUser?.condominio_id || !currentUser?.morador_id) return;
 
-  function _appendChatBubble(autorTipo, conteudo, criado_em) {
-    const area = document.getElementById("chat-area-portal");
-    const isMe = autorTipo === "MORADOR";
-    const div  = document.createElement("div");
-    div.className = `ia-msg ${isMe ? "ia-msg-user" : "ia-msg-bot"}`;
-    const avatar = document.createElement("div");
-    avatar.className = "ia-avatar";
-    avatar.textContent = isMe ? "👤" : "🏢";
-    const bubble = document.createElement("div");
-    bubble.className = `ia-msg-bubble ${isMe ? "ia-msg-bubble-user" : "ia-msg-bubble-bot"}`;
-    bubble.textContent = conteudo;
-    if (criado_em) {
-      const ts = document.createElement("div");
-      ts.style.cssText = "font-size:9px;opacity:.5;margin-top:4px;font-family:var(--font-mono)";
-      ts.textContent = new Date(criado_em).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
-      bubble.appendChild(ts);
-    }
-    div.append(avatar, bubble);
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
+  const orig = input.value;
+  input.value = "";
+  btn.disabled = true;
+  try {
+    const res = await _fp(`${API_BASE}/chat/mensagens`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({conteudo:texto, condominio_id:currentUser.condominio_id, morador_id:currentUser.morador_id}),
+    });
+    if (!res?.ok) throw new Error();
+    await carregarChatPortal();
+  } catch {
+    input.value = orig;
+    _toast("Erro ao enviar mensagem. Tente novamente.", "erro");
+  } finally { btn.disabled=false; input.focus(); }
+}
+
+// ── PERFIL ────────────────────────────────────────────────────────────────
+async function carregarPerfilPortal() {
+  try {
+    const res = await _fp(`${API_BASE}/moradores/me`);
+    if (!res?.ok) return;
+    const m = await res.json();
+    document.getElementById("perfil-nome").value     = m.nome     || "";
+    document.getElementById("perfil-email").value    = m.email    || "";
+    document.getElementById("perfil-apto").value     = m.apartamento || "";
+    document.getElementById("perfil-telefone").value = m.telefone || "";
+  } catch {}
+}
+
+async function atualizarPerfil() {
+  const nome     = document.getElementById("perfil-nome").value.trim();
+  const telefone = document.getElementById("perfil-telefone").value.trim();
+  document.getElementById("perfil-nome-erro").textContent = "";
+  if (!nome) { document.getElementById("perfil-nome-erro").textContent = "Campo obrigatório"; return; }
+
+  const btn=document.getElementById("perfil-btn"); const lbl=document.getElementById("perfil-btn-label");
+  btn.disabled=true; lbl.textContent="SALVANDO…";
+  const fb=document.getElementById("perfil-feedback");
+  try {
+    const res = await _fp(`${API_BASE}/moradores/me`, {
+      method:"PUT", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({nome, telefone}),
+    });
+    if (!res?.ok) throw new Error((await res?.json().catch(()=>({}))).detail||"Erro");
+    fb.textContent="✔ Dados atualizados!"; fb.className="form-feedback ok";
+    _toast("Perfil atualizado com sucesso!", "ok");
+  } catch(e) { fb.textContent=`⚠ ${e.message}`; fb.className="form-feedback erro"; }
+  finally {
+    btn.disabled=false; lbl.textContent="▶ SALVAR ALTERAÇÕES";
+    setTimeout(()=>{ fb.textContent=""; fb.className="form-feedback"; },4000);
   }
+}
 
-  async function carregarChatPortal(silencioso = false) {
-    if (!currentUser?.condominio_id || !currentUser?.morador_id) return;
-    const area = document.getElementById("chat-area-portal");
-    if (!silencioso) {
-      area.innerHTML = `<div class="empty-state" style="margin:auto"><span class="blink">█</span> CARREGANDO…</div>`;
-    }
-    try {
-      const res = await fetch(
-        `${API_BASE}/chat/mensagens?condominio_id=${currentUser.condominio_id}&morador_id=${currentUser.morador_id}`,
-        { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
-      );
-      if (!res.ok) throw new Error();
-      const msgs = await res.json();
+async function alterarSenhaPortal() {
+  const senhaAtual = document.getElementById("senha-atual").value;
+  const novaSenha  = document.getElementById("nova-senha").value;
+  const novaSenhaC = document.getElementById("nova-senha-conf").value;
+  ["nova-senha-erro","nova-senha-conf-erro"].forEach(id => document.getElementById(id).textContent="");
+  let ok = true;
+  if (novaSenha.length < 8) { document.getElementById("nova-senha-erro").textContent="Mínimo 8 caracteres"; ok=false; }
+  if (novaSenha !== novaSenhaC) { document.getElementById("nova-senha-conf-erro").textContent="Senhas não coincidem"; ok=false; }
+  if (!ok) return;
 
-      const prevCount = parseInt(area.dataset.count || "-1");
-      if (silencioso && msgs.length === prevCount) return;
-      area.dataset.count = msgs.length;
-
-      if (!msgs.length) {
-        area.innerHTML = `<div class="empty-state" style="margin:auto"><div class="empty-state-icon">💬</div>Nenhuma mensagem ainda.<br>Envie uma mensagem ao síndico!</div>`;
-        return;
-      }
-      area.innerHTML = "";
-      msgs.forEach(m => _appendChatBubble(m.autor_tipo, m.conteudo, m.criado_em));
-
-      // Atualiza badge da aba
-      const nlRes = await fetch(
-        `${API_BASE}/chat/nao-lidas?condominio_id=${currentUser.condominio_id}&morador_id=${currentUser.morador_id}`,
-        { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
-      );
-      if (nlRes.ok) {
-        const { nao_lidas } = await nlRes.json();
-        const tabBtn = document.getElementById("tab-btn-chat");
-        let badge = tabBtn?.querySelector(".tab-badge");
-        if (nao_lidas > 0) {
-          if (!badge) { badge = document.createElement("span"); badge.className = "tab-badge"; tabBtn?.appendChild(badge); }
-          badge.textContent = nao_lidas;
-        } else if (badge) { badge.remove(); }
-      }
-    } catch {
-      if (!silencioso) area.innerHTML = `<div class="empty-state" style="margin:auto"><div class="empty-state-icon">⚠</div>Erro ao carregar mensagens.</div>`;
-    }
+  const btn=document.getElementById("senha-btn"); const lbl=document.getElementById("senha-btn-label");
+  btn.disabled=true; lbl.textContent="ALTERANDO…";
+  const fb=document.getElementById("senha-feedback");
+  try {
+    const res = await _fp(`${API_BASE}/usuarios/me/senha`, {
+      method:"PUT", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({senha_atual:senhaAtual, nova_senha:novaSenha}),
+    });
+    if (!res?.ok) throw new Error((await res?.json().catch(()=>({}))).detail||"Erro");
+    ["senha-atual","nova-senha","nova-senha-conf"].forEach(id=>document.getElementById(id).value="");
+    fb.textContent="✔ Senha alterada!"; fb.className="form-feedback ok";
+    _toast("Senha alterada com sucesso!", "ok");
+  } catch(e) { fb.textContent=`⚠ ${e.message}`; fb.className="form-feedback erro"; }
+  finally {
+    btn.disabled=false; lbl.textContent="▶ ALTERAR SENHA";
+    setTimeout(()=>{ fb.textContent=""; fb.className="form-feedback"; },4000);
   }
+}
 
-  async function enviarMsgPortal() {
-    const input = document.getElementById("chat-input-portal");
-    const btn   = document.getElementById("chat-send-portal");
-    const texto = input.value.trim();
-    if (!texto || !currentUser?.condominio_id || !currentUser?.morador_id) return;
+// ── Event delegation centralizado ─────────────────────────────────────────
+function _setupEventDelegation() {
+  // Tab navigation
+  document.querySelector(".portal-tabs").addEventListener("click", e => {
+    const btn = e.target.closest(".tab-btn");
+    if (btn?.dataset.tab) mudarAba(btn.dataset.tab);
+  });
 
-    const orig  = input.value;
-    input.value = "";
-    btn.disabled = true;
-    try {
-      const res = await fetch(`${API_BASE}/chat/mensagens`, {
-        method: "POST",
-        headers: { "Content-Type":"application/json", Authorization:`Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ conteudo: texto, condominio_id: currentUser.condominio_id, morador_id: currentUser.morador_id }),
-      });
-      if (!res.ok) throw new Error();
-      await carregarChatPortal();
-    } catch {
-      input.value = orig;
-      alert("Erro ao enviar mensagem. Tente novamente.");
-    } finally {
-      btn.disabled = false;
-      input.focus();
+  // Logout
+  document.getElementById("btn-logout").addEventListener("click", fazerLogout);
+
+  // IA portal: enviar
+  document.getElementById("ia-send-btn-portal").addEventListener("click", enviarMensagemPortal);
+  document.getElementById("ia-input-portal").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMensagemPortal(); }
+  });
+
+  // IA sugestões (event delegation)
+  document.getElementById("ia-sugestoes-portal").addEventListener("click", e => {
+    const btn = e.target.closest(".ia-sugestao");
+    if (btn) {
+      document.getElementById("ia-input-portal").value = btn.dataset.sug;
+      enviarMensagemPortal();
     }
-  }
+  });
 
-  // ── PERFIL ─────────────────────────────────────────────
-  async function carregarPerfilPortal() {
-    const token = sessionStorage.getItem("token");
-    try {
-      const res = await fetch(`${API_BASE}/moradores/me`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) return;
-      const m = await res.json();
-      document.getElementById("perfil-nome").value     = m.nome || "";
-      document.getElementById("perfil-email").value    = m.email || "";
-      document.getElementById("perfil-apto").value     = m.apartamento || "";
-      document.getElementById("perfil-telefone").value = m.telefone || "";
-    } catch {}
-  }
+  // Reclamações: cancelar (event delegation)
+  document.getElementById("reclamacoes-lista").addEventListener("click", e => {
+    const btn = e.target.closest("[data-cancel-rec]");
+    if (btn) _cancelarReclamacao(parseInt(btn.dataset.cancelRec));
+  });
 
-  async function atualizarPerfil() {
-    const nome     = document.getElementById("perfil-nome").value.trim();
-    const telefone = document.getElementById("perfil-telefone").value.trim();
-    document.getElementById("perfil-nome-erro").textContent = "";
-    if (!nome) { document.getElementById("perfil-nome-erro").textContent = "Campo obrigatório"; return; }
+  // Reclamação: enviar
+  document.getElementById("rec-btn").addEventListener("click", enviarReclamacao);
 
-    const btn = document.getElementById("perfil-btn");
-    const lbl = document.getElementById("perfil-btn-label");
-    btn.disabled = true; lbl.textContent = "SALVANDO…";
-    const fb = document.getElementById("perfil-feedback");
-    try {
-      const res = await fetch(`${API_BASE}/moradores/me`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ nome, telefone }),
-      });
-      if (!res.ok) throw new Error((await res.json()).detail || "Erro");
-      fb.textContent = "✔ Dados atualizados com sucesso!";
-      fb.className = "form-feedback ok";
-    } catch (e) {
-      fb.textContent = `⚠ ${e.message}`;
-      fb.className = "form-feedback erro";
-    } finally {
-      btn.disabled = false; lbl.textContent = "▶ SALVAR ALTERAÇÕES";
-      setTimeout(() => { fb.textContent = ""; fb.className = "form-feedback"; }, 4000);
-    }
-  }
+  // Reservas: cancelar (event delegation)
+  document.getElementById("reservas-lista").addEventListener("click", e => {
+    const btn = e.target.closest("[data-cancel-res]");
+    if (btn) _cancelarReserva(parseInt(btn.dataset.cancelRes));
+  });
 
-  async function alterarSenhaPortal() {
-    const senhaAtual  = document.getElementById("senha-atual").value;
-    const novaSenha   = document.getElementById("nova-senha").value;
-    const novaSenhaC  = document.getElementById("nova-senha-conf").value;
-    ["senha-atual-erro","nova-senha-erro","nova-senha-conf-erro"].forEach(id => document.getElementById(id).textContent = "");
+  // Reserva: solicitar
+  document.getElementById("res-btn").addEventListener("click", enviarReserva);
 
-    let ok = true;
-    if (!senhaAtual) { document.getElementById("senha-atual-erro").textContent = "Campo obrigatório"; ok = false; }
-    if (novaSenha.length < 8) { document.getElementById("nova-senha-erro").textContent = "Mínimo 8 caracteres"; ok = false; }
-    if (novaSenha !== novaSenhaC) { document.getElementById("nova-senha-conf-erro").textContent = "Senhas não coincidem"; ok = false; }
-    if (!ok) return;
+  // Votações: votar (event delegation)
+  document.getElementById("votacoes-lista").addEventListener("click", e => {
+    const btn = e.target.closest("[data-votar]");
+    if (btn) _votar(parseInt(btn.dataset.votar), parseInt(btn.dataset.opcao));
+  });
 
-    const btn = document.getElementById("senha-btn");
-    const lbl = document.getElementById("senha-btn-label");
-    btn.disabled = true; lbl.textContent = "ALTERANDO…";
-    const fb = document.getElementById("senha-feedback");
-    try {
-      const res = await fetch(`${API_BASE}/usuarios/me/senha`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionStorage.getItem("token")}` },
-        body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha }),
-      });
-      if (!res.ok) throw new Error((await res.json()).detail || "Erro");
-      fb.textContent = "✔ Senha alterada com sucesso!";
-      fb.className = "form-feedback ok";
-      document.getElementById("senha-atual").value = "";
-      document.getElementById("nova-senha").value = "";
-      document.getElementById("nova-senha-conf").value = "";
-    } catch (e) {
-      fb.textContent = `⚠ ${e.message}`;
-      fb.className = "form-feedback erro";
-    } finally {
-      btn.disabled = false; lbl.textContent = "▶ ALTERAR SENHA";
-      setTimeout(() => { fb.textContent = ""; fb.className = "form-feedback"; }, 4000);
-    }
-  }
+  // Documentos: baixar (event delegation)
+  document.getElementById("documentos-lista").addEventListener("click", e => {
+    const btn = e.target.closest("[data-baixar]");
+    if (btn) _baixarDoc(parseInt(btn.dataset.baixar));
+  });
 
-  // Carrega dados das abas lazy (somente quando abertas pela primeira vez)
-  const _abasCarregadas = new Set(["taxas","avisos","reclamacoes"]);
-  const _carregadoresAbas = {
-    reservas:    () => { carregarEspacosPortal(); carregarReservasPortal(); },
-    votacoes:    carregarVotacoesPortal,
-    documentos:  carregarDocumentosPortal,
-    manutencoes: carregarManutencoesPortal,
-    chat: () => {
-      carregarChatPortal();
-      if (_chatPollingInterval) clearInterval(_chatPollingInterval);
-      _chatPollingInterval = setInterval(() => carregarChatPortal(true), 5000);
-    },
-    perfil: carregarPerfilPortal,
-  };
+  // Chat: enviar
+  document.getElementById("chat-send-portal").addEventListener("click", enviarMsgPortal);
+  document.getElementById("chat-input-portal").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMsgPortal(); }
+  });
 
-  const _mudarAbaOriginal = mudarAba;
-  mudarAba = function(aba) {
-    if (aba !== "chat" && _chatPollingInterval) {
-      clearInterval(_chatPollingInterval);
-      _chatPollingInterval = null;
-    }
-    _mudarAbaOriginal(aba);
-    if (!_abasCarregadas.has(aba) && _carregadoresAbas[aba]) {
-      _abasCarregadas.add(aba);
-      _carregadoresAbas[aba]();
-    } else if (aba === "chat" && _abasCarregadas.has("chat") && !_chatPollingInterval) {
-      _chatPollingInterval = setInterval(() => carregarChatPortal(true), 5000);
-    }
-  };
+  // Perfil
+  document.getElementById("perfil-btn").addEventListener("click", atualizarPerfil);
+  document.getElementById("senha-btn").addEventListener("click", alterarSenhaPortal);
 
-  window.addEventListener("load", checkMoradorAuth);
+  // Remover onclick inline dos tabs (já usando event delegation acima)
+  document.querySelectorAll(".tab-btn[onclick]").forEach(b => b.removeAttribute("onclick"));
+}
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
-  }
+window.addEventListener("load", checkMoradorAuth);
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
+}
 </script>
 </body>
 </html>
