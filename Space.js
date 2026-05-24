@@ -25,42 +25,44 @@
   window.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
   window.addEventListener("mouseleave", () => { mouse.x = mouse.y = -9999; });
 
-  // ── Paletas por tema ─────────────────────────────────────
+  // ── Paletas por tema — IBM Carbon Blue ───────────────────
   function getPalette() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     if (dark) {
+      // IBM Carbon dark — partículas azuis sobre #161616
       return {
-        bg:      "#08091A",
-        c1:      "#6C63FF",
-        c2:      "#9C8FFF",
-        c3:      "#CE93D8",
-        neutral: "#E8E6FF",
+        bg:      "#161616",
+        c1:      "#0F62FE",   // Blue 60
+        c2:      "#4589FF",   // Blue 50
+        c3:      "#1192E8",   // Cyan 50
+        neutral: "#525252",   // Gray 60 — neutro discreto
         aurora: [
-          { r: 108, g:  99, b: 255 },
-          { r:  92, g: 107, b: 192 },
-          { r:  57, g:  73, b: 171 },
+          { r:  15, g:  98, b: 254 },  // Blue 60
+          { r:  69, g: 137, b: 255 },  // Blue 50
+          { r:  17, g: 146, b: 232 },  // Cyan 50
         ],
-        lineC:  [108,  99, 255],
-        lineN:  [156, 143, 255],
-        mouseL: [108,  99, 255],
-        auroraAlpha: [0.12, 0.06],
+        lineC:  [ 15,  98, 254],
+        lineN:  [ 69, 137, 255],
+        mouseL: [ 15,  98, 254],
+        auroraAlpha: [0.14, 0.06],
       };
     } else {
+      // IBM Carbon light — partículas azuis sobre #F4F4F4
       return {
-        bg:      "#EDF2FF",
-        c1:      "#3949AB",
-        c2:      "#7C3AED",
-        c3:      "#5C6BC0",
-        neutral: "#9FA8DA",
+        bg:      "#F4F4F4",
+        c1:      "#0F62FE",   // Blue 60
+        c2:      "#0043CE",   // Blue 70
+        c3:      "#0072C3",   // Cyan 60
+        neutral: "#C1C7CD",   // Cool Gray 30 — neutro claro
         aurora: [
-          { r:  57, g:  73, b: 171 },
-          { r: 109, g:  40, b: 217 },
-          { r:  92, g: 107, b: 192 },
+          { r:  15,  g:  98, b: 254 },  // Blue 60
+          { r:   0,  g:  67, b: 206 },  // Blue 70
+          { r:   0, g: 114, b: 195 },  // Cyan 60
         ],
-        lineC:  [ 57,  73, 171],
-        lineN:  [ 92, 107, 192],
-        mouseL: [109,  40, 217],
-        auroraAlpha: [0.10, 0.05],
+        lineC:  [ 15,  98, 254],
+        lineN:  [  0,  67, 206],
+        mouseL: [ 15,  98, 254],
+        auroraAlpha: [0.08, 0.04],
       };
     }
   }
