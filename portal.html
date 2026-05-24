@@ -11,7 +11,8 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     /* ─── Layout ─────────────────────────────────────── */
-    .portal-wrap { min-height:100vh; display:flex; flex-direction:column; }
+    .portal-wrap { min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+    * { box-sizing:border-box; }
     .portal-header {
       display:flex; justify-content:space-between; align-items:center;
       padding:14px 24px; border-bottom:1px solid var(--border);
@@ -122,7 +123,7 @@
       font-size:9px; font-family:var(--font-mono); border-radius:var(--radius);
       padding:1px 5px; margin-left:5px; vertical-align:middle;
     }
-    .tab-pane  { display:none; padding:24px; max-width:1000px; margin:0 auto; width:100%; box-sizing:border-box; }
+    .tab-pane  { display:none; padding:24px; max-width:1000px; margin:0 auto; width:100%; box-sizing:border-box; min-width:0; overflow-x:hidden; }
     .tab-pane.active { display:block; }
 
     /* ─── Dashboard INÍCIO ────────────────────────────── */
@@ -280,78 +281,166 @@
     .btn-logout-portal { font-family:var(--font-mono); font-size:10px; letter-spacing:1px; padding:5px 12px; border-radius:4px; cursor:pointer; border:1px solid rgba(255,68,102,.4); background:transparent; color:var(--red); transition:background .2s; }
     .btn-logout-portal:hover { background:rgba(255,68,102,.1); }
 
-    /* ─── Mobile adjustments ──────────────────────────── */
+    /* ══════════════════════════════════════════════════
+       PORTAL MOBILE — Moradores acessam quase sempre
+       pelo celular. Atenção redobrada aqui.
+    ══════════════════════════════════════════════════ */
+
+    /* ── 768px: Tablet ─────────────────────────────── */
     @media (max-width:768px) {
-      .portal-tabs { top:53px; } /* header fica ~53px em mobile */
-    }
+      /* Header altura fixa → tabs alinhadas exatas */
+      .portal-header { height:52px; padding:0 18px; flex-shrink:0; }
+      .portal-tabs   { top:52px; }
 
-    @media (max-width:600px) {
+      /* Tabs: menor padding, todas roláveis */
+      .tab-btn { padding:11px 14px; font-size:10px; letter-spacing:1px; min-height:40px; }
+
+      /* Pane: menos padding lateral */
+      .tab-pane { padding:18px 16px; }
+
+      /* Dash: 2 colunas */
+      .dash-grid { grid-template-columns:1fr 1fr; gap:12px; }
+
+      /* Perfil: stats 2 colunas */
       .perfil-stats-grid { grid-template-columns:repeat(2,1fr); }
+
+      /* Formulários: 1 coluna */
       .rec-form { grid-template-columns:1fr; }
-      .dash-grid { grid-template-columns:1fr 1fr; }
     }
 
+    /* ── 480px: Phone ──────────────────────────────── */
     @media (max-width:480px) {
-      /* Header compacto */
-      .portal-header { padding:10px 14px; gap:8px; }
-      .portal-title-group .logo-main { font-size:13px; }
-      .portal-condo-nome { display:none; } /* hide subtitle on tiny screens */
-      .usuario-nome-p { font-size:12px; }
+
+      /* ─ Header: só glifo + botão sair ──────────────
+         Ocultar texto do logo e dados do morador para
+         deixar o header fino e sem sobreposição com
+         o botão de tema (que vai pro canto inferior). */
+      .portal-header { height:52px; padding:0 14px; gap:0; }
+      .portal-title-group .logo-stack  { display:none; }  /* oculta "CONDOSYS" + subtítulo */
+      .usuario-nome-p { display:none; }
       .usuario-apto   { display:none; }
+      .btn-logout-portal {
+        padding:8px 12px; font-size:10px;
+        min-height:36px; letter-spacing:0.5px;
+      }
 
-      /* Tabs ficam menores */
-      .tab-btn { padding:10px 12px; font-size:10px; letter-spacing:1px; }
+      /* ─ Botão de tema: sai do header, vai pro canto
+         inferior direito para não sobrepor o header ─ */
+      .theme-toggle {
+        top:auto !important;
+        bottom:72px !important;
+        right:14px !important;
+        width:36px !important; height:36px !important;
+        font-size:14px !important;
+        z-index:9990;
+      }
 
-      /* Pane padding menor */
-      .tab-pane { padding:14px; }
+      /* ─ Tabs: compactas, roláveis, sem quebra ──────── */
+      .portal-tabs { top:52px; }
+      .tab-btn { padding:10px 12px; font-size:10px; letter-spacing:0.5px; min-height:40px; }
 
-      /* Dash grid: 2 colunas em mobile */
-      .dash-grid { grid-template-columns:1fr 1fr; }
-      .dash-card { padding:14px 16px; }
-      .dash-greeting { padding:16px 18px; }
-      .dash-greeting-nome { font-size:18px; }
+      /* ─ Pane: padding mínimo necessário ────────────── */
+      .tab-pane { padding:12px; }
 
-      /* Quick actions: 2 por linha */
-      .pane-inicio-quicks { gap:8px; }
+      /* ─ Início: greeting compacto ─────────────────── */
+      .dash-greeting { padding:14px 16px; margin-bottom:14px; }
+      .dash-greeting-nome { font-size:17px; }
+      .dash-greeting-sub  { font-size:10px; }
+
+      /* ─ Dashboard grid: 2 colunas ─────────────────── */
+      .dash-grid { grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+      .dash-card { padding:12px 14px; border-radius:12px; }
+      .dash-card-icon  { font-size:20px; margin-bottom:6px; }
+      .dash-card-value { font-size:16px; }
+      .dash-card-label { font-size:8px; }
+
+      /* ─ Quick actions: 2 por linha, toque fácil ────── */
+      .pane-inicio-quicks { gap:6px; margin-bottom:16px; }
       .quick-action {
-        flex: 1 1 calc(50% - 4px);
-        min-width: 0;
-        justify-content:center;
+        flex: 1 1 calc(50% - 3px);
+        min-width:0;
+        white-space:normal;        /* permite quebra de linha */
+        word-break:break-word;
+        justify-content:flex-start;
         padding:10px 10px;
         font-size:10px;
-        min-height:44px; /* touch target */
+        letter-spacing:0.5px;
+        min-height:44px;           /* touch target */
+        border-radius:12px;
       }
-      .quick-action .qa-icon { font-size:14px; }
+      .quick-action .qa-icon { font-size:15px; flex-shrink:0; }
 
-      /* Perfil avatar centralizado */
-      .perfil-avatar { width:60px; height:60px; font-size:22px; }
-      .perfil-stats-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
-      .perfil-stat { padding:10px 12px; }
-      .perfil-stat-val { font-size:16px; }
+      /* ─ Taxas (boletos) ────────────────────────────── */
+      .boleto-box { flex-direction:column; gap:10px; align-items:flex-start; padding:14px 16px; }
+      .boleto-valor { font-size:18px; }
+      .btn-portal-sm { min-height:40px; padding:10px 14px; font-size:11px; }
 
-      /* IA chat */
-      .ia-chat-area { min-height:220px; max-height:280px; }
-      .ia-send-btn { padding:10px 12px; font-size:11px; }
-      .ia-input { font-size:16px !important; } /* iOS zoom fix */
+      /* ─ IA chat: ocupa viewport de forma inteligente ─ */
+      .ia-chat-area {
+        min-height:220px;
+        max-height:calc(100dvh - 230px); /* viewport dinâmico - header - tabs - input */
+        max-height:calc(100vh - 230px);
+      }
+      .ia-msg-bubble { max-width:88%; font-size:14px; padding:.65rem .9rem; line-height:1.55; }
+      .ia-input-row  { padding:10px 12px; gap:6px; }
+      .ia-input      { font-size:16px !important; padding:9px 12px; }  /* iOS no-zoom */
+      .ia-send-btn   { padding:10px 10px; font-size:11px; white-space:nowrap; flex-shrink:0; }
+      .ia-sugestoes  { gap:6px; padding:0 12px 10px; }
+      .ia-sugestao   { font-size:10px; padding:.25rem .7rem; }
 
-      /* Boleto */
-      .boleto-box { flex-direction:column; gap:10px; align-items:flex-start; }
-      .boleto-valor { font-size:16px; }
-      .btn-portal-sm { width:100%; text-align:center; min-height:44px; }
+      /* ─ Chat (síndico): mesmas regras do IA ────────── */
+      #chat-area-portal { max-height:calc(100vh - 230px); }
 
-      /* Reclamações */
-      .rec-card { padding:14px 16px; }
+      /* ─ Reclamações ─────────────────────────────────── */
+      .rec-form  { grid-template-columns:1fr; gap:10px; margin-bottom:14px; }
+      .rec-card  { padding:12px 14px; border-radius:12px; }
+      .rec-titulo { font-size:14px; }
+      .rec-desc  { font-size:13px; }
       .btn-rec-cancel { padding:8px 12px; min-height:36px; }
 
-      /* Back button */
-      .btn-voltar-aba { font-size:10px; padding:8px 12px; min-height:36px; }
+      /* ─ Reservas ────────────────────────────────────── */
+      /* rec-form já vai para 1 coluna acima */
 
-      /* Toast */
-      #portal-toast-area { bottom:16px; right:12px; left:12px; }
-      .portal-toast { min-width:0; max-width:100%; font-size:11px; }
+      /* ─ Perfil ──────────────────────────────────────── */
+      .perfil-avatar { width:56px; height:56px; font-size:20px; margin-bottom:10px; }
+      /* remove min-width que causa overflow em telas < 400px */
+      #pane-perfil > div:first-of-type { flex-wrap:wrap; gap:14px; margin-bottom:16px; }
+      #pane-perfil > div:first-of-type > div:last-child { min-width:0; flex:1; }
+      .perfil-stats-grid { grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px; }
+      .perfil-stat { padding:10px 12px; border-radius:12px; }
+      .perfil-stat-val { font-size:16px; }
+      .perfil-stat-lbl { font-size:8px; }
+      .lgpd-badge  { font-size:9px; padding:4px 10px; }
 
-      /* Botão logout menor */
-      .btn-logout-portal { padding:8px 10px; min-height:36px; }
+      /* ─ Back button ──────────────────────────────────── */
+      .btn-voltar-aba { font-size:10px; padding:8px 12px; min-height:36px; border-radius:10px; margin-bottom:14px; }
+
+      /* ─ Section titles ───────────────────────────────── */
+      .section-title { font-size:9px; margin-bottom:12px; }
+
+      /* ─ Submit buttons ───────────────────────────────── */
+      .btn-submit-portal { width:100%; min-height:44px; font-size:11px; }
+
+      /* ─ Toasts: span full width ──────────────────────── */
+      #portal-toast-area { bottom:14px; right:10px; left:10px; }
+      .portal-toast { min-width:0; max-width:100%; font-size:11px; padding:10px 14px; }
+
+      /* ─ Inputs: iOS no-zoom (todos os campos) ────────── */
+      .field-input,
+      .rec-textarea,
+      .ia-input { font-size:16px !important; }
+      select.field-input { font-size:16px !important; }
+    }
+
+    /* ── 360px: Telas muito pequenas (Galaxy A, etc.) ── */
+    @media (max-width:360px) {
+      .portal-header { padding:0 10px; }
+      .tab-btn { padding:9px 10px; font-size:9px; }
+      .tab-pane { padding:10px; }
+      .dash-grid { gap:6px; }
+      .dash-card { padding:10px 12px; }
+      .quick-action { font-size:9px; padding:9px 8px; }
+      .pane-inicio-quicks { gap:4px; }
     }
   </style>
 </head>
@@ -569,7 +658,7 @@
       <div>
         <div class="perfil-avatar" id="perfil-avatar">?</div>
       </div>
-      <div style="flex:1;min-width:200px">
+      <div style="flex:1;min-width:0">
         <div style="font-family:var(--font-ui);font-size:22px;font-weight:700;color:var(--text-bright);margin-bottom:4px" id="perfil-nome-display">—</div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--p3);letter-spacing:1px;margin-bottom:12px" id="perfil-apto-display">APT —</div>
         <span class="lgpd-badge">✔ LGPD — Dados protegidos</span>
