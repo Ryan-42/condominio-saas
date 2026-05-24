@@ -42,13 +42,13 @@
 
       <div class="login-card-body" id="form-body">
         <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);letter-spacing:.5px;line-height:1.7;margin-top:-8px;">
-          Crie uma nova senha para sua conta. A senha deve ter no mínimo 6 caracteres.
+          Crie uma nova senha para sua conta. A senha deve ter no mínimo 8 caracteres.
         </p>
 
         <div class="field">
           <label class="field-label" for="nova-senha">NOVA SENHA</label>
           <input class="field-input" type="password" id="nova-senha"
-            placeholder="mínimo 6 caracteres" autocomplete="new-password">
+            placeholder="mínimo 8 caracteres" autocomplete="new-password">
           <span class="field-erro" id="nova-senha-erro"></span>
         </div>
 
@@ -127,9 +127,9 @@
       document.getElementById("confirmar-senha-erro").style.display = "none";
       feedback.textContent = ""; feedback.className = "login-feedback";
 
-      if (nova.length < 6) {
+      if (nova.length < 8) {
         const e = document.getElementById("nova-senha-erro");
-        e.textContent = "Mínimo 6 caracteres"; e.style.display = "block";
+        e.textContent = "Mínimo 8 caracteres"; e.style.display = "block";
         document.getElementById("nova-senha").classList.add("field-input--erro");
         return;
       }

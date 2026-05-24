@@ -299,6 +299,9 @@ def auto_registrar_morador(dados: AutoRegistroInput, db: Session = Depends(get_d
         senha_hash=hash_senha(dados.senha),
         convite_token=None,
         convite_token_expira=None,
+        lgpd_aceite=True,
+        lgpd_aceite_em=datetime.now(timezone.utc),
+        primeiro_acesso=False,
     )
     try:
         db.add(novo)
