@@ -835,6 +835,13 @@ textarea.field-input { resize: vertical; min-height: 100px; line-height: 1.6; pa
   /* Topbar compacto em tablet */
   .topbar { margin-bottom: 24px; padding-bottom: 16px; }
   .clock-display { font-size: 18px; letter-spacing: 2px; }
+
+  /* Modo claro mobile: topbar transparente igual dark mode
+     — sem caixa branca quadrada, canvas sangra por baixo */
+  html:not([data-theme="dark"]) .topbar {
+    background: transparent;
+    border-bottom-color: rgba(0,0,0,0.08);
+  }
 }
 
 @media (max-width: 768px) {
