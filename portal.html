@@ -1634,15 +1634,18 @@ async function carregarPerfilPortal() {
     if (aptoD) aptoD.textContent = `APT ${m.apartamento || "—"}`;
 
     // Stats: busca taxas, reclamações e reservas em paralelo
+    const cid = currentUser.condominio_id;
     try {
       const [taxas, recs, reservas] = await Promise.allSettled([
-        _fp(`${API_BASE}/pagamentos/${_condoId}`).then(r => r.ok ? r.json() : []),
-        _fp(`${API_BASE}/reclamacoes/morador`).then(r => r.ok ? r.json() : []),
-        _fp(`${API_BASE}/reservas/morador`).then(r => r.ok ? r.json() : []),
+        _fp(`${API_BASE}/pagamentos/${cid}`).then(r => r.ok ? r.json() : []),
+        _fp(`${API_BASE}/reclamacoes?condominio_id=${cid}`).then(r => r.ok ? r.json() : []),
+        _fp(`${API_BASE}/reservas?condominio_id=${cid}`).then(r => r.ok ? r.json() : []),
       ]);
-      const taxaList = taxas.status === "fulfilled" ? (taxas.value || []) : [];
+      const allTaxas = taxas.status === "fulfilled" ? (taxas.value || []) : [];
       const recList  = recs.status  === "fulfilled" ? (recs.value  || []) : [];
       const resList  = reservas.status === "fulfilled" ? (reservas.value || []) : [];
+      const mid = currentUser.morador_id;
+      const taxaList  = mid ? allTaxas.filter(t => t.morador_id === mid) : allTaxas;
       const pagas    = taxaList.filter(t => t.pago).length;
       const pendentes = taxaList.filter(t => !t.pago).length;
       const statEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
