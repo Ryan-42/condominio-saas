@@ -276,13 +276,23 @@ def esqueci_senha(dados: EsqueciSenhaInput, request: Request, background_tasks: 
     ip = request.client.host if request.client else "unknown"
     check_rate_limit(ip)
 
+    token = str(uuid.uuid4())
+    expira = datetime.now(timezone.utc) + timedelta(hours=1)
+
     usuario = db.query(Usuario).filter(Usuario.email == dados.email).first()
     if usuario:
-        token = str(uuid.uuid4())
         usuario.reset_token        = token
-        usuario.reset_token_expira = datetime.now(timezone.utc) + timedelta(hours=1)
+        usuario.reset_token_expira = expira
         db.commit()
         background_tasks.add_task(enviar_reset_senha, usuario.email, usuario.nome, token)
+    else:
+        morador = db.query(Morador).filter(Morador.email == dados.email).first()
+        if morador:
+            morador.reset_token        = token
+            morador.reset_token_expira = expira
+            db.commit()
+            background_tasks.add_task(enviar_reset_senha, morador.email, morador.nome, token)
+
     return {"message": "Se o e-mail estiver cadastrado, você receberá as instruções em breve."}
 
 
@@ -293,19 +303,24 @@ def resetar_senha(dados: ResetarSenhaInput, db: Session = Depends(get_db)):
     if len(dados.nova_senha) < 8:
         raise HTTPException(status_code=400, detail="A senha deve ter pelo menos 8 caracteres.")
 
-    usuario = db.query(Usuario).filter(Usuario.reset_token == dados.token).first()
+    nova_hash = hash_senha(dados.nova_senha)
+    agora = datetime.now(timezone.utc)
 
-    if not usuario or usuario.reset_token_expira is None:
+    usuario = db.query(Usuario).filter(Usuario.reset_token == dados.token).first()
+    morador = None if usuario else db.query(Morador).filter(Morador.reset_token == dados.token).first()
+    alvo = usuario or morador
+
+    if not alvo or alvo.reset_token_expira is None:
         raise HTTPException(status_code=400, detail="Token inválido ou expirado.")
 
-    expira = usuario.reset_token_expira
+    expira = alvo.reset_token_expira
     if expira.tzinfo is None:
         expira = expira.replace(tzinfo=timezone.utc)
-    if datetime.now(timezone.utc) > expira:
+    if agora > expira:
         raise HTTPException(status_code=400, detail="Token expirado. Solicite um novo link.")
 
-    usuario.senha_hash           = hash_senha(dados.nova_senha)
-    usuario.reset_token          = None
-    usuario.reset_token_expira   = None
+    alvo.senha_hash         = nova_hash
+    alvo.reset_token        = None
+    alvo.reset_token_expira = None
     db.commit()
     return {"message": "Senha redefinida com sucesso. Faça login com a nova senha."}

@@ -18,6 +18,8 @@ class Morador(Base):
     lgpd_aceite = Column(Boolean, default=False)
     lgpd_aceite_em = Column(DateTime, nullable=True)
     primeiro_acesso = Column(Boolean, default=True)
+    reset_token = Column(String, nullable=True, index=True)
+    reset_token_expira = Column(DateTime, nullable=True)
 
     condominio_id = Column(Integer, ForeignKey("condominios.id"), index=True)
 

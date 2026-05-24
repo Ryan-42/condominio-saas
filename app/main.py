@@ -78,6 +78,8 @@ def _init_db():
             ("lgpd_aceite_em",        "TIMESTAMP"),
             ("primeiro_acesso",       "BOOLEAN DEFAULT TRUE"),
             ("convite_token_expira",  "TIMESTAMP"),
+            ("reset_token",           "VARCHAR"),
+            ("reset_token_expira",    "TIMESTAMP"),
         ],
     }
     try:
