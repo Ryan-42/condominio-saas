@@ -45,6 +45,8 @@
         lineN:  [ 26, 122, 150],
         mouseL: [ 61, 175, 200],
         auroraAlpha: [0.16, 0.07],
+        lineAlpha:   [0.45, 0.28],  // dark mode defaults
+        mouseAlpha:  0.65,
       };
     } else {
       // Petróleo light — sobre prata #AEAFB1
@@ -53,7 +55,7 @@
         c1:      "#1A7A96",   // petróleo escuro
         c2:      "#115E77",   // petróleo profundo
         c3:      "#2E9BB8",   // petróleo médio
-        neutral: "#A0A8B0",   // cinza prata neutro
+        neutral: "#8A9098",   // cinza mais contrastado no fundo claro
         aurora: [
           { r:  26, g: 122, b: 150 },
           { r:  17, g:  94, b: 119 },
@@ -62,7 +64,9 @@
         lineC:  [ 26, 122, 150],
         lineN:  [ 17,  94, 119],
         mouseL: [ 26, 122, 150],
-        auroraAlpha: [0.10, 0.04],
+        auroraAlpha: [0.22, 0.10],  // mais intenso no modo claro
+        lineAlpha:   [0.75, 0.50],  // [colorida, neutra]
+        mouseAlpha:  0.85,
       };
     }
   }
@@ -176,7 +180,8 @@
     // Linhas entre partículas
     const [lCr, lCg, lCb] = pal.lineC;
     const [lNr, lNg, lNb] = pal.lineN;
-    ctx.lineWidth = 0.55;
+    const [laC, laN] = pal.lineAlpha;
+    ctx.lineWidth = 0.7;
     for (let i = 0; i < dots.length; i++) {
       const a = dots[i];
       for (let j = i + 1; j < dots.length; j++) {
@@ -186,8 +191,8 @@
         const t  = 1 - dd / maxD2;
         const colored = a.color !== pal.neutral || b.color !== pal.neutral;
         ctx.strokeStyle = colored
-          ? `rgba(${lCr},${lCg},${lCb},${t * t * 0.45})`
-          : `rgba(${lNr},${lNg},${lNb},${t * t * 0.28})`;
+          ? `rgba(${lCr},${lCg},${lCb},${t * t * laC})`
+          : `rgba(${lNr},${lNg},${lNb},${t * t * laN})`;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -197,12 +202,12 @@
 
     // Linhas para cursor
     const [mLr, mLg, mLb] = pal.mouseL;
-    ctx.lineWidth = 0.9;
+    ctx.lineWidth = 1.1;
     dots.forEach((p) => {
       const dd = d2(p.x, p.y, mouse.x, mouse.y);
       if (dd > mouseD2) return;
       const t = 1 - dd / mouseD2;
-      ctx.strokeStyle = `rgba(${mLr},${mLg},${mLb},${t * t * 0.65})`;
+      ctx.strokeStyle = `rgba(${mLr},${mLg},${mLb},${t * t * pal.mouseAlpha})`;
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
       ctx.lineTo(mouse.x, mouse.y);
