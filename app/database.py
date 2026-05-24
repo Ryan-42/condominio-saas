@@ -12,12 +12,17 @@ DATABASE_URL = (
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+_is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if _is_sqlite else {}
 
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
     pool_pre_ping=True,
+    # Para PostgreSQL no Railway: recicla conexões ociosas antes do timeout do servidor
+    pool_recycle=1800 if not _is_sqlite else -1,
+    pool_size=5,
+    max_overflow=10,
 )
 
 SessionLocal = sessionmaker(

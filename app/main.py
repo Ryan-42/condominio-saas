@@ -74,9 +74,9 @@ def _init_db():
         "moradores": [
             ("senha_hash",            "VARCHAR"),
             ("convite_token",         "VARCHAR"),
-            ("lgpd_aceite",           "BOOLEAN DEFAULT 0"),
+            ("lgpd_aceite",           "BOOLEAN DEFAULT FALSE"),
             ("lgpd_aceite_em",        "TIMESTAMP"),
-            ("primeiro_acesso",       "BOOLEAN DEFAULT 1"),
+            ("primeiro_acesso",       "BOOLEAN DEFAULT TRUE"),
             ("convite_token_expira",  "TIMESTAMP"),
         ],
     }
