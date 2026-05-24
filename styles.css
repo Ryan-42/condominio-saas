@@ -19,9 +19,9 @@
   /* Prata claro — sem branco puro */
   --bg:       #D2D3D5;
   --bg2:      #C8C9CB;
-  /* Cards: tons mais claros que o fundo para destacar texto */
-  --surface:  #E8E9EB;
-  --surface2: #EEEEF0;
+  /* Cards: gelo — destaca texto sem cegar */
+  --surface:  #F2F3F5;
+  --surface2: #F6F7F9;
   --border:        rgba(0,0,0,0.13);
   --border-hot:    rgba(26,122,150,0.55);
 
@@ -1180,7 +1180,7 @@ html:not([data-theme="dark"]) body          { background: #D2D3D5; }
 
 /* Sidebar — prata levemente mais escura */
 html:not([data-theme="dark"]) .sidebar {
-  background: rgba(232,233,235,0.96);
+  background: rgba(242,243,245,0.97);
   border-right: 1px solid rgba(0,0,0,0.12);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -1189,7 +1189,7 @@ html:not([data-theme="dark"]) .sidebar::before { background: var(--p3); opacity:
 
 /* Cards — cinza médio, 3 tons mais escuros que o fundo */
 html:not([data-theme="dark"]) .card {
-  background: rgba(232,233,235,0.95);
+  background: rgba(242,243,245,0.96);
   border: 1px solid rgba(0,0,0,0.10);
   box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   backdrop-filter: blur(12px);
@@ -1205,7 +1205,7 @@ html:not([data-theme="dark"]) .card:hover {
 html:not([data-theme="dark"]) .panel,
 html:not([data-theme="dark"]) .insights-panel,
 html:not([data-theme="dark"]) .form-panel {
-  background: rgba(232,233,235,0.95);
+  background: rgba(242,243,245,0.96);
   border: 1px solid rgba(0,0,0,0.10);
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   backdrop-filter: blur(12px);
