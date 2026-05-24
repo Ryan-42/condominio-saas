@@ -3,94 +3,98 @@
 
 :root {
   color-scheme: light dark;
-  /* ── IBM Carbon — Light ────────────────────────── */
-  --p1: #001141;
-  --p2: #0043CE;
-  --p3: #0F62FE;
-  --p4: #4589FF;
-  --lavender:     #4589FF;
-  --lavender-dim: #78A9FF;
+  /* ── Petrol SaaS — Light (prata + azul petróleo) ─ */
+  --p1: #0A3A4A;
+  --p2: #115E77;
+  --p3: #1A7A96;
+  --p4: #2E9BB8;
+  --lavender:     #2E9BB8;
+  --lavender-dim: #4DB8D5;
 
   /* RGB channels */
-  --_p:   15,98,254;
-  --_a:   69,137,255;
-  --_lt:  120,169,255;
+  --_p:   26,122,150;
+  --_a:   46,155,184;
+  --_lt:  77,184,213;
 
-  --bg:       #F4F4F4;
-  --bg2:      #E8E8E8;
-  --surface:  #FFFFFF;
-  --surface2: #F4F4F4;
-  --border:        rgba(0,0,0,0.12);
-  --border-hot:    rgba(0,0,0,0.35);
+  /* Prata claro — sem branco puro */
+  --bg:       #E8EAED;
+  --bg2:      #DADDE2;
+  /* Cards: 3 tons mais escuros que o fundo */
+  --surface:  #CBCFD6;
+  --surface2: #BFC4CC;
+  --border:        rgba(0,0,0,0.13);
+  --border-hot:    rgba(26,122,150,0.55);
 
-  --grad: linear-gradient(90deg,#001141,#0043CE,#0F62FE,#4589FF);
+  --grad: linear-gradient(90deg,#0A3A4A,#115E77,#1A7A96,#2E9BB8);
 
-  --text:        #161616;
-  --text-dim:    #525252;
-  --text-bright: #000000;
+  --text:        #181C1F;
+  --text-dim:    #4A5560;
+  --text-bright: #0D1114;
 
-  --green:      #198038;
-  --green-dim:  #24A148;
-  --green-glow: rgba(25,128,56,.14);
-  --red:        #DA1E28;
-  --red-dim:    #FA4D56;
-  --red-glow:   rgba(218,30,40,.14);
-  --gold:       #D24C00;
-  --gold-dim:   #EB6200;
-  --gold-glow:  rgba(210,76,0,.14);
+  --green:      #1A7A45;
+  --green-dim:  #22A05A;
+  --green-glow: rgba(26,122,69,.16);
+  --red:        #C8252D;
+  --red-dim:    #E0373F;
+  --red-glow:   rgba(200,37,45,.16);
+  --gold:       #B85C00;
+  --gold-dim:   #D46E00;
+  --gold-glow:  rgba(184,92,0,.16);
 
-  --cyan:       #0072C3;
-  --cyan-dim:   #1192E8;
-  --cyan-glow:  rgba(0,114,195,.14);
+  --cyan:       #0D7A8A;
+  --cyan-dim:   #1A9AAC;
+  --cyan-glow:  rgba(13,122,138,.16);
 
   --sidebar-w: 250px;
-  --radius:    4px;
+  --radius:    8px;
 
-  --font-display: 'IBM Plex Sans', sans-serif;
-  --font-ui:      'IBM Plex Sans', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-ui:      'Plus Jakarta Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  /* ── IBM Carbon — Dark ─────────────────────────── */
-  --p1: #D0E2FF;
-  --p2: #A6C8FF;
-  --p3: #78A9FF;
-  --p4: #4589FF;
-  --lavender:     #A6C8FF;
-  --lavender-dim: #78A9FF;
+  /* ── Petrol SaaS — Dark ─────────────────────────── */
+  --p1: #A8DDE8;
+  --p2: #6DC4D8;
+  --p3: #3DAFC8;
+  --p4: #2496B0;
+  --lavender:     #6DC4D8;
+  --lavender-dim: #4DB8D0;
 
-  --_p:   120,169,255;
-  --_a:   166,200,255;
-  --_lt:  208,226,255;
+  --_p:   61,175,200;
+  --_a:   109,196,216;
+  --_lt:  168,221,232;
 
-  --bg:       #161616;
-  --bg2:      #262626;
-  --surface:  #262626;
-  --surface2: #393939;
-  --border:        rgba(255,255,255,0.12);
-  --border-hot:    rgba(255,255,255,0.32);
+  /* Grafite escuro — sem preto puro */
+  --bg:       #161A1E;
+  --bg2:      #1E2328;
+  /* Cards: 3 tons mais escuros — grafite médio */
+  --surface:  #252B32;
+  --surface2: #2D343C;
+  --border:        rgba(255,255,255,0.10);
+  --border-hot:    rgba(61,175,200,0.50);
 
-  --grad: linear-gradient(90deg,#0F62FE,#4589FF,#78A9FF,#A6C8FF);
+  --grad: linear-gradient(90deg,#2496B0,#3DAFC8,#6DC4D8,#A8DDE8);
 
-  --text:        #F4F4F4;
-  --text-dim:    #C6C6C6;
-  --text-bright: #FFFFFF;
+  --text:        #E4E8EC;
+  --text-dim:    #8C9BAA;
+  --text-bright: #F0F4F8;
 
-  --green:      #42BE65;
-  --green-dim:  #6FDC8C;
-  --green-glow: rgba(66,190,101,.22);
-  --red:        #FF8389;
-  --red-dim:    #FFB3B8;
-  --red-glow:   rgba(255,131,137,.22);
-  --gold:       #FF832B;
-  --gold-dim:   #FFB784;
-  --gold-glow:  rgba(255,131,43,.22);
+  --green:      #3DD68C;
+  --green-dim:  #6DE8AA;
+  --green-glow: rgba(61,214,140,.22);
+  --red:        #FF7A85;
+  --red-dim:    #FFB0B8;
+  --red-glow:   rgba(255,122,133,.22);
+  --gold:       #FFAA44;
+  --gold-dim:   #FFC880;
+  --gold-glow:  rgba(255,170,68,.22);
 
-  --cyan:       #33B1FF;
-  --cyan-dim:   #82CFFF;
-  --cyan-glow:  rgba(51,177,255,.22);
+  --cyan:       #4DC8DC;
+  --cyan-dim:   #7ADAEA;
+  --cyan-glow:  rgba(77,200,220,.22);
 }
 
 html {
@@ -1172,53 +1176,53 @@ textarea.field-input { resize: vertical; min-height: 100px; line-height: 1.6; pa
 ════════════════════════════════════════════════ */
 
 html:not([data-theme="dark"]) #space-canvas { display: block; }
-html:not([data-theme="dark"]) body          { background: #F4F4F4; }
+html:not([data-theme="dark"]) body          { background: #E8EAED; }
 
-/* Sidebar — superfície sólida Carbon */
+/* Sidebar — prata levemente mais escura */
 html:not([data-theme="dark"]) .sidebar {
-  background: rgba(255,255,255,0.92);
-  border-right: 1px solid #E0E0E0;
+  background: rgba(203,207,214,0.96);
+  border-right: 1px solid rgba(0,0,0,0.12);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 html:not([data-theme="dark"]) .sidebar::before { background: var(--p3); opacity: 1; height: 3px; }
 
-/* Cards — branco sólido Carbon */
+/* Cards — cinza médio, 3 tons mais escuros que o fundo */
 html:not([data-theme="dark"]) .card {
-  background: rgba(255,255,255,0.94);
-  border: 1px solid #E0E0E0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: rgba(203,207,214,0.95);
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 html:not([data-theme="dark"]) .card:hover {
   border-color: var(--p3);
-  box-shadow: 0 4px 16px rgba(15,98,254,0.14);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(26,122,150,0.20);
+  transform: translateY(-2px);
 }
 
 /* Panels */
 html:not([data-theme="dark"]) .panel,
 html:not([data-theme="dark"]) .insights-panel,
 html:not([data-theme="dark"]) .form-panel {
-  background: rgba(255,255,255,0.94);
-  border: 1px solid #E0E0E0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: rgba(203,207,214,0.95);
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 /* Topbar */
-html:not([data-theme="dark"]) .topbar { border-bottom-color: #E0E0E0; }
+html:not([data-theme="dark"]) .topbar { border-bottom-color: rgba(0,0,0,0.12); }
 
-/* Clock — azul IBM */
+/* Clock — petróleo */
 html:not([data-theme="dark"]) .clock-display {
   color: var(--p3);
   text-shadow: none;
 }
 
 /* Card saldo */
-html:not([data-theme="dark"]) .card--saldo .card-value { color: var(--p3); text-shadow: none; }
+html:not([data-theme="dark"]) .card--saldo .card-value { color: var(--p2); text-shadow: none; }
 html:not([data-theme="dark"]) .card--saldo .card-corner { border-color: var(--p3); }
 
 /* ── Dark mode select arrows ─────────────────── */

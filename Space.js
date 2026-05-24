@@ -25,44 +25,44 @@
   window.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
   window.addEventListener("mouseleave", () => { mouse.x = mouse.y = -9999; });
 
-  // ── Paletas por tema — IBM Carbon Blue ───────────────────
+  // ── Paletas por tema — Azul Petróleo ────────────────────
   function getPalette() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     if (dark) {
-      // IBM Carbon dark — partículas azuis sobre #161616
+      // Petróleo dark — sobre grafite #161A1E
       return {
-        bg:      "#161616",
-        c1:      "#0F62FE",   // Blue 60
-        c2:      "#4589FF",   // Blue 50
-        c3:      "#1192E8",   // Cyan 50
-        neutral: "#525252",   // Gray 60 — neutro discreto
+        bg:      "#161A1E",
+        c1:      "#3DAFC8",   // petróleo médio
+        c2:      "#1A7A96",   // petróleo escuro
+        c3:      "#6DC4D8",   // petróleo claro
+        neutral: "#3A4A54",   // cinza-petróleo neutro
         aurora: [
-          { r:  15, g:  98, b: 254 },  // Blue 60
-          { r:  69, g: 137, b: 255 },  // Blue 50
-          { r:  17, g: 146, b: 232 },  // Cyan 50
+          { r:  61, g: 175, b: 200 },
+          { r:  26, g: 122, b: 150 },
+          { r: 109, g: 196, b: 216 },
         ],
-        lineC:  [ 15,  98, 254],
-        lineN:  [ 69, 137, 255],
-        mouseL: [ 15,  98, 254],
-        auroraAlpha: [0.14, 0.06],
+        lineC:  [ 61, 175, 200],
+        lineN:  [ 26, 122, 150],
+        mouseL: [ 61, 175, 200],
+        auroraAlpha: [0.16, 0.07],
       };
     } else {
-      // IBM Carbon light — partículas azuis sobre #F4F4F4
+      // Petróleo light — sobre prata #E8EAED
       return {
-        bg:      "#F4F4F4",
-        c1:      "#0F62FE",   // Blue 60
-        c2:      "#0043CE",   // Blue 70
-        c3:      "#0072C3",   // Cyan 60
-        neutral: "#C1C7CD",   // Cool Gray 30 — neutro claro
+        bg:      "#E8EAED",
+        c1:      "#1A7A96",   // petróleo escuro
+        c2:      "#115E77",   // petróleo profundo
+        c3:      "#2E9BB8",   // petróleo médio
+        neutral: "#A0A8B0",   // cinza prata neutro
         aurora: [
-          { r:  15,  g:  98, b: 254 },  // Blue 60
-          { r:   0,  g:  67, b: 206 },  // Blue 70
-          { r:   0, g: 114, b: 195 },  // Cyan 60
+          { r:  26, g: 122, b: 150 },
+          { r:  17, g:  94, b: 119 },
+          { r:  46, g: 155, b: 184 },
         ],
-        lineC:  [ 15,  98, 254],
-        lineN:  [  0,  67, 206],
-        mouseL: [ 15,  98, 254],
-        auroraAlpha: [0.08, 0.04],
+        lineC:  [ 26, 122, 150],
+        lineN:  [ 17,  94, 119],
+        mouseL: [ 26, 122, 150],
+        auroraAlpha: [0.10, 0.04],
       };
     }
   }
