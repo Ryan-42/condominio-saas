@@ -47,9 +47,9 @@
         auroraAlpha: [0.16, 0.07],
       };
     } else {
-      // Petróleo light — sobre prata #E8EAED
+      // Petróleo light — sobre prata #AEAFB1
       return {
-        bg:      "#E8EAED",
+        bg:      "#AEAFB1",
         c1:      "#1A7A96",   // petróleo escuro
         c2:      "#115E77",   // petróleo profundo
         c3:      "#2E9BB8",   // petróleo médio
