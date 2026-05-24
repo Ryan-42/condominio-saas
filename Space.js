@@ -49,9 +49,9 @@
         mouseAlpha:  0.65,
       };
     } else {
-      // Petróleo light — sobre prata #AEAFB1
+      // Petróleo light — sobre prata #D2D3D5
       return {
-        bg:      "#AEAFB1",
+        bg:      "#D2D3D5",
         c1:      "#1A7A96",   // petróleo escuro
         c2:      "#115E77",   // petróleo profundo
         c3:      "#2E9BB8",   // petróleo médio
