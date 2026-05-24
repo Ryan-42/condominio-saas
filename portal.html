@@ -281,11 +281,77 @@
     .btn-logout-portal:hover { background:rgba(255,68,102,.1); }
 
     /* ─── Mobile adjustments ──────────────────────────── */
-    @media (max-width:480px) {
-      .portal-header { padding:12px 16px; }
-      .tab-pane { padding:16px; }
+    @media (max-width:768px) {
+      .portal-tabs { top:53px; } /* header fica ~53px em mobile */
+    }
+
+    @media (max-width:600px) {
+      .perfil-stats-grid { grid-template-columns:repeat(2,1fr); }
+      .rec-form { grid-template-columns:1fr; }
       .dash-grid { grid-template-columns:1fr 1fr; }
-      .ia-chat-area { min-height:260px; }
+    }
+
+    @media (max-width:480px) {
+      /* Header compacto */
+      .portal-header { padding:10px 14px; gap:8px; }
+      .portal-title-group .logo-main { font-size:13px; }
+      .portal-condo-nome { display:none; } /* hide subtitle on tiny screens */
+      .usuario-nome-p { font-size:12px; }
+      .usuario-apto   { display:none; }
+
+      /* Tabs ficam menores */
+      .tab-btn { padding:10px 12px; font-size:10px; letter-spacing:1px; }
+
+      /* Pane padding menor */
+      .tab-pane { padding:14px; }
+
+      /* Dash grid: 2 colunas em mobile */
+      .dash-grid { grid-template-columns:1fr 1fr; }
+      .dash-card { padding:14px 16px; }
+      .dash-greeting { padding:16px 18px; }
+      .dash-greeting-nome { font-size:18px; }
+
+      /* Quick actions: 2 por linha */
+      .pane-inicio-quicks { gap:8px; }
+      .quick-action {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        justify-content:center;
+        padding:10px 10px;
+        font-size:10px;
+        min-height:44px; /* touch target */
+      }
+      .quick-action .qa-icon { font-size:14px; }
+
+      /* Perfil avatar centralizado */
+      .perfil-avatar { width:60px; height:60px; font-size:22px; }
+      .perfil-stats-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+      .perfil-stat { padding:10px 12px; }
+      .perfil-stat-val { font-size:16px; }
+
+      /* IA chat */
+      .ia-chat-area { min-height:220px; max-height:280px; }
+      .ia-send-btn { padding:10px 12px; font-size:11px; }
+      .ia-input { font-size:16px !important; } /* iOS zoom fix */
+
+      /* Boleto */
+      .boleto-box { flex-direction:column; gap:10px; align-items:flex-start; }
+      .boleto-valor { font-size:16px; }
+      .btn-portal-sm { width:100%; text-align:center; min-height:44px; }
+
+      /* Reclamações */
+      .rec-card { padding:14px 16px; }
+      .btn-rec-cancel { padding:8px 12px; min-height:36px; }
+
+      /* Back button */
+      .btn-voltar-aba { font-size:10px; padding:8px 12px; min-height:36px; }
+
+      /* Toast */
+      #portal-toast-area { bottom:16px; right:12px; left:12px; }
+      .portal-toast { min-width:0; max-width:100%; font-size:11px; }
+
+      /* Botão logout menor */
+      .btn-logout-portal { padding:8px 10px; min-height:36px; }
     }
   </style>
 </head>

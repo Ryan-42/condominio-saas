@@ -337,6 +337,35 @@
       .lc-body .lc-field:nth-child(2) { opacity:0; animation: fadeUp .35s ease .38s forwards; }
       .lc-body .lc-btn               { opacity:0; animation: fadeUp .35s ease .46s forwards; }
     }
+
+    /* ── Mobile overrides ─────────────────────── */
+    @media (max-width: 480px) {
+      .login-page { padding: 12px; }
+      .lc-wrap    { max-width: 100%; }
+
+      .lc-brand { margin-bottom: 20px; }
+
+      .lc-card-head { padding: 20px 20px 18px; }
+      .lc-heading   { font-size: 20px; }
+      .lc-subheading { font-size: 12px; }
+
+      .lc-body { padding: 20px 20px; gap: 16px; }
+
+      /* iOS: prevent zoom on inputs */
+      .lc-input { font-size: 16px !important; padding: 11px 14px; }
+
+      .lc-btn { padding: 13px 16px; min-height: 44px; }
+      .lc-btn-ghost { min-height: 44px; }
+
+      .lc-footer { padding: 10px 20px; }
+      .lc-legal  { padding: 12px 20px; gap: 16px; }
+
+      /* Divider edge-to-edge */
+      .lc-divider { margin: 0 -20px; }
+
+      /* Theme toggle: menor e não sobrepõe o card */
+      .theme-toggle { top: 14px; right: 14px; width: 36px; height: 36px; font-size: 14px; }
+    }
   </style>
 </head>
 
