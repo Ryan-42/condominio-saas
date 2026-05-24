@@ -142,11 +142,56 @@ export async function carregarInadimplentes() {
   try {
     const lista = await fetchAPI(`/inadimplentes/${state.CONDOMINIO_ID}`);
     if (!lista) return;
+
     const totalValor = lista.reduce((acc, i) => acc + i.valor_total, 0);
     document.getElementById("inad-stat-total").textContent = lista.length;
     document.getElementById("inad-stat-valor").textContent = formatarMoeda(totalValor);
-    const statTotal = document.getElementById("inad-stat-total");
-    statTotal.classList.toggle("negativo", lista.length > 0);
+    document.getElementById("inad-stat-total").classList.toggle("negativo", lista.length > 0);
+
+    const countEl = document.getElementById("inad-devedores-count");
+    const listaEl = document.getElementById("inad-devedores-lista");
+    if (!listaEl) return;
+
+    if (countEl) countEl.textContent = lista.length ? `${lista.length} inadimplente${lista.length > 1 ? "s" : ""}` : "0";
+
+    if (!lista.length) {
+      listaEl.innerHTML = `
+        <div class="empty-state" style="padding:24px 0">
+          <div class="empty-state-icon">✔</div>
+          <div>Todos os moradores estão em dia!</div>
+        </div>`;
+      return;
+    }
+
+    lista.sort((a, b) => b.valor_total - a.valor_total);
+    listaEl.innerHTML = lista.map((d, i) => `
+      <div style="
+        display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+        padding:12px 24px;border-bottom:1px solid var(--border);
+        opacity:0;animation:fadeUp .3s ease forwards;animation-delay:${Math.min(i * 0.05, 0.4)}s;
+      ">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+            background:rgba(200,37,45,.12);border:1px solid rgba(200,37,45,.3);
+            display:flex;align-items:center;justify-content:center;
+            font-family:var(--font-ui);font-size:13px;font-weight:700;color:var(--red)">
+            ${escHTML((d.morador_nome || "?")[0].toUpperCase())}
+          </div>
+          <div>
+            <div style="font-family:var(--font-ui);font-size:14px;font-weight:600;color:var(--text-bright)">${escHTML(d.morador_nome || "—")}</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px">APT ${escHTML(d.apartamento || "—")}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div style="text-align:right">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px">
+              ${d.meses_pendentes} ${d.meses_pendentes === 1 ? "MÊS" : "MESES"} EM ABERTO
+            </div>
+            <div style="font-family:var(--font-ui);font-size:16px;font-weight:700;color:var(--red)">${formatarMoeda(d.valor_total)}</div>
+          </div>
+          <span class="inad-badge badge-pendente">DEVEDOR</span>
+        </div>
+      </div>`).join("");
   } catch (_) {}
 }
 

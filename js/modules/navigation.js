@@ -179,11 +179,13 @@ export function closeSidebar() {
   btn.setAttribute("aria-expanded", "false");
 }
 
-export function toggleForm(bodyId, labelId) {
+export function toggleForm(bodyId, labelId, closedText) {
   const body  = document.getElementById(bodyId);
   const label = document.getElementById(labelId);
   const open  = body.classList.toggle("open");
-  label.textContent = open ? "✕ FECHAR" : "+ NOVO REGISTRO";
+  const defaultClosed = closedText || label.dataset.closedText || "+ NOVO REGISTRO";
+  if (!label.dataset.closedText && closedText) label.dataset.closedText = closedText;
+  label.textContent = open ? "✕ FECHAR" : defaultClosed;
   if (!open) {
     window._sairModoEdicaoDesp?.();
     window._sairModoEdicaoRec?.();

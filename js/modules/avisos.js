@@ -84,7 +84,7 @@ export async function submitAviso() {
     document.getElementById("aviso-titulo").value   = "";
     document.getElementById("aviso-conteudo").value = "";
     document.getElementById("aviso-tipo").value     = "NORMAL";
-    window.toggleForm?.("aviso-form-body", "aviso-toggle-label");
+    window.toggleForm?.("aviso-form-body", "aviso-toggle-label", "+ NOVO AVISO");
     await carregarAvisos();
   } catch (err) {
     exibirFeedback("aviso-feedback", `⚠ Erro ao publicar: ${err.message}`, "erro");

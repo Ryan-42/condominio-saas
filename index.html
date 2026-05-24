@@ -599,6 +599,15 @@
         </div>
       </section>
 
+      <!-- Lista de inadimplentes -->
+      <div class="panel" style="--delay:.35s">
+        <div class="panel-header">
+          <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">DEVEDORES</span></div>
+          <span class="panel-badge" id="inad-devedores-count">—</span>
+        </div>
+        <div id="inad-devedores-lista" style="padding:8px 0"></div>
+      </div>
+
       <!-- Filtros e botão PDF -->
       <div class="panel" style="--delay:.4s">
         <div class="panel-header">
@@ -712,11 +721,11 @@
             <span class="panel-prefix">//</span>
             <span class="panel-title">PUBLICAR AVISO</span>
           </div>
-          <button class="form-toggle" onclick="toggleForm('aviso-form-body','aviso-toggle-label')">
-            <span id="aviso-toggle-label">+ NOVO AVISO</span>
+          <button class="form-toggle" onclick="toggleForm('aviso-form-body','aviso-toggle-label','+ NOVO AVISO')">
+            <span id="aviso-toggle-label" data-closed-text="+ NOVO AVISO">+ NOVO AVISO</span>
           </button>
         </div>
-        <div class="form-body" id="aviso-form-body" style="display:none">
+        <div class="form-body" id="aviso-form-body">
           <div class="form-grid">
             <div class="field">
               <label class="field-label" for="aviso-titulo">TÍTULO</label>

@@ -14,9 +14,8 @@
     .portal-wrap { min-height:100vh; display:flex; flex-direction:column; }
     .portal-header {
       display:flex; justify-content:space-between; align-items:center;
-      padding:16px 24px; border-bottom:1px solid var(--border);
-      background:var(--surface2); position:sticky; top:0; z-index:100;
-      backdrop-filter:blur(8px);
+      padding:14px 24px; border-bottom:1px solid var(--border);
+      background:var(--surface); position:sticky; top:0; z-index:200;
     }
     .portal-title-group { display:flex; align-items:center; gap:12px; }
     .portal-condo-nome { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:2px; text-transform:uppercase; }
@@ -24,22 +23,100 @@
     .usuario-nome-p { font-family:var(--font-display); font-size:14px; color:var(--text-bright); font-weight:700; }
     .usuario-apto   { font-family:var(--font-mono); font-size:10px; color:var(--p3); letter-spacing:1px; }
 
-    /* ─── Tabs ────────────────────────────────────────── */
+    /* ─── Tabs (sticky abaixo do header) ──────────────── */
     .portal-tabs {
       display:flex; gap:0; border-bottom:1px solid var(--border);
-      background:var(--surface); overflow-x:auto; -webkit-overflow-scrolling:touch;
-      scrollbar-width:none;
+      background:var(--surface2); overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; position:sticky; top:53px; z-index:190;
     }
     .portal-tabs::-webkit-scrollbar { display:none; }
     .tab-btn {
       font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px;
-      padding:14px 20px; background:transparent; border:none;
+      padding:12px 18px; background:transparent; border:none;
       border-bottom:2px solid transparent; color:var(--text-dim);
       cursor:pointer; white-space:nowrap; transition:color .2s,border-color .2s;
       flex-shrink:0;
     }
     .tab-btn:hover  { color:var(--lavender); }
     .tab-btn.active { color:var(--p2); border-bottom-color:var(--p2); }
+
+    /* ─── Botão voltar dentro das abas ─────────────────── */
+    .btn-voltar-aba {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family:var(--font-mono); font-size:11px; letter-spacing:1px;
+      color:var(--p3); background:rgba(var(--_p),.08); border:1px solid rgba(var(--_p),.25);
+      border-radius:var(--radius); padding:7px 14px; cursor:pointer;
+      transition:background .2s; margin-bottom:20px;
+    }
+    .btn-voltar-aba:hover { background:rgba(var(--_p),.16); }
+
+    /* ─── Avatar do morador (perfil) ───────────────────── */
+    .perfil-avatar {
+      width:72px; height:72px; border-radius:50%;
+      background:linear-gradient(135deg,var(--p3),var(--p1));
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-ui); font-size:28px; font-weight:800;
+      color:#fff; flex-shrink:0; margin-bottom:12px;
+      box-shadow:0 4px 20px rgba(var(--_p),.35);
+    }
+    .perfil-stats-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:24px;
+    }
+    .perfil-stat {
+      background:rgba(var(--_p),.06); border:1px solid var(--border);
+      border-radius:var(--radius); padding:14px 16px; text-align:center;
+    }
+    .perfil-stat-val { font-family:var(--font-ui); font-size:20px; font-weight:700; color:var(--text-bright); }
+    .perfil-stat-lbl { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; color:var(--text-dim); margin-top:4px; }
+    .lgpd-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family:var(--font-mono); font-size:10px; letter-spacing:1px;
+      padding:5px 12px; border-radius:20px;
+      background:rgba(26,122,69,.12); color:var(--green); border:1px solid rgba(26,122,69,.3);
+    }
+
+    /* ─── Dash início animações ─────────────────────────── */
+    .dash-card { animation:fadeUp .35s ease forwards; opacity:0; }
+    .dash-card:nth-child(1) { animation-delay:.05s; }
+    .dash-card:nth-child(2) { animation-delay:.12s; }
+    .dash-card:nth-child(3) { animation-delay:.19s; }
+    .dash-card:nth-child(4) { animation-delay:.26s; }
+    .dash-greeting { animation:fadeUp .3s ease forwards; opacity:0; }
+    .pane-inicio-quicks { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px; }
+    .quick-action {
+      display:flex; align-items:center; gap:8px;
+      font-family:var(--font-mono); font-size:11px; letter-spacing:1px;
+      padding:10px 16px; border-radius:var(--radius);
+      background:rgba(var(--_p),.08); border:1px solid rgba(var(--_p),.2);
+      color:var(--lavender); cursor:pointer; transition:background .2s, transform .15s;
+      white-space:nowrap;
+    }
+    .quick-action:hover { background:rgba(var(--_p),.18); transform:translateY(-1px); }
+    .quick-action .qa-icon { font-size:16px; }
+
+    /* ─── Light mode portal ─────────────────────────────── */
+    html:not([data-theme="dark"]) .portal-header { background:#F2F3F5; border-bottom-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .portal-tabs   { background:#E8E9EB; border-bottom-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .tab-btn        { color:var(--text-dim); }
+    html:not([data-theme="dark"]) .tab-btn.active { color:var(--p2); }
+    html:not([data-theme="dark"]) .boleto-box { background:rgba(var(--_p),.06); border-color:rgba(var(--_p),.2); }
+    html:not([data-theme="dark"]) .dash-card  { background:#F2F3F5; border-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .rec-card   { background:#F2F3F5; border-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .ia-input   { background:#fff; border-color:rgba(0,0,0,.15); color:var(--text); }
+    html:not([data-theme="dark"]) .rec-textarea { background:#fff; border-color:rgba(0,0,0,.15); color:var(--text); }
+    html:not([data-theme="dark"]) .field-input  { background:#fff; border-color:rgba(0,0,0,.15); color:var(--text); }
+    html:not([data-theme="dark"]) select.field-input {
+      background-color:#fff;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231A7A96'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center;
+    }
+    html:not([data-theme="dark"]) .portal-toast.ok   { background:var(--p3); }
+    html:not([data-theme="dark"]) .portal-toast.info { background:var(--p2); }
+    html:not([data-theme="dark"]) .portal-toast.erro { background:var(--red); }
+    html:not([data-theme="dark"]) .skeleton {
+      background:linear-gradient(90deg,rgba(0,0,0,.04) 25%,rgba(0,0,0,.08) 50%,rgba(0,0,0,.04) 75%);
+      background-size:200% 100%;
+    }
     .tab-badge {
       display:inline-block; background:var(--red); color:#fff;
       font-size:9px; font-family:var(--font-mono); border-radius:var(--radius);
@@ -265,6 +342,15 @@
       <div class="skel-card skeleton"></div>
       <div class="skel-card skeleton"></div>
     </div>
+    <!-- Ações rápidas -->
+    <div class="pane-inicio-quicks">
+      <button class="quick-action" onclick="showTab('taxas')"><span class="qa-icon">💳</span> MINHAS TAXAS</button>
+      <button class="quick-action" onclick="showTab('reclamacoes')"><span class="qa-icon">📢</span> RECLAMAÇÃO</button>
+      <button class="quick-action" onclick="showTab('reservas')"><span class="qa-icon">📅</span> RESERVAR ESPAÇO</button>
+      <button class="quick-action" onclick="showTab('ia')"><span class="qa-icon">🤖</span> ASSISTENTE IA</button>
+      <button class="quick-action" onclick="showTab('chat')"><span class="qa-icon">💬</span> CHAT COM SÍNDICO</button>
+      <button class="quick-action" onclick="showTab('documentos')"><span class="qa-icon">📁</span> DOCUMENTOS</button>
+    </div>
   </div>
 
   <!-- ── ABA: TAXAS ── -->
@@ -306,6 +392,7 @@
 
   <!-- ── ABA: RECLAMAÇÕES ── -->
   <div class="tab-pane" id="pane-reclamacoes" role="tabpanel">
+    <button class="btn-voltar-aba" onclick="showTab('inicio')">← VOLTAR AO INÍCIO</button>
     <div class="section-title">// ENVIAR RECLAMAÇÃO</div>
     <div style="margin-bottom:28px">
       <div class="rec-form">
@@ -340,6 +427,7 @@
 
   <!-- ── ABA: RESERVAS ── -->
   <div class="tab-pane" id="pane-reservas" role="tabpanel">
+    <button class="btn-voltar-aba" onclick="showTab('inicio')">← VOLTAR AO INÍCIO</button>
     <div class="section-title">// RESERVAR ESPAÇO</div>
     <div style="margin-bottom:28px" id="reservas-form-wrap">
       <div class="rec-form" style="margin-bottom:14px">
@@ -409,7 +497,39 @@
 
   <!-- ── ABA: PERFIL ── -->
   <div class="tab-pane" id="pane-perfil" role="tabpanel">
-    <div class="section-title">// MEU PERFIL</div>
+
+    <!-- Cabeçalho do perfil com avatar -->
+    <div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:24px;flex-wrap:wrap">
+      <div>
+        <div class="perfil-avatar" id="perfil-avatar">?</div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-family:var(--font-ui);font-size:22px;font-weight:700;color:var(--text-bright);margin-bottom:4px" id="perfil-nome-display">—</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--p3);letter-spacing:1px;margin-bottom:12px" id="perfil-apto-display">APT —</div>
+        <span class="lgpd-badge">✔ LGPD — Dados protegidos</span>
+      </div>
+    </div>
+
+    <!-- Stats do morador -->
+    <div class="perfil-stats-grid" id="perfil-stats-grid">
+      <div class="perfil-stat">
+        <div class="perfil-stat-val" id="perfil-stat-taxas">—</div>
+        <div class="perfil-stat-lbl">TAXAS PAGAS</div>
+      </div>
+      <div class="perfil-stat">
+        <div class="perfil-stat-val" id="perfil-stat-pendentes">—</div>
+        <div class="perfil-stat-lbl">PENDENTES</div>
+      </div>
+      <div class="perfil-stat">
+        <div class="perfil-stat-val" id="perfil-stat-recs">—</div>
+        <div class="perfil-stat-lbl">RECLAMAÇÕES</div>
+      </div>
+      <div class="perfil-stat">
+        <div class="perfil-stat-val" id="perfil-stat-reservas">—</div>
+        <div class="perfil-stat-lbl">RESERVAS</div>
+      </div>
+    </div>
+
     <div class="panel panel--form" style="max-width:520px">
       <div class="panel-header">
         <div class="panel-title-group"><span class="panel-prefix">//</span><span class="panel-title">DADOS PESSOAIS</span></div>
@@ -422,16 +542,16 @@
             <span class="field-erro" id="perfil-nome-erro"></span>
           </div>
           <div class="field">
-            <label class="field-label">E-MAIL (não editável)</label>
+            <label class="field-label">E-MAIL</label>
             <input class="field-input" id="perfil-email" type="email" readonly style="opacity:.5;cursor:not-allowed">
           </div>
           <div class="field">
-            <label class="field-label">APARTAMENTO (não editável)</label>
+            <label class="field-label">APARTAMENTO</label>
             <input class="field-input" id="perfil-apto" type="text" readonly style="opacity:.5;cursor:not-allowed">
           </div>
           <div class="field">
             <label class="field-label">TELEFONE</label>
-            <input class="field-input" id="perfil-telefone" type="tel" autocomplete="tel">
+            <input class="field-input" id="perfil-telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999">
           </div>
           <div class="field field--action">
             <button class="btn-submit" id="perfil-btn"><span id="perfil-btn-label">▶ SALVAR ALTERAÇÕES</span></button>
@@ -448,16 +568,16 @@
         <div class="form-grid">
           <div class="field field--full">
             <label class="field-label">SENHA ATUAL</label>
-            <input class="field-input" id="senha-atual" type="password" autocomplete="current-password" style="font-size:16px">
+            <input class="field-input" id="senha-atual" type="password" autocomplete="current-password">
           </div>
           <div class="field">
-            <label class="field-label">NOVA SENHA</label>
-            <input class="field-input" id="nova-senha" type="password" autocomplete="new-password" style="font-size:16px">
+            <label class="field-label">NOVA SENHA (mín. 8 caracteres)</label>
+            <input class="field-input" id="nova-senha" type="password" autocomplete="new-password">
             <span class="field-erro" id="nova-senha-erro"></span>
           </div>
           <div class="field">
             <label class="field-label">CONFIRMAR NOVA SENHA</label>
-            <input class="field-input" id="nova-senha-conf" type="password" autocomplete="new-password" style="font-size:16px">
+            <input class="field-input" id="nova-senha-conf" type="password" autocomplete="new-password">
             <span class="field-erro" id="nova-senha-conf-erro"></span>
           </div>
           <div class="field field--action">
@@ -1347,6 +1467,34 @@ async function carregarPerfilPortal() {
     document.getElementById("perfil-email").value    = m.email    || "";
     document.getElementById("perfil-apto").value     = m.apartamento || "";
     document.getElementById("perfil-telefone").value = m.telefone || "";
+
+    // Avatar e display
+    const iniciais = (m.nome || "M").split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+    const avatarEl = document.getElementById("perfil-avatar");
+    if (avatarEl) avatarEl.textContent = iniciais;
+    const nomeD = document.getElementById("perfil-nome-display");
+    if (nomeD) nomeD.textContent = m.nome || "Morador";
+    const aptoD = document.getElementById("perfil-apto-display");
+    if (aptoD) aptoD.textContent = `APT ${m.apartamento || "—"}`;
+
+    // Stats: busca taxas, reclamações e reservas em paralelo
+    try {
+      const [taxas, recs, reservas] = await Promise.allSettled([
+        _fp(`${API_BASE}/pagamentos/${_condoId}`).then(r => r.ok ? r.json() : []),
+        _fp(`${API_BASE}/reclamacoes/morador`).then(r => r.ok ? r.json() : []),
+        _fp(`${API_BASE}/reservas/morador`).then(r => r.ok ? r.json() : []),
+      ]);
+      const taxaList = taxas.status === "fulfilled" ? (taxas.value || []) : [];
+      const recList  = recs.status  === "fulfilled" ? (recs.value  || []) : [];
+      const resList  = reservas.status === "fulfilled" ? (reservas.value || []) : [];
+      const pagas    = taxaList.filter(t => t.pago).length;
+      const pendentes = taxaList.filter(t => !t.pago).length;
+      const statEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      statEl("perfil-stat-taxas",    pagas);
+      statEl("perfil-stat-pendentes", pendentes);
+      statEl("perfil-stat-recs",     recList.length);
+      statEl("perfil-stat-reservas", resList.length);
+    } catch (_) {}
   } catch {}
 }
 
