@@ -1277,10 +1277,17 @@ html:not([data-theme="dark"]) .nav-item:hover { color: var(--p2); background: rg
 html:not([data-theme="dark"]) .nav-item.active { color: var(--p2); background: rgba(var(--_p),.12); border-left-color: var(--p3); }
 html:not([data-theme="dark"]) .nav-bracket    { color: var(--p3); }
 
-/* ── Topbar ─────────────────────────────────── */
+/* ── Topbar — desktop (sólido) / mobile (transparente) ── */
 html:not([data-theme="dark"]) .topbar {
   background: rgba(242,243,245,0.98);
   border-bottom-color: rgba(0,0,0,0.10);
+}
+/* Mobile: transparente — canvas sangra por baixo (deve vir APÓS a regra sólida acima) */
+@media (max-width: 960px) {
+  html:not([data-theme="dark"]) .topbar {
+    background: transparent;
+    border-bottom-color: rgba(0,0,0,0.08);
+  }
 }
 html:not([data-theme="dark"]) .page-title   { text-shadow: none; color: var(--text-bright); }
 html:not([data-theme="dark"]) .page-eyebrow { color: var(--p3); }

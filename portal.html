@@ -96,8 +96,8 @@
     .quick-action .qa-icon { font-size:16px; }
 
     /* ─── Light mode portal ─────────────────────────────── */
-    html:not([data-theme="dark"]) .portal-header { background:#F2F3F5; border-bottom-color:rgba(0,0,0,.10); }
-    html:not([data-theme="dark"]) .portal-tabs   { background:#E8E9EB; border-bottom-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .portal-header { background:var(--bg); border-bottom-color:rgba(0,0,0,.10); }
+    html:not([data-theme="dark"]) .portal-tabs   { background:var(--bg2); border-bottom-color:rgba(0,0,0,.10); }
     html:not([data-theme="dark"]) .tab-btn        { color:var(--text-dim); }
     html:not([data-theme="dark"]) .tab-btn.active { color:var(--p2); }
     html:not([data-theme="dark"]) .boleto-box { background:rgba(var(--_p),.06); border-color:rgba(var(--_p),.2); }
@@ -892,6 +892,7 @@ function mudarAba(aba) {
     _chatPolling = setInterval(() => carregarChatPortal(true), 5000);
   }
 }
+window.showTab = mudarAba;
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
 async function carregarDashboard() {
