@@ -45,10 +45,11 @@ export async function carregarUsuarios() {
       fetchAPI("/usuarios"),
       fetchAPI("/admin/condominios"),
     ]);
+    state._condosParaSelect = condominios || [];
     const condoMap = Object.fromEntries((condominios || []).map(c => [c.id, c.nome]));
     badge.textContent = usuarios.length;
     if (!usuarios.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="empty-state"><div class="empty-state-icon">⬡</div><div>Nenhum usuário cadastrado.</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">⬡</div><div>Nenhum usuário cadastrado.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = usuarios.map((u, i) => {
@@ -60,12 +61,60 @@ export async function carregarUsuarios() {
         <td><span class="td-email">${escHTML(u.email)}</span></td>
         <td><span style="color:${tipoColor};font-size:11px;letter-spacing:.05em">${escHTML(u.tipo)}</span></td>
         <td>${condoNome}</td>
+        <td class="td-acoes">
+          <button class="btn-linha" onclick="editarUsuario(${u.id}, ${JSON.stringify(u.nome)}, '${u.tipo}', ${u.condominio_id ?? 'null'})">✎ Editar</button>
+        </td>
       </tr>`;
     }).join("");
   } catch (err) {
     console.error("carregarUsuarios:", err);
   }
 }
+
+export function editarUsuario(id, nome, tipo, condoId) {
+  state._usuarioEditandoId = id;
+  document.getElementById("edit-usuario-nome").value  = nome;
+  document.getElementById("edit-usuario-tipo").value  = tipo;
+  document.getElementById("edit-usuario-feedback").textContent = "";
+
+  const select = document.getElementById("edit-usuario-condo");
+  const condos = state._condosParaSelect || [];
+  select.innerHTML = `<option value="">— sem condomínio —</option>` +
+    condos.map(c => `<option value="${c.id}" ${c.id === condoId ? "selected" : ""}>${escHTML(c.nome)}</option>`).join("");
+
+  document.getElementById("modal-editar-usuario").style.display = "flex";
+}
+
+export function fecharModalEditarUsuario() {
+  document.getElementById("modal-editar-usuario").style.display = "none";
+  state._usuarioEditandoId = null;
+}
+
+export async function submitEditarUsuario() {
+  if (!state._usuarioEditandoId) return;
+  const nome   = document.getElementById("edit-usuario-nome").value.trim();
+  const tipo   = document.getElementById("edit-usuario-tipo").value;
+  const condoRaw = document.getElementById("edit-usuario-condo").value;
+  const condominio_id = condoRaw ? parseInt(condoRaw) : null;
+  const fb = document.getElementById("edit-usuario-feedback");
+
+  if (!nome) { fb.textContent = "⚠ Nome obrigatório."; return; }
+
+  const btn = document.getElementById("edit-usuario-btn");
+  btn.disabled = true; btn.textContent = "SALVANDO…";
+  try {
+    await putAPI(`/usuarios/${state._usuarioEditandoId}`, { nome, tipo, condominio_id });
+    fecharModalEditarUsuario();
+    exibirToast("✔ Usuário atualizado.");
+    await carregarUsuarios();
+    await carregarGestao();
+  } catch (err) {
+    fb.textContent = `⚠ ${err.message}`;
+  } finally {
+    btn.disabled = false; btn.textContent = "▶ SALVAR";
+  }
+}
+
 
 export async function deletarCondominio(id, nome, btn) {
   if (!confirmarExclusao(nome)) return;
@@ -135,7 +184,7 @@ export async function submitNovoCondominio() {
   if (!condoUnidades || condoUnidades < 1)     { document.getElementById("gestao-condo-unidades-erro").textContent = "Informe um número válido"; valido = false; }
   if (!sindicoNome)                            { document.getElementById("gestao-sindico-nome-erro").textContent   = "Campo obrigatório"; valido = false; }
   if (!sindicoEmail || !sindicoEmail.includes("@")) { document.getElementById("gestao-sindico-email-erro").textContent = "E-mail inválido"; valido = false; }
-  if (!sindicoSenha || sindicoSenha.length < 6)    { document.getElementById("gestao-sindico-senha-erro").textContent = "Mínimo 6 caracteres"; valido = false; }
+  if (!sindicoSenha || sindicoSenha.length < 8)    { document.getElementById("gestao-sindico-senha-erro").textContent = "Mínimo 8 caracteres"; valido = false; }
   if (!valido) return;
 
   setBtnLoading("gestao-btn", "gestao-btn-label", true, "PROCESSANDO…");

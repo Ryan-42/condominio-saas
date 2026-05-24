@@ -244,7 +244,10 @@ export function abrirModalQR(url, nome, apto) {
   const canvas = document.getElementById("modal-qr-canvas");
   canvas.innerHTML = "";
   if (typeof QRCode !== "undefined") {
-    new QRCode(canvas, { text: url, width: 200, height: 200, colorDark: "#10B981", colorLight: "#030d0a", correctLevel: QRCode.CorrectLevel.M });
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "background:#fff;padding:12px;border-radius:8px;display:inline-block;";
+    canvas.appendChild(wrap);
+    new QRCode(wrap, { text: url, width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
   } else {
     canvas.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);padding:20px;">QR indisponível — copie a URL abaixo.</div>`;
   }
@@ -284,7 +287,10 @@ export function abrirModalQRRegistro(url, condoNome) {
   const canvas = document.getElementById("modal-qr-reg-canvas");
   canvas.innerHTML = "";
   if (typeof QRCode !== "undefined") {
-    new QRCode(canvas, { text: url, width: 220, height: 220, colorDark: "#06B6D4", colorLight: "#030d0a", correctLevel: QRCode.CorrectLevel.M });
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "background:#fff;padding:12px;border-radius:8px;display:inline-block;";
+    canvas.appendChild(wrap);
+    new QRCode(wrap, { text: url, width: 220, height: 220, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
   } else {
     canvas.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);padding:20px;">QR indisponível — copie a URL abaixo.</div>`;
   }

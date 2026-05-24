@@ -1407,3 +1407,63 @@ html:not([data-theme="dark"]) .skeleton {
 [data-theme="dark"] .condo-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2020/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233DAFC8'/%3E%3C/svg%3E");
 }
+
+/* ════════════════════════════════════════════════════════════════
+   DESKTOP UI/UX REFINEMENTS — aplica apenas em telas ≥ 961px
+   ════════════════════════════════════════════════════════════════ */
+@media (min-width: 961px) {
+
+  /* Sidebar ligeiramente mais larga e melhor espaçada */
+  :root { --sidebar-w: 264px; }
+  .sidebar { padding: 24px 18px; }
+  .nav-item { padding: 10px 14px; font-size: 12px; letter-spacing: .07em; margin-bottom: 2px; }
+  .sidebar-meta { padding: 12px 14px; }
+
+  /* Conteúdo principal: respira mais e tem limite em telas ultra-largas */
+  .main { padding: 28px 40px; max-width: calc(1560px - var(--sidebar-w)); }
+  .topbar { margin-bottom: 32px; }
+
+  /* Topbar: informações mais densas */
+  .topbar-section { font-size: 18px; }
+
+  /* Cards dashboard: maior e mais impactantes */
+  .cards-grid { gap: 24px; margin-bottom: 32px; }
+  .card { padding: 30px 32px 28px; border-radius: 12px; }
+  .card-value { font-size: 30px; }
+  .card-label { font-size: 11px; letter-spacing: 2.5px; }
+
+  /* Panels: mais espaço interno */
+  .panel { border-radius: 12px; margin-bottom: 28px; }
+  .panel-header { padding: 20px 28px; }
+  .panel-title { font-size: 12px; letter-spacing: 2.5px; }
+  .panel::before { opacity: .6; }
+
+  /* Tabelas: rows mais altas e legíveis */
+  .data-table { font-size: 13.5px; }
+  .data-table thead th { padding: 13px 28px; font-size: 11px; letter-spacing: 1.5px; }
+  .data-table td { padding: 16px 28px; }
+  .data-table tbody tr:hover td { background: rgba(var(--_p),.1); }
+  .data-table tbody tr { transition: background .12s; }
+
+  /* Botões de ação nas tabelas */
+  .btn-linha { padding: 5px 14px; font-size: 11px; letter-spacing: .06em; }
+  .td-acoes { min-width: 160px; }
+
+  /* Formulários: grid com mais respiro */
+  .form-grid { gap: 24px; padding: 24px 28px; }
+  .form-grid--moradores { gap: 20px; }
+  .field-input { padding: 11px 14px; font-size: 13px; }
+  .field-label { font-size: 10px; letter-spacing: 1.5px; margin-bottom: 7px; }
+
+  /* Botão submit: melhor tamanho desktop */
+  .btn-submit { padding: 14px 32px; font-size: 12px; letter-spacing: 1.5px; }
+
+  /* Scrollbar global no desktop */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(var(--_p),.2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(var(--_p),.4); }
+
+  /* Panel form abre com padding adequado */
+  .panel-body, .form-body { padding: 24px 28px; }
+}

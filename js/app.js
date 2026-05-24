@@ -68,6 +68,7 @@ import {
   carregarGestao, carregarUsuarios, deletarCondominio,
   abrirEditarCondominio, fecharModalEditarCondo, submitEditarCondominio,
   submitNovoCondominio, abrirVincularSindico, fecharVincularSindico, submitVincularSindico,
+  editarUsuario, fecharModalEditarUsuario, submitEditarUsuario,
 } from "./modules/gestao.js";
 
 // ── Expose everything to window (for onclick= strings in dynamic HTML) ──────
@@ -116,6 +117,7 @@ Object.assign(window, {
   carregarGestao, carregarUsuarios, deletarCondominio,
   abrirEditarCondominio, fecharModalEditarCondo, submitEditarCondominio,
   submitNovoCondominio, abrirVincularSindico, fecharVincularSindico, submitVincularSindico,
+  editarUsuario, fecharModalEditarUsuario, submitEditarUsuario,
   // auth
   logout,
   // condominios (also needed by gestão mutation callbacks)
