@@ -27,7 +27,7 @@
       border-radius: 20px;
       color: var(--lavender);
       padding: .35rem 1rem;
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font-mono);
       font-size: .78rem;
       cursor: pointer;
       letter-spacing: .03em;
@@ -56,11 +56,11 @@
       width: 32px; height: 32px;
       min-width: 32px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(16,185,129,.15);
-      border: 1px solid rgba(16,185,129,.35);
-      border-radius: 8px;
+      background: rgba(var(--_p),.15);
+      border: 1px solid rgba(var(--_p),.35);
+      border-radius: var(--radius);
       font-size: .95rem;
-      color: var(--p2, #10B981);
+      color: var(--p2);
       margin-top: 2px;
       flex-shrink: 0;
     }
@@ -70,8 +70,8 @@
     .ia-msg-bubble {
       max-width: 78%;
       padding: .8rem 1.1rem;
-      border-radius: 10px;
-      font-family: 'Rajdhani', sans-serif;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
       font-size: .97rem;
       line-height: 1.65;
       white-space: pre-wrap;
@@ -91,17 +91,17 @@
     }
     .ia-label {
       display: block;
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font-mono);
       font-size: .7rem;
-      color: var(--p3, #06B6D4);
+      color: var(--p3);
       margin-bottom: .3rem;
       letter-spacing: .08em;
     }
-    .ia-valor { color: var(--p2, #10B981); font-weight: 700; }
+    .ia-valor { color: var(--p2); font-weight: 700; }
     .ia-section-title {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font-mono);
       font-size: .75rem;
-      color: var(--p3, #06B6D4);
+      color: var(--p3);
       letter-spacing: .1em;
       margin: .4rem 0 .2rem;
     }
@@ -114,19 +114,19 @@
       background: var(--surface2);
     }
     .ia-input-prefix {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font-mono);
       font-size: .95rem;
-      color: var(--p3, #06B6D4);
+      color: var(--p3);
       user-select: none;
     }
     .ia-input {
       flex: 1;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius);
       color: var(--text);
       padding: .7rem 1rem;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: var(--font-ui);
       font-size: .97rem;
       outline: none;
       transition: border-color .18s, box-shadow .18s;
@@ -135,7 +135,7 @@
       border-color: var(--p3);
       box-shadow: 0 0 0 3px rgba(var(--_a),.15);
     }
-    .ia-btn-enviar { white-space: nowrap; padding: .7rem 1.4rem; border-radius: 8px; }
+    .ia-btn-enviar { white-space: nowrap; padding: .7rem 1.4rem; border-radius: var(--radius); }
   </style>
 </head>
 <body>
@@ -1186,10 +1186,10 @@
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">URL DE ACESSO:</div>
       <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:16px;">
         <input id="modal-qr-url" readonly
-          style="flex:1;background:rgba(3,18,12,.9);border:1px solid var(--border);border-radius:8px;color:var(--lavender);padding:9px 12px;font-family:var(--font-mono);font-size:10px;outline:none;"
+          style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--lavender);padding:9px 12px;font-family:var(--font-mono);font-size:10px;outline:none;"
           onclick="this.select()">
         <button onclick="copiarURLPortal()"
-          style="background:var(--p2);border:none;border-radius:8px;color:#fff;padding:9px 16px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;"
+          style="background:var(--p2);border:none;border-radius:var(--radius);color:#fff;padding:9px 16px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;"
           id="btn-copiar-qr">COPIAR</button>
       </div>
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);line-height:1.6;">
@@ -1210,10 +1210,10 @@
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">LINK DE CADASTRO:</div>
       <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:16px;">
         <input id="modal-qr-reg-url" readonly
-          style="flex:1;background:rgba(3,18,12,.9);border:1px solid var(--border);border-radius:8px;color:var(--lavender);padding:9px 12px;font-family:var(--font-mono);font-size:10px;outline:none;"
+          style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--lavender);padding:9px 12px;font-family:var(--font-mono);font-size:10px;outline:none;"
           onclick="this.select()">
         <button onclick="copiarURLRegistro()"
-          style="background:var(--p3);border:none;border-radius:8px;color:#fff;padding:9px 16px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;"
+          style="background:var(--p3);border:none;border-radius:var(--radius);color:#fff;padding:9px 16px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;"
           id="btn-copiar-qr-reg">COPIAR</button>
       </div>
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);line-height:1.6;">
@@ -1285,7 +1285,7 @@
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--p3);letter-spacing:2px;margin-bottom:8px;">// VINCULAR SÍNDICO</div>
       <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text-bright);margin-bottom:20px;" id="vincular-condo-nome">—</div>
       <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">SELECIONAR SÍNDICO (sem condomínio)</label>
-      <select id="vincular-sindico-select" style="width:100%;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;margin-bottom:16px;">
+      <select id="vincular-sindico-select" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;margin-bottom:16px;">
         <option value="">Carregando...</option>
       </select>
       <div class="form-feedback" id="vincular-sindico-feedback" style="margin-bottom:12px;"></div>
@@ -1306,7 +1306,7 @@
       <div style="margin-bottom:12px;">
         <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">STATUS</label>
         <select id="modal-rec-status"
-          style="width:100%;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;">
+          style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;">
           <option value="ABERTA">ABERTA</option>
           <option value="EM_ANALISE">EM ANÁLISE</option>
           <option value="RESOLVIDA">RESOLVIDA</option>
@@ -1315,12 +1315,12 @@
       <div style="margin-bottom:20px;">
         <label style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:6px;">RESPOSTA AO MORADOR</label>
         <textarea id="modal-rec-resposta"
-          style="width:100%;box-sizing:border-box;background:rgba(3,18,12,.7);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;resize:vertical;min-height:90px;"
+          style="width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:10px 14px;font-family:var(--font-mono);font-size:12px;outline:none;resize:vertical;min-height:90px;"
           placeholder="Escreva uma resposta para o morador…"></textarea>
       </div>
       <div style="display:flex;gap:10px;">
         <button onclick="salvarRespostaRec()"
-          style="flex:1;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:var(--p2);border-radius:8px;padding:11px;font-family:var(--font-mono);font-size:12px;font-weight:700;cursor:pointer;">
+          style="flex:1;background:rgba(var(--_p),.15);border:1px solid rgba(var(--_p),.4);color:var(--p2);border-radius:var(--radius);padding:11px;font-family:var(--font-mono);font-size:12px;font-weight:700;cursor:pointer;">
           <span id="modal-rec-btn-label">▶ SALVAR</span>
         </button>
       </div>
@@ -1338,10 +1338,10 @@
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">LINK DE ATIVAÇÃO:</div>
       <div style="display:flex;gap:8px;align-items:stretch;">
         <input id="modal-convite-url" readonly
-          style="flex:1;background:rgba(3,18,12,.9);border:1px solid var(--border);border-radius:8px;color:var(--lavender);padding:10px 14px;font-family:var(--font-mono);font-size:11px;outline:none;word-break:break-all;"
+          style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--lavender);padding:10px 14px;font-family:var(--font-mono);font-size:11px;outline:none;word-break:break-all;"
           onclick="this.select()">
         <button onclick="copiarLinkConvite()"
-          style="background:var(--p2);border:none;border-radius:8px;color:#fff;padding:10px 20px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:1px;"
+          style="background:var(--p2);border:none;border-radius:var(--radius);color:#fff;padding:10px 20px;font-family:var(--font-mono);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:1px;"
           id="btn-copiar-convite">COPIAR</button>
       </div>
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:14px;line-height:1.6;">

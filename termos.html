@@ -22,11 +22,11 @@
     .legal-panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       overflow: hidden;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 0 60px rgba(110,45,235,.15);
+      box-shadow: 0 0 60px rgba(var(--_p),.08);
       position: relative;
     }
     .legal-panel::before {
@@ -36,7 +36,7 @@
     .legal-header {
       padding: 24px 36px;
       border-bottom: 1px solid var(--border);
-      background: rgba(48,45,235,.06);
+      background: rgba(var(--_p),.06);
     }
     .legal-tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--p4); margin-bottom: 8px; display: block; }
     .legal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-bright); letter-spacing: 2px; }
@@ -55,7 +55,7 @@
     .legal-section a { color: var(--lavender); text-decoration: underline; }
     .legal-footer {
       padding: 20px 36px; border-top: 1px solid var(--border);
-      background: rgba(48,45,235,.04);
+      background: rgba(var(--_p),.04);
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 12px;
     }
